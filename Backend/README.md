@@ -15,7 +15,7 @@ This is a RESTful API for user authentication and task management, built with No
 1. **Clone the repository:**
    ```bash
    git clone "repo-link"
-   cd task-management-api
+   cd backend
    ```
 
 2. **Install dependencies:**
@@ -32,7 +32,7 @@ This is a RESTful API for user authentication and task management, built with No
 
 4. **Run the application:**
    ```bash
-   npm start
+   node server.js
    ```
 
    The app will run on `http://localhost:5000` by default.
