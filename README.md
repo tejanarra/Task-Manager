@@ -2,6 +2,8 @@
 
 A full-stack task management application built with **React** for the frontend, **Express** for the backend, and **PostgreSQL** for database management. This application allows users to manage tasks with features like creating, updating, deleting, and marking tasks as completed. It also uses **JWT (JSON Web Tokens)** for user authentication.
 
+## Live link : https://tejanarra.github.io/Task-Manager/#/
+
 ## Features
 - **User Authentication**: Users can register and log in using JWT authentication.
 - **Task Management**: Users can create, update, delete tasks, and track their progress (Not Started, In Progress, Completed).
