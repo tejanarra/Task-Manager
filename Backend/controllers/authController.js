@@ -28,7 +28,10 @@ const registerUser = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
-    res.status(201).json({ token, userInfo: { username: user.username } });
+    res.status(201).json({
+      token,
+      userInfo: { username: user.username, email: user.email },
+    });
   } catch (err) {
     console.error("Error during registration:", err);
     res.status(500).json({ message: "Server error" });
@@ -62,11 +65,20 @@ const loginUser = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
-    res.status(200).json({ token, userInfo: { username: user.username } });
+    res
+      .status(200)
+      .json({
+        token,
+        userInfo: { username: user.username, email: user.email },
+      });
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-module.exports = { registerUser, loginUser };
+const verifyToken = async (req, res) => {
+  res.status(200).json({ message: "Valid Token" });
+};
+
+module.exports = { registerUser, loginUser, verifyToken };

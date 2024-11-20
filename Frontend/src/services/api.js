@@ -18,6 +18,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+export const verifyToken = () => api.get("/verify-token");
 export const fetchTasks = () => api.get("/tasks");
 export const createTask = (newTask) => api.post("/tasks", newTask);
 export const updateTask = (taskId, updatedTask) =>

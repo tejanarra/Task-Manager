@@ -6,7 +6,7 @@ import TaskForm from "./TaskForm";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const TaskList = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [tasks, setTasks] = useState([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
 
@@ -15,7 +15,11 @@ const TaskList = () => {
       if (user) {
         try {
           const response = await fetchTasks();
-          setTasks(response.data);
+          if (response.status === 200) {
+            setTasks(response.data);
+          } else {
+            logout();
+          }
         } catch (error) {
           console.error("Error loading tasks:", error);
         }
@@ -23,7 +27,7 @@ const TaskList = () => {
     };
 
     loadTasks();
-  }, [user]);
+  }, [user, logout]);
 
   return (
     <div className="container mt-5">
