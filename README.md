@@ -1,7 +1,3 @@
-Apologies for the misunderstanding! Below is the **README.md** content, which you can use directly for your project.
-
----
-
 # Task Management App
 
 A full-stack task management application built with **React** for the frontend, **Express** for the backend, and **PostgreSQL** for database management. This application allows users to manage tasks with features like creating, updating, deleting, and marking tasks as completed. It also uses **JWT (JSON Web Tokens)** for user authentication.
