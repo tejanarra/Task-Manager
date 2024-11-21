@@ -1,0 +1,54 @@
+/* Style for pagination pages */
+.classic-pagination-page {
+  padding: 10px;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Active pagination page (current step) */
+.classic-pagination-page.active {
+  background-color: #007bff;
+  color: #fff;
+  border: 1px solid #007bff;
+}
+
+/* Completed pagination page */
+.classic-pagination-page.complete {
+  background-color: #28a745;
+  color: #fff;
+  border: 1px solid #28a745;
+}
+
+/* Disabled pagination page */
+.classic-pagination-page.disabled {
+  background-color: #6c757d;
+  color: #fff;
+  border: 1px solid #6c757d;
+}
+
+/* Pagination dots */
+.classic-pagination-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #007bff;
+  display: inline-block;
+  margin-top: 5px;
+}
+
+/* Progress bar styling */
+.progress-bar {
+  background-color: #007bff;
+  height: 4px;
+}
+
+/* Style for pagination titles */
+.classic-pagination-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
