@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+import "pg";
 const { Sequelize } = require("sequelize");
 
 const createTask = async (req, res) => {

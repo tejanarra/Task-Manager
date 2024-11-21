@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const sequelize = require("./config/db");
+import "pg";
 
 dotenv.config();
 
@@ -54,4 +55,6 @@ sequelize
   .catch((err) => console.error("Error syncing database:", err));
 
 const PORT = process.env.PORT || 5001;
-app.listen(3000, () => console.log("Server ready on port 3000."));
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
