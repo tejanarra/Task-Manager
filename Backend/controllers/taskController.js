@@ -7,7 +7,11 @@ const createTask = async (req, res) => {
   const userId = req.userId;
 
   if (!title || !description || !status) {
-    return res.status(400).json({ message: "Missing required fields (title, description, status)" });
+    return res
+      .status(400)
+      .json({
+        message: "Missing required fields (title, description, status)",
+      });
   }
 
   try {
@@ -141,7 +145,10 @@ const updateTaskPriority = async (req, res) => {
 
     res.status(200).json(task);
   } catch (err) {
-    console.error(`Error updating priority for task with ID ${taskId}:`, err.message || err);
+    console.error(
+      `Error updating priority for task with ID ${taskId}:`,
+      err.message || err
+    );
     res.status(500).json({ message: "Server error updating task priority" });
   }
 };

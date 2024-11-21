@@ -3,11 +3,9 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { Op } = require("sequelize");
 const dotenv = require("dotenv");
-import "pg"
 dotenv.config();
 
 const nodemailer = require("nodemailer");
-const crypto = require("crypto");
 
 const sendVerificationEmail = async (email, verificationCode) => {
   const transporter = nodemailer.createTransport({
@@ -25,29 +23,34 @@ const sendVerificationEmail = async (email, verificationCode) => {
     text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`,
   };
 
-  await transporter.sendMail(mailOptions);
+  try {
+    await transporter.sendMail(mailOptions);
+  } catch (error) {
+    throw new Error("Error sending verification email: " + error.message);
+  }
 };
 
 const forgotPassword = async (req, res) => {
   const { email } = req.body;
 
   if (!email) {
-    return res.status(400).json({ message: "Email is required" });
+    return res.status(400).json({ message: "Email is required", code: "E001" });
   }
 
   try {
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ message: "No user found with that email" });
+      return res
+        .status(404)
+        .json({ message: "User not found with that email", code: "E002" });
     }
 
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-
     user.verificationCode = verificationCode;
-    user.verificationCodeExpiration = Date.now() + 600000;
+    user.verificationCodeExpiration = Date.now() + 600000; // 10 minutes expiration
 
     await user.save();
 
@@ -55,10 +58,13 @@ const forgotPassword = async (req, res) => {
 
     res.status(200).json({
       message: "Verification code sent. Please check your inbox.",
+      code: "S001",
     });
   } catch (err) {
-    console.error("Error during password reset:", err.message || err);
-    res.status(500).json({ message: "Server error during password reset" });
+    console.error("Error during password reset:", err.message);
+    res
+      .status(500)
+      .json({ message: "Server error during password reset", code: "S002" });
   }
 };
 
@@ -66,11 +72,10 @@ const verifyVerificationCode = async (req, res) => {
   const { email, verificationCode, newPassword } = req.body;
 
   if (!email || !verificationCode || !newPassword) {
-    return res
-      .status(400)
-      .json({
-        message: "Email, verification code, and new password are required.",
-      });
+    return res.status(400).json({
+      message: "Email, verification code, and new password are required.",
+      code: "E003",
+    });
   }
 
   try {
@@ -83,14 +88,14 @@ const verifyVerificationCode = async (req, res) => {
     });
 
     if (!user) {
-      return res
-        .status(400)
-        .json({ message: "Invalid or expired verification code" });
+      return res.status(400).json({
+        message: "Invalid or expired verification code",
+        code: "E004",
+      });
     }
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(newPassword, salt);
-
     user.verificationCode = null;
     user.verificationCodeExpiration = null;
 
@@ -99,10 +104,13 @@ const verifyVerificationCode = async (req, res) => {
     res.status(200).json({
       message:
         "Password successfully reset. You can now log in with your new password.",
+      code: "S002",
     });
   } catch (err) {
-    console.error("Error verifying code:", err.message || err);
-    res.status(500).json({ message: "Server error during code verification" });
+    console.error("Error verifying code:", err.message);
+    res
+      .status(500)
+      .json({ message: "Server error during code verification", code: "S003" });
   }
 };
 
@@ -110,7 +118,10 @@ const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
   if (!username || !email || !password) {
-    return res.status(400).json({ message: "All fields are required." });
+    return res.status(400).json({
+      message: "Username, email, and password are required.",
+      code: "E005",
+    });
   }
 
   try {
@@ -119,30 +130,37 @@ const registerUser = async (req, res) => {
     });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists." });
+      return res.status(400).json({
+        message: "User already exists with this email or username.",
+        code: "E006",
+      });
     }
 
-    // Generate a verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
-    // Create the user with only username, email, and password (but don't set them as active yet)
     const user = await User.create({
       username,
       email,
       password,
       verificationCode,
-      verificationCodeExpiration: Date.now() + 600000, // 10 minutes expiration
+      verificationCodeExpiration: Date.now() + 600000,
     });
 
-    // Send the verification code to the user's email
     await sendVerificationEmail(email, verificationCode);
 
     res.status(200).json({
-      message: "A verification code has been sent to your email. Please verify to complete the registration.",
+      message:
+        "A verification code has been sent to your email. Please verify to complete the registration.",
+      code: "S003",
     });
   } catch (err) {
-    console.error("Error during registration:", err.message || err);
-    res.status(500).json({ message: "Server error during registration" });
+    console.error("Error during registration:", err.message);
+    res.status(500).json({
+      message: "Server error during registration",
+      code: "S004",
+    });
   }
 };
 
@@ -151,7 +169,9 @@ const verifyRegistrationCode = async (req, res) => {
 
   if (!email || !verificationCode) {
     return res.status(400).json({
-      message: "Email and verification code are required to verify your registration.",
+      message:
+        "Email and verification code are required to verify your registration.",
+      code: "E007",
     });
   }
 
@@ -165,54 +185,121 @@ const verifyRegistrationCode = async (req, res) => {
     });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid or expired verification code" });
+      return res.status(400).json({
+        message: "Invalid or expired verification code",
+        code: "E008",
+      });
     }
 
-    // Mark the user as verified
     user.verificationCode = null;
     user.verificationCodeExpiration = null;
-    user.isVerified = true; // Assume you have an `isVerified` field on your User model
+    user.isVerified = true;
 
     await user.save();
 
-    // Generate a JWT token for the user
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
     res.status(200).json({
       message: "Registration successful. You can now log in.",
+      code: "S004",
       token,
       userInfo: { username: user.username, email: user.email },
     });
   } catch (err) {
-    console.error("Error during verification:", err.message || err);
-    res.status(500).json({ message: "Server error during code verification" });
+    console.error("Error during verification:", err.message);
+    res.status(500).json({
+      message: "Server error during code verification",
+      code: "S005",
+    });
   }
 };
 
+const resendVerificationEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({
+      message: "Email is required to resend verification code.",
+      code: "E012",
+    });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "No user found with that email.",
+        code: "E013",
+      });
+    }
+
+    if (user.isVerified) {
+      return res.status(400).json({
+        message: "User is already verified.",
+        code: "E014",
+      });
+    }
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpiration = Date.now() + 600000;
+
+    await user.save();
+
+    await sendVerificationEmail(email, verificationCode);
+
+    res.status(200).json({
+      message: "A new verification code has been sent to your email.",
+      code: "S006",
+    });
+  } catch (err) {
+    console.error("Error during resending verification code:", err.message);
+    res.status(500).json({
+      message: "Server error while resending verification code.",
+      code: "S007",
+    });
+  }
+};
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res
-      .status(400)
-      .json({ message: "email and password are required." });
+    return res.status(400).json({
+      message: "Email and password are required.",
+      code: "E009",
+    });
   }
 
   try {
-    const user = await User.findOne({
-      where: { email },
-    });
+    const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        message: "Invalid credentials.",
+        code: "E010",
+      });
+    }
+
+    if (!user.isVerified) {
+      return res.status(400).json({
+        message:
+          "User is not verified. Please verify your account before logging in.",
+        code: "E015",
+      });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({
+        message: "Invalid credentials.",
+        code: "E011",
+      });
     }
 
     const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
@@ -220,17 +307,25 @@ const loginUser = async (req, res) => {
     });
 
     res.status(200).json({
+      message: "Login successful.",
+      code: "S005",
       token,
       userInfo: { username: user.username, email: user.email },
     });
   } catch (err) {
     console.error("Error during login:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({
+      message: "Server error during login",
+      code: "S006",
+    });
   }
 };
 
-const verifyToken = async (req, res) => {
-  res.status(200).json({ message: "Valid Token" });
+module.exports = {
+  registerUser,
+  loginUser,
+  forgotPassword,
+  verifyVerificationCode,
+  verifyRegistrationCode,
+  resendVerificationEmail,
 };
-
-module.exports = { registerUser, loginUser, verifyToken, forgotPassword, verifyVerificationCode, verifyRegistrationCode };

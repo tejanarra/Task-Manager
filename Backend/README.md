@@ -1,252 +1,204 @@
-# Task Management API
+# Task Manager API
 
-This is a RESTful API for user authentication and task management, built with Node.js, Express, Sequelize, and JWT for secure user authentication. 
+This is a Task Manager API built using Node.js, Express, Sequelize (for PostgreSQL), and JWT authentication. It allows users to register, log in, manage tasks, and perform task-related actions (create, update, delete, and prioritize tasks). The API is designed to handle user authentication, task management, and password recovery features.
 
----
+## Features
 
-## **Setup**
+- **User Registration and Login**: Users can register, log in, and receive JWT tokens for authentication.
+- **Task Management**: Users can create, read, update, delete, and prioritize tasks.
+- **Password Reset**: Users can reset their password by verifying a code sent via email.
+- **JWT Authentication**: Protects routes by ensuring only authenticated users can access certain endpoints.
+- **Email Verification**: Sends a verification code to users' email addresses during registration.
 
-### **Requirements:**
-- Node.js (version 16 or higher)
-- Sequelize with a supported database (e.g., MySQL, PostgreSQL)
-- dotenv for managing environment variables
+## Prerequisites
 
-### **Installation:**
-1. **Clone the repository:**
-   ```bash
-   git clone "repo-link"
-   cd task-management-api
-   ```
+- Node.js (v14 or later)
+- PostgreSQL (or any database with Sequelize support)
+- Gmail (for sending emails via nodemailer)
 
-2. **Install dependencies:**
-   ```bash
-   npm install
-   ```
+## Installation
 
-3. **Set up your environment variables:**
-   Create a `.env` file in the root directory and add the following:
-   ```env
-   JWT_SECRET=your_jwt_secret_key
-   JWT_EXPIRATION=1h
-   ```
+1. Clone the repository:
 
-4. **Run the application:**
-   ```bash
-   npm start
-   ```
+```bash
+git clone https://github.com/yourusername/task-manager-api.git
+```
 
-   The app will run on `http://localhost:5000` by default.
+2. Navigate to the project directory:
 
----
+```bash
+cd task-manager-api
+```
 
-## **API Endpoints**
+3. Install dependencies:
 
-### **1. User Authentication**
+```bash
+npm install
+```
 
-#### **Register User**
-- **Endpoint:** `POST /api/auth/register`
-- **Description:** Registers a new user by providing a `username`, `email`, and `password`.
-- **Request Body:**
-  ```json
-  {
-    "username": "string",
-    "email": "string",
-    "password": "string"
+4. Create a `.env` file in the root directory and configure the environment variables:
+
+```env
+PORT=5001
+DB_NAME=your_db_name
+DB_USER=your_db_user
+DB_PASSWORD=your_db_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_DIALECT=postgres
+JWT_SECRET=your_jwt_secret_key
+JWT_EXPIRATION=1h
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_email_password
+```
+
+5. Run the application:
+
+```bash
+npm start
+```
+
+The API will start running on `http://localhost:5001`.
+
+## API Endpoints
+
+### Authentication Routes
+
+- **POST `/api/auth/register`**: Register a new user.
+- **POST `/api/auth/login`**: Log in and receive a JWT token.
+- **POST `/api/auth/forgot-password`**: Request a password reset code.
+- **POST `/api/auth/verify-code`**: Verify the reset code and set a new password.
+- **POST `/api/auth/resend-verification`**: Resend verification email.
+- **POST `/api/auth/verify-registration`**: Verify registration using a code.
+
+### Task Routes
+
+- **POST `/api/tasks`**: Create a new task.
+- **GET `/api/tasks`**: Get all tasks for the authenticated user.
+- **GET `/api/tasks/:taskId`**: Get a specific task by ID.
+- **PUT `/api/tasks/:taskId`**: Update a task by ID.
+- **DELETE `/api/tasks/:taskId`**: Delete a task by ID.
+- **PUT `/api/tasks/:taskId/priority`**: Update task priority.
+
+### Middleware
+
+The `authenticateToken` middleware is used to protect task-related routes, ensuring that only authenticated users can interact with tasks.
+
+```javascript
+const authenticateToken = async (req, res, next) => {
+  const token = req.header("Authorization")?.split(" ")[1];
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
   }
-  ```
-- **Response (Success):**
-  ```json
-  {
-    "token": "string",
-    "userInfo": {
-      "username": "string",
-      "email": "string"
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = decoded.userId;
+    next();
+  } catch (err) {
+    console.error("Error verifying token:", err.message || err);
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
-  ```
-- **Response (Error):**
-  ```json
-  {
-    "message": "All fields are required."
-  }
-  ```
+};
+```
 
-#### **Login User**
-- **Endpoint:** `POST /api/auth/login`
-- **Description:** Logs in a user with the provided `email` and `password`.
-- **Request Body:**
-  ```json
-  {
-    "email": "string",
-    "password": "string"
-  }
-  ```
-- **Response (Success):**
-  ```json
-  {
-    "token": "string",
-    "userInfo": {
-      "username": "string",
-      "email": "string"
-    }
-  }
-  ```
-- **Response (Error):**
-  ```json
-  {
-    "message": "Invalid credentials"
-  }
-  ```
+### Models
 
-#### **Verify Token**
-- **Endpoint:** `GET /api/auth/verify-token`
-- **Description:** Verifies the validity of the JWT token.
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  {
-    "message": "Valid Token"
-  }
-  ```
-- **Response (Error):**
-  ```json
-  {
-    "message": "No token provided"
-  }
-  ```
+#### User Model
 
----
+- `username`: A unique username for the user.
+- `email`: A unique email address for the user.
+- `password`: The user's password (hashed using bcrypt).
+- `isVerified`: A boolean flag indicating whether the user has verified their email.
+- `verificationCode`: A verification code used for email verification and password reset.
+- `verificationCodeExpiration`: The expiration timestamp for the verification code.
 
-### **2. Task Management**
+#### Task Model
 
-#### **Create Task**
-- **Endpoint:** `POST /api/tasks`
-- **Description:** Creates a new task for the logged-in user.
-- **Request Body:**
-  ```json
-  {
-    "title": "string",
-    "description": "string",
-    "status": "string"
-  }
-  ```
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  {
-    "id": "number",
-    "title": "string",
-    "description": "string",
-    "status": "string",
-    "userId": "number"
-  }
-  ```
+- `title`: The task's title.
+- `description`: A detailed description of the task.
+- `status`: The task's current status (can be "not-started", "in-progress", or "completed").
+- `userId`: The ID of the user to whom the task belongs.
+- `priority`: The task's priority, used to order tasks.
 
-#### **Get Tasks**
-- **Endpoint:** `GET /api/tasks`
-- **Description:** Retrieves all tasks of the logged-in user.
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  [
-    {
-      "id": "number",
-      "title": "string",
-      "description": "string",
-      "status": "string",
-      "userId": "number"
-    },
-    ...
-  ]
-  ```
+### Task Priority Update Logic
 
-#### **Get Task By ID**
-- **Endpoint:** `GET /api/tasks/:taskId`
-- **Description:** Retrieves a specific task by its ID.
-- **Params:**
-  - `taskId`: The ID of the task
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  {
-    "id": "number",
-    "title": "string",
-    "description": "string",
-    "status": "string",
-    "userId": "number"
-  }
-  ```
+The priority of a task can be updated. If the new priority is higher than the old one, other tasks with lower priorities are shifted down. If the new priority is lower, tasks with higher priorities are shifted up.
 
-#### **Update Task**
-- **Endpoint:** `PUT /api/tasks/:taskId`
-- **Description:** Updates a task by its ID.
-- **Request Body:**
-  ```json
-  {
-    "title": "string",
-    "description": "string",
-    "status": "string"
-  }
-  ```
-- **Params:**
-  - `taskId`: The ID of the task to update
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  {
-    "id": "number",
-    "title": "string",
-    "description": "string",
-    "status": "string",
-    "userId": "number"
-  }
-  ```
+## Error Handling
 
-#### **Delete Task**
-- **Endpoint:** `DELETE /api/tasks/:taskId`
-- **Description:** Deletes a task by its ID.
-- **Params:**
-  - `taskId`: The ID of the task to delete
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):**
-  ```json
-  {
-    "message": "Task deleted successfully"
-  }
-  ```
+The API provides descriptive error messages and status codes to help developers handle issues effectively:
 
----
+- **400 Bad Request**: Missing or incorrect data in the request.
+- **401 Unauthorized**: Missing or invalid JWT token.
+- **403 Forbidden**: Invalid or expired token.
+- **404 Not Found**: Resource not found (e.g., user or task).
+- **500 Internal Server Error**: An error occurred while processing the request.
 
-## **Authentication Middleware**
+### Example Request: User Registration
 
-### **Authenticate Token Middleware**
-- **Description:** This middleware checks if a valid JWT token is present in the `Authorization` header and validates it. If valid, it adds the `userId` to the `req` object; otherwise, it returns an error.
-- **Headers:**
-  - `Authorization`: Bearer token
-- **Response (Success):** Passes the request to the next handler.
-- **Response (Error):**
-  ```json
-  {
-    "message": "Unauthorized. Invalid or expired token."
-  }
-  ```
+```bash
+POST /api/auth/register
 
----
+{
+  "username": "john_doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
-## **Environment Variables**
-- `JWT_SECRET`: Secret key used to sign JWT tokens.
-- `JWT_EXPIRATION`: Expiration time for JWT tokens (e.g., '1h').
+Response:
 
----
+```json
+{
+  "message": "A verification code has been sent to your email. Please verify to complete the registration.",
+  "code": "S003"
+}
+```
 
-## **Contributions**
+### Example Request: Task Creation
 
-Feel free to fork this project and contribute by submitting issues or pull requests. Please follow best practices and ensure all new features are well-tested.
+```bash
+POST /api/tasks
 
----
+{
+  "title": "Complete the project",
+  "description": "Finish the task management app by the end of the week.",
+  "status": "not-started"
+}
+```
+
+Response:
+
+```json
+{
+  "id": 1,
+  "title": "Complete the project",
+  "description": "Finish the task management app by the end of the week.",
+  "status": "not-started",
+  "userId": 1,
+  "priority": 1
+}
+```
+
+### Example Request: Password Reset
+
+```bash
+POST /api/auth/forgot-password
+
+{
+  "email": "john@example.com"
+}
+```
+
+Response:
+
+```json
+{
+  "message": "Verification code sent. Please check your inbox.",
+  "code": "S001"
+}
+```
+
+## Contributing
+
+Feel free to fork the repository, open issues, or submit pull requests. Make sure to follow the coding standards and provide detailed descriptions for bug fixes or new features.
