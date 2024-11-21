@@ -11,31 +11,18 @@ dotenv.config();
 
 const app = express();
 
-// app.use((req, res, next) => {
-//   // Set the 'Access-Control-Allow-Origin' header to allow only your frontend (GitHub Pages)
-//   res.header("Access-Control-Allow-Origin", "https://tejanarra.github.io/"); // Allow only this origin
-//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS"); // Allow these methods
-//   res.header(
-//     "Access-Control-Allow-Headers",
-//     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-//   ); // Allow these headers
-//   // Allow credentials if necessary
-//   res.header("Access-Control-Allow-Credentials", "true"); // Allow credentials (cookies, authorization headers, etc.)
-//   next(); // Proceed to the next middleware or route handler
-// });
-
 app.use(
   cors({
     origin: [
-      "https://tejanarra.github.io/", // GitHub Pages domain
+      "https://tejanarra.github.io", // Allow GitHub Pages domain
+      "https://task-manager-sigma-ashen.vercel.app", // Allow your Vercel frontend domain
     ],
-    methods: ["GET", "POST", "PUT", "DELETE"], // Allow methods as per your need
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Include OPTIONS method for preflight request
     allowedHeaders: [
-      "content-type",
-      "authorization",
+      "Content-Type",
+      "Authorization",
       "ngrok-skip-browser-warning",
-      "",
-    ], // Allow necessary headers
+    ], // Specify allowed headers
     credentials: true, // Allow credentials if using cookies, sessions, etc.
   })
 );
