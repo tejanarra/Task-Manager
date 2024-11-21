@@ -126,7 +126,7 @@ const registerUser = async (req, res) => {
 
   try {
     const existingUser = await User.findOne({
-      where: { [Op.or]: [{ email }, { username }] },
+      where: { [Op.or]: [{ email }] },
     });
 
     if (existingUser) {
