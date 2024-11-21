@@ -1,1 +1,15 @@
-{ "version": 2, "rewrites": [{ "source": "/(.*)", "destination": "/api" }] }
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.js",        # Your main Express entry file
+      "use": "@vercel/node"      # Tells Vercel to use Node.js for this file
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",             # Catch all routes and forward them to server.js
+      "dest": "/server.js"       # Your entry file
+    }
+  ]
+}
