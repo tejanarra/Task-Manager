@@ -1,5 +1,6 @@
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
+
 dotenv.config();
 
 const authenticateToken = (req, res, next) => {
@@ -14,7 +15,9 @@ const authenticateToken = (req, res, next) => {
     req.userId = decoded.userId;
     next();
   } catch (err) {
-    return res.status(403).json({ message: "Invalid token" });
+    console.error("Error verifying token:", err.message || err);
+    return res.status(403).json({ message: "Invalid or expired token" });
   }
 };
+
 module.exports = authenticateToken;

@@ -1,21 +1,21 @@
 const Task = require("../models/Task");
-import "pg";
 const { Sequelize } = require("sequelize");
+import "pg"
 
 const createTask = async (req, res) => {
   const { title, description, status } = req.body;
   const userId = req.userId;
 
   if (!title || !description || !status) {
-    return res.status(400).json({ message: "Missing required fields" });
+    return res.status(400).json({ message: "Missing required fields (title, description, status)" });
   }
 
   try {
     const task = await Task.create({ title, description, status, userId });
     res.status(201).json(task);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error creating task:", err.message || err);
+    res.status(500).json({ message: "Server error during task creation" });
   }
 };
 
@@ -29,8 +29,8 @@ const getTasks = async (req, res) => {
     }
     res.status(200).json(tasks);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error fetching tasks:", err.message || err);
+    res.status(500).json({ message: "Server error fetching tasks" });
   }
 };
 
@@ -44,8 +44,8 @@ const getTaskById = async (req, res) => {
     }
     res.status(200).json(task);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error(`Error fetching task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error fetching task" });
   }
 };
 
@@ -66,8 +66,8 @@ const updateTask = async (req, res) => {
     await task.save();
     res.status(200).json(task);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error(`Error updating task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error updating task" });
   }
 };
 
@@ -83,8 +83,8 @@ const deleteTask = async (req, res) => {
     await task.destroy();
     res.status(200).json({ message: "Task deleted successfully" });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error(`Error deleting task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error deleting task" });
   }
 };
 
@@ -92,7 +92,6 @@ const updateTaskPriority = async (req, res) => {
   const { taskId } = req.params;
   const { priority } = req.body;
 
-  // Validate priority
   if (priority === undefined || !Number.isInteger(priority) || priority <= 0) {
     return res
       .status(400)
@@ -142,8 +141,8 @@ const updateTaskPriority = async (req, res) => {
 
     res.status(200).json(task);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
+    console.error(`Error updating priority for task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error updating task priority" });
   }
 };
 

@@ -34,8 +34,8 @@ const registerUser = async (req, res) => {
       userInfo: { username: user.username, email: user.email },
     });
   } catch (err) {
-    console.error("Error during registration:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Error during registration:", err.message || err);
+    res.status(500).json({ message: "Server error during registration" });
   }
 };
 
@@ -66,12 +66,10 @@ const loginUser = async (req, res) => {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
-    res
-      .status(200)
-      .json({
-        token,
-        userInfo: { username: user.username, email: user.email },
-      });
+    res.status(200).json({
+      token,
+      userInfo: { username: user.username, email: user.email },
+    });
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ message: "Server error" });
