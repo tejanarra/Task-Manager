@@ -4,6 +4,7 @@ const User = require("../models/User");
 const { Op } = require("sequelize");
 const dotenv = require("dotenv");
 dotenv.config();
+import "pg";
 
 const nodemailer = require("nodemailer");
 
