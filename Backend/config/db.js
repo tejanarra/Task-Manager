@@ -4,13 +4,14 @@ const dotenv = require("dotenv");
 dotenv.config();
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME,
-  process.env.DB_USER,
-  process.env.DB_PASSWORD,
+  process.env.DB_NAME,        // "postgres"
+  process.env.DB_USER,        // "postgres"
+  process.env.DB_PASSWORD,    // [YOUR-PASSWORD]
   {
-    host: process.env.DB_HOST,
-    dialect: process.env.DB_DIALECT,
-    port: process.env.DB_PORT,
+    host: process.env.DB_HOST,  // "aws-0-us-east-1.pooler.supabase.com"
+    dialect: process.env.DB_DIALECT, // "postgres"
+    port: process.env.DB_PORT,  // 6543
+    logging: false,             // Optional: Set to false to disable Sequelize query logging
   }
 );
 

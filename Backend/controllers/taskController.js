@@ -1,4 +1,5 @@
 const Task = require("../models/Task");
+const { Sequelize } = require("sequelize");
 
 const createTask = async (req, res) => {
   const { title, description, status } = req.body;
@@ -86,4 +87,70 @@ const deleteTask = async (req, res) => {
   }
 };
 
-module.exports = { createTask, getTasks, updateTask, deleteTask, getTaskById };
+const updateTaskPriority = async (req, res) => {
+  const { taskId } = req.params;
+  const { priority } = req.body;
+
+  // Validate priority
+  if (priority === undefined || !Number.isInteger(priority) || priority <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Priority must be a positive integer" });
+  }
+
+  try {
+    const task = await Task.findByPk(taskId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const oldPriority = task.priority;
+
+    if (oldPriority === priority) {
+      return res.status(200).json(task);
+    }
+
+    if (priority > oldPriority) {
+      await Task.update(
+        { priority: Sequelize.literal("priority - 1") },
+        {
+          where: {
+            priority: {
+              [Sequelize.Op.gt]: oldPriority,
+              [Sequelize.Op.lte]: priority,
+            },
+          },
+        }
+      );
+    } else {
+      await Task.update(
+        { priority: Sequelize.literal("priority + 1") },
+        {
+          where: {
+            priority: {
+              [Sequelize.Op.lt]: oldPriority,
+              [Sequelize.Op.gte]: priority,
+            },
+          },
+        }
+      );
+    }
+
+    task.priority = priority;
+    await task.save();
+
+    res.status(200).json(task);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {
+  createTask,
+  getTasks,
+  updateTask,
+  deleteTask,
+  getTaskById,
+  updateTaskPriority,
+};

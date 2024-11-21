@@ -17,12 +17,15 @@ const Task = sequelize.define("Task", {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  priority: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 1,
+  },
 });
 
 Task.associate = (models) => {
   Task.belongsTo(models.User, { foreignKey: "userId", as: "user" });
 };
-
-Task.associate({ User: require("./User") });
 
 module.exports = Task;
