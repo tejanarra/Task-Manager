@@ -1,6 +1,6 @@
 const Task = require("../models/Task");
 const { Sequelize } = require("sequelize");
-// import "pg"
+import "pg"
 
 const createTask = async (req, res) => {
   const { title, description, status } = req.body;

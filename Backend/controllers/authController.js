@@ -3,7 +3,7 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { Op } = require("sequelize");
 const dotenv = require("dotenv");
-// import "pg"
+import "pg"
 dotenv.config();
 
 const nodemailer = require("nodemailer");
