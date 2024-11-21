@@ -2,14 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "server.js",      # Your main entry file for Express (usually `server.js` or `app.js`)
+      "src": "server.js",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",      # Route API requests to serverless functions
-      "dest": "/server.js"     # This points to your Express entry file
+      "src": "/api/(.*)",
+      "dest": "/server.js"
     }
   ]
 }
