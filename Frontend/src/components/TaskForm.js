@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { createTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../context/AuthContext";
 
 const TaskForm = ({ setTasks, closeForm }) => {
   const [title, setTitle] = useState("");
   const [status, setStatus] = useState("not-started");
   const [description, setDescription] = useState("");
+  const { logout } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();

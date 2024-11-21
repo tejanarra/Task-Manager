@@ -1,19 +1,27 @@
 import React, { useState } from "react";
 import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../context/AuthContext";
 
 const TaskItem = ({ task, setTasks }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(task.title);
   const [newStatus, setNewStatus] = useState(task.status);
   const [newDescription, setNewDescription] = useState(task.description);
+  const { logout } = useAuth();
 
   const handleDelete = async () => {
-    try {
-      await deleteTask(task.id);
-      setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id));
-    } catch (error) {
-      console.error("Error deleting task:", error);
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this task?"
+    );
+
+    if (confirmed) {
+      try {
+        await deleteTask(task.id);
+        setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id));
+      } catch (error) {
+        console.error("Error deleting task:", error);
+      }
     }
   };
 
@@ -32,6 +40,7 @@ const TaskItem = ({ task, setTasks }) => {
       setIsEditing(false);
     } catch (error) {
       console.error("Error updating task:", error);
+      logout();
     }
   };
 
@@ -42,8 +51,25 @@ const TaskItem = ({ task, setTasks }) => {
     setIsEditing(false);
   };
 
-  // Formatting date and time
-  const formattedDateTime = new Date(task.createdAt).toLocaleString();
+  const formatDate = (dateString) => {
+  const date = new Date(dateString);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  today.setHours(0, 0, 0, 0);
+  yesterday.setHours(0, 0, 0, 0);
+
+  if (date >= today) {
+    return `Today at ${date.toLocaleTimeString()}`;
+  }
+  if (date >= yesterday) {
+    return `Yesterday at ${date.toLocaleTimeString()}`;
+  }
+  return date.toLocaleString();
+};
+
+  const formattedDateTime = formatDate(task.createdAt);
+  const updatedTime = formatDate(task.updatedAt);
 
   return (
     <div
@@ -87,10 +113,20 @@ const TaskItem = ({ task, setTasks }) => {
               style={{
                 fontSize: "0.875rem",
                 fontStyle: "italic",
-                color: "#888", // Lighter color for the date info
+                color: "#888",
+                display: "block",
+                marginTop: "0.5rem",
               }}
             >
-              Created on: {formattedDateTime}
+              <span style={{ fontWeight: "bold", color: "#666" }}>
+                Created:
+              </span>{" "}
+              <span style={{ color: "#555" }}>{formattedDateTime}</span>
+              <br />
+              <span style={{ fontWeight: "bold", color: "#666" }}>
+                Last Updated:
+              </span>{" "}
+              <span style={{ color: "#555" }}>{updatedTime}</span>
             </small>
           </div>
           <div
@@ -104,7 +140,7 @@ const TaskItem = ({ task, setTasks }) => {
                 style={{
                   fontWeight: "500",
                   color: "#333",
-                  backgroundColor: "#f0f0f0", // Light background for buttons
+                  backgroundColor: "#f0f0f0",
                 }}
               >
                 <i className="bi bi-pencil"></i> Edit
@@ -126,7 +162,7 @@ const TaskItem = ({ task, setTasks }) => {
               style={{
                 fontWeight: "500",
                 color: "#333",
-                backgroundColor: "#f0f0f0", // Light background for buttons
+                backgroundColor: "#f0f0f0",
               }}
             >
               <i className="bi bi-trash"></i> Delete
@@ -175,7 +211,7 @@ const TaskItem = ({ task, setTasks }) => {
                 style={{
                   fontWeight: "500",
                   color: "#333",
-                  backgroundColor: "#f0f0f0", // Light background for buttons
+                  backgroundColor: "#f0f0f0",
                 }}
               >
                 Save Changes

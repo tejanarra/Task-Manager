@@ -1,8 +1,13 @@
-.floating-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  z-index: 9999;
-  padding: 15px 20px;
-  border-radius: 50%;
+/* Style for when the text is not hovered */
+.contact-link {
+  font-weight: 600;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* When hovered, the text color changes and becomes underlined */
+.contact-link:hover {
+  color: #007bff; /* Blue color for the link */
+  text-decoration: underline;
 }

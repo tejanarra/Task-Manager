@@ -1,7 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://conversely-deciding-rodent.ngrok-free.app/api",
+  // baseURL: "https://task-manager-sigma-ashen.vercel.app/api",
+  baseURL: "localhost:5001/api",
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
@@ -24,6 +25,9 @@ export const createTask = (newTask) => api.post("/tasks", newTask);
 export const updateTask = (taskId, updatedTask) =>
   api.put(`/tasks/${taskId}`, updatedTask);
 export const deleteTask = (taskId) => api.delete(`/tasks/${taskId}`);
+export const updateTaskPriority = (taskId, priority) => {
+  return api.put(`/tasks/${taskId}/priority`, { priority });
+};
 
 export const loginUser = (email, password) => {
   return api.post("/auth/login", { email, password });

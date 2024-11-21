@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { fetchTasks } from "../services/api";
+import { fetchTasks, updateTaskPriority } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./TaskItem";
 import TaskForm from "./TaskForm";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const TaskList = () => {
@@ -15,19 +16,41 @@ const TaskList = () => {
       if (user) {
         try {
           const response = await fetchTasks();
-          if (response.status === 200) {
-            setTasks(response.data);
-          } else {
-            logout();
-          }
+          setTasks(response.data);
         } catch (error) {
           console.error("Error loading tasks:", error);
+          if (error.response && error.response.status === 403) {
+            logout();
+          }
         }
       }
     };
 
     loadTasks();
   }, [user, logout]);
+
+  const handleDragEnd = async (result) => {
+    const { destination, source } = result;
+    if (!destination || destination.index === source.index) return;
+    const reorderedTasks = Array.from(tasks);
+    const [movedTask] = reorderedTasks.splice(source.index, 1);
+    reorderedTasks.splice(destination.index, 0, movedTask);
+    const updatedTasksWithPriority = reorderedTasks.map((task, index) => ({
+      ...task,
+      priority: index + 1,
+    }));
+    setTasks(updatedTasksWithPriority);
+    try {
+      const movedTaskId = movedTask.id;
+      const newPriority = destination.index + 1;
+      await updateTaskPriority(movedTaskId, newPriority);
+    } catch (error) {
+      console.error("Error updating task priority:", error);
+      if (error.response && error.response.status === 403) {
+        logout();
+      }
+    }
+  };
 
   return (
     <div className="container mt-5">
@@ -48,22 +71,38 @@ const TaskList = () => {
           {tasks.length === 0 ? (
             <p>No tasks available</p>
           ) : (
-            <div>
-              {tasks
-                .sort((a, b) => {
-                  // Prioritize tasks that are not completed
-                  if (a.status === "completed" && b.status !== "completed")
-                    return 1; // a goes below b
-                  if (b.status === "completed" && a.status !== "completed")
-                    return -1; // b goes below a
-
-                  // If statuses are the same, sort by created date in ascending order (oldest first)
-                  return new Date(a.createdAt) - new Date(b.createdAt);
-                })
-                .map((task) => (
-                  <TaskItem key={task.id} task={task} setTasks={setTasks} />
-                ))}
-            </div>
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="taskList">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {tasks
+                      .sort((a, b) => a.priority - b.priority)
+                      .map((task, index) => (
+                        <Draggable
+                          key={task.id}
+                          draggableId={task.id.toString()}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                              style={{
+                                ...provided.draggableProps.style,
+                                marginBottom: "10px",
+                              }}
+                            >
+                              <TaskItem task={task} setTasks={setTasks} />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           )}
         </div>
       </div>

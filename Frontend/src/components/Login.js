@@ -20,10 +20,8 @@ const Login = () => {
       login(token, userInfo);
       navigate("/");
     } catch (err) {
-      console.error("Login failed:", err.response?.data || err.message);
-      setError(
-        err.response?.data?.message || "Login failed. Please try again."
-      );
+      console.error("Login failed:", err.response?.message || err.message);
+      setError(err.response?.message || "Login failed. Please try again.");
     }
   };
 
