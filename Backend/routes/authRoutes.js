@@ -4,7 +4,8 @@ const {
   loginUser,
   verifyToken,
   forgotPassword,
-  verifyVerificationCode
+  verifyVerificationCode,
+  verifyRegistrationCode
 } = require("../controllers/authController");
 const authenticateToken = require("../middleware/authMiddleware");
 const router = express.Router();
@@ -15,5 +16,6 @@ router.get("/verify-token", authenticateToken, verifyToken);
 
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-code", verifyVerificationCode);
+router.post("/verify-registration", verifyRegistrationCode);
 
 module.exports = router;

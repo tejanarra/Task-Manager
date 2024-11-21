@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const bcrypt = require("bcryptjs");
 const sequelize = require("../config/db");
-import "pg"
+// import "pg"
 
 const User = sequelize.define("User", {
   username: {
@@ -23,6 +23,10 @@ const User = sequelize.define("User", {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
   },
   verificationCode: {
     type: DataTypes.STRING,
