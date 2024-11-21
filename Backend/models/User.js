@@ -24,6 +24,14 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  verificationCode: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
+  verificationCodeExpiration: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
 });
 
 User.beforeCreate(async (user) => {

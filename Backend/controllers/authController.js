@@ -4,8 +4,107 @@ const User = require("../models/User");
 const { Op } = require("sequelize");
 const dotenv = require("dotenv");
 import "pg"
-
 dotenv.config();
+
+const nodemailer = require("nodemailer");
+const crypto = require("crypto");
+
+const sendVerificationEmail = async (email, verificationCode) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Password Reset Verification Code",
+    text: `Your verification code is: ${verificationCode}. This code will expire in 10 minutes.`,
+  };
+
+  await transporter.sendMail(mailOptions);
+};
+
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  try {
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(400).json({ message: "No user found with that email" });
+    }
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpiration = Date.now() + 600000;
+
+    await user.save();
+
+    await sendVerificationEmail(email, verificationCode);
+
+    res.status(200).json({
+      message: "Verification code sent. Please check your inbox.",
+    });
+  } catch (err) {
+    console.error("Error during password reset:", err.message || err);
+    res.status(500).json({ message: "Server error during password reset" });
+  }
+};
+
+const verifyVerificationCode = async (req, res) => {
+  const { email, verificationCode, newPassword } = req.body;
+
+  if (!email || !verificationCode || !newPassword) {
+    return res
+      .status(400)
+      .json({
+        message: "Email, verification code, and new password are required.",
+      });
+  }
+
+  try {
+    const user = await User.findOne({
+      where: {
+        email,
+        verificationCode,
+        verificationCodeExpiration: { [Op.gte]: Date.now() },
+      },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ message: "Invalid or expired verification code" });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(newPassword, salt);
+
+    user.verificationCode = null;
+    user.verificationCodeExpiration = null;
+
+    await user.save();
+
+    res.status(200).json({
+      message:
+        "Password successfully reset. You can now log in with your new password.",
+    });
+  } catch (err) {
+    console.error("Error verifying code:", err.message || err);
+    res.status(500).json({ message: "Server error during code verification" });
+  }
+};
 
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
@@ -80,4 +179,4 @@ const verifyToken = async (req, res) => {
   res.status(200).json({ message: "Valid Token" });
 };
 
-module.exports = { registerUser, loginUser, verifyToken };
+module.exports = { registerUser, loginUser, verifyToken, forgotPassword, verifyVerificationCode };

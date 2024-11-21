@@ -14,6 +14,7 @@ app.use(
     origin: [
       "https://tejanarra.github.io",
       "https://task-manager-sigma-ashen.vercel.app",
+      "http://localhost:3000",
     ],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
