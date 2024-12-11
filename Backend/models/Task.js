@@ -21,7 +21,7 @@ const Task = sequelize.define("Task", {
   priority: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1,
+    defaultValue: 9999,
   },
 });
 
