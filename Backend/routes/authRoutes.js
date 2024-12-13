@@ -6,6 +6,7 @@ const {
   verifyVerificationCode,
   verifyRegistrationCode,
   resendVerificationEmail,
+  sendContactFormEmail,
 } = require("../controllers/authController");
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.post("/login", loginUser);
 
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-code", verifyVerificationCode);
+router.post("/contact", sendContactFormEmail);
 
 module.exports = router;
