@@ -322,6 +322,47 @@ const loginUser = async (req, res) => {
   }
 };
 
+const sendContactFormEmail = async (req, res) => {
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASSWORD,
+    },
+  });
+  const { yourName, yourEmail, subject, message } = req.body.data;
+
+  if (!yourName || !yourEmail || !subject || !message) {
+    return res.status(400).json({
+      message: "All fields (name, email, subject, message) are required.",
+      code: "E016",
+    });
+  }
+
+  const mailOptions = {
+    from: yourEmail,
+    to: "narrateja9699@gmail.com",
+    subject: `New Contact Form Submission: ${subject}`,
+    text: `Message from ${yourName} (${yourEmail}):\n\n${message}`,
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    res.status(200).json({
+      message:
+        "Your message has been sent successfully. We will get back to you soon.",
+      code: "S008",
+    });
+  } catch (error) {
+    console.error("Error sending contact form email:", error);
+    res.status(500).json({
+      message:
+        "Server error while sending your message. Please try again later.",
+      code: "S009",
+    });
+  }
+};
+
 module.exports = {
   registerUser,
   loginUser,
@@ -329,4 +370,5 @@ module.exports = {
   verifyVerificationCode,
   verifyRegistrationCode,
   resendVerificationEmail,
+  sendContactFormEmail,
 };
