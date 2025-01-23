@@ -1,222 +1,195 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useAuth } from "../context/AuthContext";
 
-const TaskItem = ({ task, setTasks }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState(task.title);
-  const [newStatus, setNewStatus] = useState(task.status);
-  const [newDescription, setNewDescription] = useState(task.description);
-  const { logout } = useAuth();
+const TaskItem = ({
+  task,
+  setTasks,
+  isNewTask = false,
+  onSave = () => {},
+  onCancel = () => {},
+}) => {
+  const [isEditing, setIsEditing] = useState(isNewTask);
+  const [tempTitle, setTempTitle] = useState(task.title);
+  const [tempDescription, setTempDescription] = useState(task.description);
+  const [tempStatus, setTempStatus] = useState(task.status);
+  const cardRef = useRef(null);
 
-  const handleDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this task?"
-    );
-
-    if (confirmed) {
-      try {
-        await deleteTask(task.id);
-        setTasks((prevTasks) => prevTasks.filter((t) => t.id !== task.id));
-      } catch (error) {
-        console.error("Error deleting task:", error);
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (isEditing && cardRef.current && !cardRef.current.contains(e.target)) {
+        if (isNewTask) {
+          onCancel(task.id);
+        } else {
+          handleSave();
+        }
       }
-    }
-  };
-
-  const handleUpdate = async () => {
-    const updatedTask = {
-      title: newTitle,
-      status: newStatus,
-      description: newDescription,
     };
 
-    try {
-      const response = await updateTask(task.id, updatedTask);
-      setTasks((prevTasks) =>
-        prevTasks.map((t) => (t.id === response.data.id ? response.data : t))
-      );
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  });
+
+  const handleSave = async () => {
+    if (
+      tempTitle !== task.title ||
+      tempDescription !== task.description ||
+      tempStatus !== task.status
+    ) {
+      if (isNewTask) {
+        onSave({
+          ...task,
+          title: tempTitle,
+          description: tempDescription,
+          status: tempStatus,
+        });
+      } else {
+        const updatedTask = {
+          title: tempTitle.trim(),
+          description: tempDescription.trim(),
+          status: tempStatus,
+        };
+        try {
+          const response = await updateTask(task.id, updatedTask);
+          setTasks((prev) =>
+            prev.map((t) => (t.id === response.data.id ? response.data : t))
+          );
+          setIsEditing(false);
+        } catch (error) {
+          console.error("Error updating task:", error);
+        }
+      }
+    } else {
       setIsEditing(false);
-    } catch (error) {
-      console.error("Error updating task:", error);
-      logout();
     }
   };
 
-  const handleCancelEdit = () => {
-    setNewTitle(task.title);
-    setNewStatus(task.status);
-    setNewDescription(task.description);
-    setIsEditing(false);
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this task?")) return;
+    try {
+      await deleteTask(task.id);
+      setTasks((prev) => prev.filter((t) => t.id !== task.id));
+    } catch (error) {
+      console.error("Error deleting task:", error);
+    }
   };
 
-  const formatDate = (dateString) => {
-  const date = new Date(dateString);
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  today.setHours(0, 0, 0, 0);
-  yesterday.setHours(0, 0, 0, 0);
+  const getStripColor = (status) => {
+    switch (status) {
+      case "completed":
+        return "#198754";
+      case "in-progress":
+        return "#ffc107";
+      default:
+        return "#6c757d";
+    }
+  };
 
-  if (date >= today) {
-    return `Today at ${date.toLocaleTimeString()}`;
-  }
-  if (date >= yesterday) {
-    return `Yesterday at ${date.toLocaleTimeString()}`;
-  }
-  return date.toLocaleString();
-};
-
-  const formattedDateTime = formatDate(task.createdAt);
-  const updatedTime = formatDate(task.updatedAt);
+  const stripColor = getStripColor(task.status);
 
   return (
     <div
-      className="card mb-4 shadow-sm border-0"
+      ref={cardRef}
+      className="mb-4 shadow-sm d-flex position-relative"
       style={{
+        borderRadius: "8px",
+        overflow: "hidden",
+        border: "1px solid #dee2e6",
+        cursor: "pointer",
+        transition: "transform 0.2s ease",
         fontFamily: "Poppins, sans-serif",
-        backgroundColor: "#f9f9f9",
-        transition: "transform 0.3s ease-in-out",
-        borderRadius: "10px",
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.05)")}
+      onClick={() => setIsEditing(true)}
+      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.01)")}
       onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
     >
-      <div className="card-body">
-        <div className="row d-flex justify-content-between align-items-start">
-          <div className="col-12 col-md-10">
-            <h5 className="fw-bold text-dark" style={{ fontSize: "1.2rem" }}>
+      <div style={{ width: "8px", backgroundColor: stripColor }} />
+      <div className="flex-grow-1 p-3">
+        <div className="d-flex justify-content-between align-items-start flex-wrap mb-2">
+          {!isEditing ? (
+            <h5 className="fw-bold mb-1" style={{ fontSize: "1.2rem" }}>
               {task.title}
-              <span> : </span>
-              <span
-                className={`badge ${
-                  task.status === "completed"
-                    ? "bg-success"
-                    : task.status === "in-progress"
-                    ? "bg-warning"
-                    : "bg-secondary"
-                }`}
-                style={{
-                  fontWeight: "500",
-                  fontSize: "0.9rem",
-                }}
-              >
-                {task.status}
-              </span>
             </h5>
-            <p className="text-muted mb-2" style={{ fontSize: "1rem" }}>
-              {task.description}
-            </p>
-            <small
-              className="text-muted"
-              style={{
-                fontSize: "0.875rem",
-                fontStyle: "italic",
-                color: "#888",
-                display: "block",
-                marginTop: "0.5rem",
-              }}
-            >
-              <span style={{ fontWeight: "bold", color: "#666" }}>
-                Created:
-              </span>{" "}
-              <span style={{ color: "#555" }}>{formattedDateTime}</span>
-              <br />
-              <span style={{ fontWeight: "bold", color: "#666" }}>
-                Last Updated:
-              </span>{" "}
-              <span style={{ color: "#555" }}>{updatedTime}</span>
-            </small>
-          </div>
-          <div
-            className="col-12 col-md-2 d-flex flex-column justify-content-between"
-            style={{ minHeight: "60px" }}
-          >
-            {!isEditing ? (
-              <button
-                onClick={() => setIsEditing(true)}
-                className="btn btn-light btn-sm mb-2"
-                style={{
-                  fontWeight: "500",
-                  color: "#333",
-                  backgroundColor: "#f0f0f0",
-                }}
-              >
-                <i className="bi bi-pencil"></i> Edit
-              </button>
-            ) : (
-              <button
-                onClick={handleCancelEdit}
-                className="btn btn-secondary btn-sm mb-2"
-                style={{
-                  fontWeight: "500",
-                }}
-              >
-                <i className="bi bi-x-circle"></i> Cancel
-              </button>
-            )}
-            <button
-              onClick={handleDelete}
-              className="btn btn-light btn-sm"
-              style={{
-                fontWeight: "500",
-                color: "#333",
-                backgroundColor: "#f0f0f0",
-              }}
-            >
-              <i className="bi bi-trash"></i> Delete
-            </button>
-          </div>
+          ) : (
+            <div className="w-100 mb-3">
+              <label className="form-label fw-semibold">Title</label>
+              <input
+                type="text"
+                className="form-control w-100"
+                style={{ borderRadius: "6px" }}
+                value={tempTitle}
+                onChange={(e) => setTempTitle(e.target.value)}
+                autoFocus
+              />
+            </div>
+          )}
         </div>
-
-        {isEditing && (
-          <div className="mt-3">
-            <input
-              type="text"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              className="form-control mb-2"
-              style={{
-                borderRadius: "8px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
-            />
+        {!isEditing ? (
+          <p
+            style={{
+              whiteSpace: "pre-wrap",
+              marginBottom: "1rem",
+              fontSize: "0.95rem",
+            }}
+          >
+            {task.description}
+          </p>
+        ) : (
+          <div className="w-100 mb-3">
+            <label className="form-label fw-semibold">Description</label>
             <textarea
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              className="form-control mb-2"
-              style={{
-                borderRadius: "8px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
+              className="form-control w-100"
+              rows={3}
+              style={{ borderRadius: "6px" }}
+              value={tempDescription}
+              onChange={(e) => setTempDescription(e.target.value)}
             />
+          </div>
+        )}
+        {isEditing && (
+          <div className="w-100 mb-3">
+            <label className="form-label fw-semibold">Status</label>
             <select
-              value={newStatus}
-              onChange={(e) => setNewStatus(e.target.value)}
-              className="form-select mb-2"
-              style={{
-                borderRadius: "8px",
-                boxShadow: "0 1px 3px rgba(0, 0, 0, 0.1)",
-              }}
+              className="form-select w-100"
+              style={{ borderRadius: "6px" }}
+              value={tempStatus}
+              onChange={(e) => setTempStatus(e.target.value)}
             >
               <option value="not-started">Not Started</option>
               <option value="in-progress">In Progress</option>
               <option value="completed">Completed</option>
             </select>
-            <div className="d-flex d-flex justify-content-end mt-2">
-              <button
-                onClick={handleUpdate}
-                className="btn btn-light btn-sm"
-                style={{
-                  fontWeight: "500",
-                  color: "#333",
-                  backgroundColor: "#f0f0f0",
-                }}
-              >
-                Save Changes
-              </button>
-            </div>
+          </div>
+        )}
+        <small style={{ color: "#666" }}>
+          <strong>Created:</strong> {new Date(task.createdAt).toLocaleString()}{" "}
+          | <strong>Updated:</strong>{" "}
+          {new Date(task.updatedAt).toLocaleString()}
+        </small>
+        {isEditing && (
+          <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
+            <button
+              className="btn btn-sm btn-success"
+              style={{ borderRadius: "6px" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSave();
+              }}
+            >
+              Save
+            </button>
+            <button
+              className="btn btn-sm btn-danger"
+              style={{ borderRadius: "6px" }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDelete();
+              }}
+            >
+              Delete
+            </button>
           </div>
         )}
       </div>
