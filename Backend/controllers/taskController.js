@@ -9,13 +9,22 @@ const createTask = async (req, res) => {
   if (!title || !description || !status) {
     return res
       .status(400)
-      .json({
-        message: "Missing required fields (title, description, status)",
-      });
+      .json({ message: "Missing required fields (title, description, status)" });
   }
 
   try {
-    const task = await Task.create({ title, description, status, userId });
+    // Find the highest priority for the user
+    const maxPriorityTask = await Task.findOne({
+      where: { userId },
+      order: [["priority", "DESC"]],
+    });
+
+    // Assign priority as the next available value
+    const priority = maxPriorityTask ? maxPriorityTask.priority + 1 : 1;
+
+    // Create the new task
+    const task = await Task.create({ title, description, status, userId, priority });
+
     res.status(201).json(task);
   } catch (err) {
     console.error("Error creating task:", err.message || err);
@@ -84,8 +93,28 @@ const deleteTask = async (req, res) => {
       return res.status(404).json({ message: "Task not found" });
     }
 
+    const deletedPriority = task.priority;
+
     await task.destroy();
-    res.status(200).json({ message: "Task deleted successfully" });
+
+    const [updatedRowsCount] = await Task.update(
+      { priority: Sequelize.literal("priority - 1") },
+      {
+        where: {
+          priority: {
+            [Sequelize.Op.gt]: deletedPriority,
+          },
+        },
+      }
+    );
+
+    if (updatedRowsCount === 0) {
+      console.log("No tasks needed priority adjustment.");
+    } else {
+      console.log(`${updatedRowsCount} tasks updated to adjust priorities.`);
+    }
+
+    res.status(200).json({ message: "Task deleted successfully and priorities updated." });
   } catch (err) {
     console.error(`Error deleting task with ID ${taskId}:`, err.message || err);
     res.status(500).json({ message: "Server error deleting task" });
@@ -123,25 +152,27 @@ const updateTaskPriority = async (req, res) => {
               [Sequelize.Op.gt]: oldPriority,
               [Sequelize.Op.lte]: priority,
             },
-          },
+          }
         }
       );
-    } else {
+    } else if (priority < oldPriority) {
       await Task.update(
         { priority: Sequelize.literal("priority + 1") },
         {
           where: {
             priority: {
-              [Sequelize.Op.lt]: oldPriority,
               [Sequelize.Op.gte]: priority,
+              [Sequelize.Op.lt]: oldPriority,
             },
-          },
+          }
         }
       );
     }
 
     task.priority = priority;
     await task.save();
+
+    await normalizeTaskPriorities(task.userId);
 
     res.status(200).json(task);
   } catch (err) {
@@ -150,6 +181,22 @@ const updateTaskPriority = async (req, res) => {
       err.message || err
     );
     res.status(500).json({ message: "Server error updating task priority" });
+  }
+};
+
+const normalizeTaskPriorities = async (userId) => {
+  try {
+    const tasks = await Task.findAll({
+      where: { userId },
+      order: [['priority', 'ASC']],
+    });
+
+    for (let i = 0; i < tasks.length; i++) {
+      tasks[i].priority = i + 1;
+      await tasks[i].save();
+    }
+  } catch (err) {
+    console.error(`Error normalizing priorities for user ID ${userId}:`, err.message || err);
   }
 };
 
