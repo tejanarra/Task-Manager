@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
 
@@ -7,6 +7,7 @@ const Navbar = () => {
   const { user, logout } = useAuth();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation(); // Get current location
 
   const handleLogout = () => {
     logout();
@@ -17,6 +18,9 @@ const Navbar = () => {
   const logoutClicked = () => {
     setShowLogoutModal(true);
   };
+
+  // Check if we are on the Profile page
+  const isOnProfilePage = location.pathname === "/profile";
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
@@ -42,7 +46,7 @@ const Navbar = () => {
         </button>
 
         <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
+          <ul className="navbar-nav ms-auto d-flex align-items-center">
             {!user ? (
               <>
                 <li className="nav-item">
@@ -66,17 +70,17 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <li className="nav-item d-flex align-items-center">
-                  <span
-                    className="nav-link text-dark"
-                    style={{ fontWeight: "500" }}
-                  >
-                    {user.firstName.charAt(0).toUpperCase() +
-                      user.firstName.slice(1) +
-                      " " +
-                      user.lastName.charAt(0).toUpperCase() +
-                      user.lastName.slice(1)}
-                  </span>
+                <li className="nav-item d-flex align-items-center me-3">
+                  <Link
+                    to={isOnProfilePage ? "/" : "/profile"}
+                    className={`nav-link text-dark ${
+                      isOnProfilePage ? "bi-house-door" : "bi-person-circle"
+                    }`}
+                    style={{
+                      fontWeight: "500",
+                      fontSize: "1.5rem", // Adjust icon size
+                    }}
+                  ></Link>
                 </li>
                 <li className="nav-item">
                   <button

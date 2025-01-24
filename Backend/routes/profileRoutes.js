@@ -10,27 +10,24 @@ const path = require("path");
 
 const router = express.Router();
 
-// Configure multer for avatar uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/avatars/');
+    cb(null, "uploads/avatars/");
   },
   filename: (req, file, cb) => {
-    // Use the user ID and current timestamp for unique filenames
     const ext = path.extname(file.originalname);
     cb(null, `${req.userId}-${Date.now()}${ext}`);
   },
 });
 
 const fileFilter = (req, file, cb) => {
-  // Accept only jpg, jpeg, png files
   const allowedTypes = /jpeg|jpg|png/;
   const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
   const mime = allowedTypes.test(file.mimetype);
   if (ext && mime) {
     cb(null, true);
   } else {
-    cb(new Error('Only JPEG, JPG, and PNG files are allowed'));
+    cb(new Error("Only JPEG, JPG, and PNG files are allowed"));
   }
 };
 
@@ -51,46 +48,34 @@ router.get("/", authenticateToken, getProfile);
 router.put(
   "/",
   authenticateToken,
-  upload.single('avatar'), // Handle avatar upload
+  upload.single("avatar"),
   [
-    body('firstName')
+    body("firstName")
       .optional()
       .isLength({ min: 1, max: 50 })
-      .withMessage('First name must be between 1 and 50 characters'),
-    body('lastName')
+      .withMessage("First name must be between 1 and 50 characters"),
+    body("lastName")
       .optional()
       .isLength({ min: 1, max: 50 })
-      .withMessage('Last name must be between 1 and 50 characters'),
-    body('email')
-      .optional()
-      .isEmail()
-      .withMessage('Invalid email address'),
-    body('phoneNumber')
+      .withMessage("Last name must be between 1 and 50 characters"),
+    body("phoneNumber")
       .optional()
       .matches(/^[0-9\-+()\s]*$/)
-      .withMessage('Invalid phone number format'),
-    body('dob')
+      .withMessage("Invalid phone number format"),
+    body("dob")
       .optional()
       .isDate()
-      .withMessage('Invalid date of birth')
+      .withMessage("Invalid date of birth")
       .custom((value) => {
         if (new Date(value) >= new Date()) {
-          throw new Error('Date of birth must be in the past');
+          throw new Error("Date of birth must be in the past");
         }
         return true;
       }),
-    body('bio')
+    body("bio")
       .optional()
       .isLength({ max: 500 })
-      .withMessage('Bio cannot exceed 500 characters'),
-    body('password')
-      .optional()
-      .isLength({ min: 6 })
-      .withMessage('New password must be at least 6 characters'),
-    body('currentPassword')
-      .if(body('password').exists())
-      .notEmpty()
-      .withMessage('Current password is required to set a new password'),
+      .withMessage("Bio cannot exceed 500 characters"),
   ],
   updateProfile
 );

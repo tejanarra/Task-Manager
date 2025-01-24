@@ -54,3 +54,29 @@ export const resetPassword = (email, verificationCode, newPassword) => {
 };
 
 export const verifyToken = () => api.get("/verify-token");
+
+// Profile-related endpoints
+export const getProfile = async () => {
+  try {
+    const response = await api.get("/profile");
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    throw err;
+  }
+};
+
+// Update the profile data
+export const updateProfile = async (formData) => {
+  try {
+    const response = await api.put("/profile", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data", 
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    throw err;
+  }
+};

@@ -1,5 +1,4 @@
 const User = require("../models/User");
-const bcrypt = require("bcryptjs");
 const { validationResult } = require("express-validator");
 const sequelize = require("../config/db");
 import "pg";
@@ -40,12 +39,9 @@ const updateProfile = async (req, res) => {
   const {
     firstName,
     lastName,
-    email,
     phoneNumber,
     dob,
     bio,
-    password,
-    currentPassword,
   } = req.body;
 
   const transaction = await sequelize.transaction();
@@ -60,31 +56,9 @@ const updateProfile = async (req, res) => {
 
     if (firstName) user.firstName = firstName;
     if (lastName) user.lastName = lastName;
-    if (email) user.email = email;
     if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
     if (dob) user.dob = dob;
     if (bio !== undefined) user.bio = bio;
-
-    if (password) {
-      if (!currentPassword) {
-        await transaction.rollback();
-        return res
-          .status(400)
-          .json({
-            message: "Current password is required to set a new password",
-          });
-      }
-
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
-      if (!isMatch) {
-        await transaction.rollback();
-        return res
-          .status(400)
-          .json({ message: "Current password is incorrect" });
-      }
-
-      user.password = password;
-    }
 
     if (req.file) {
       user.avatar = `/uploads/avatars/${req.file.filename}`;

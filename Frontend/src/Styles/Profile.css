@@ -1,0 +1,77 @@
+/* Profile Page Styles */
+.profile-container {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-title {
+    color: #4a4a4a;
+    font-weight: bold;
+    font-size: 2rem;
+  }
+  
+  .profile-card {
+    border-radius: 12px;
+    background-color: #ffffff;
+  }
+  
+  .avatar-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    border-radius: 50%;
+    background-color: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  
+  .profile-avatar {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+  }
+  
+  .profile-avatar-placeholder {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #4c7ef2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+  
+  .form-control {
+    border-radius: 8px;
+  }
+  
+  textarea.form-control {
+    resize: none;
+  }
+  
+  button:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+  }
+  
+  @media (max-width: 767px) {
+    .profile-container {
+      margin: 15px;
+    }
+  
+    .profile-card {
+      padding: 15px;
+    }
+  
+    .col-md-5 {
+      margin-bottom: 30px;
+    }
+  }
