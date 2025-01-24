@@ -1,17 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import ConfirmationModal from "./ConfirmationModal";
 
 const Navbar = () => {
   const { user, logout } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    const isConfirmed = window.confirm("Are you sure you want to log out?");
-    if (isConfirmed) {
-      logout();
-      navigate("/login");
-    }
+    logout();
+    setShowLogoutModal(false);
+    navigate("/login");
+  };
+
+  const logoutClicked = () => {
+    setShowLogoutModal(true);
   };
 
   return (
@@ -67,14 +71,20 @@ const Navbar = () => {
                     className="nav-link text-dark"
                     style={{ fontWeight: "500" }}
                   >
-                    {user.username.charAt(0).toUpperCase() +
-                      user.username.slice(1)}
+                    {user.firstName.charAt(0).toUpperCase() +
+                      user.firstName.slice(1) +
+                      " " +
+                      user.lastName.charAt(0).toUpperCase() +
+                      user.lastName.slice(1)}
                   </span>
                 </li>
                 <li className="nav-item">
                   <button
                     className="btn btn-outline-danger"
-                    onClick={handleLogout}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      logoutClicked();
+                    }}
                     style={{ fontWeight: "500" }}
                   >
                     Logout
@@ -85,6 +95,13 @@ const Navbar = () => {
           </ul>
         </div>
       </div>
+      <ConfirmationModal
+        show={showLogoutModal}
+        title="Logout"
+        message="Are you sure you want to log out?"
+        onConfirm={handleLogout}
+        onCancel={() => setShowLogoutModal(false)}
+      />
     </nav>
   );
 };

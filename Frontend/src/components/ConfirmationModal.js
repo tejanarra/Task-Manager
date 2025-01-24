@@ -49,7 +49,7 @@ const ConfirmationModal = ({
               className="btn btn-danger"
               onClick={onConfirm}
             >
-              Delete
+              {title}
             </button>
           </div>
         </div>

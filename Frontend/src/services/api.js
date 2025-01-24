@@ -33,8 +33,8 @@ export const loginUser = (email, password) => {
   return api.post("/auth/login", { email, password });
 };
 
-export const registerUser = (username, email, password) => {
-  return api.post("/auth/register", { username, email, password });
+export const registerUser = (firstName, lastName, email, password) => {
+  return api.post("/auth/register", { firstName, lastName, email, password });
 };
 
 export const verifyRegistrationCode = (email, verificationCode) => {

@@ -46,15 +46,15 @@ const createVerificationEmail = (email, verificationCode, type = "passwordReset"
 };
 
 const registerUser = async (req, res) => {
-  const { username, email, password } = req.body;
+  const { firstName, lastName, email, password } = req.body;
 
-  if (!username || !email || !password) {
+  if (!firstName || !lastName || !email || !password) {
     return res.status(400).json(errors.REGISTRATION.MISSING_FIELDS);
   }
 
   try {
     const existingUser = await User.findOne({
-      where: { [Op.or]: [{ email }, { username }] },
+      where: { [Op.or]: [{ email }] },
     });
 
     if (existingUser) {
@@ -67,7 +67,8 @@ const registerUser = async (req, res) => {
     const verificationCode = generateVerificationCode();
 
     const user = await User.create({
-      username,
+      firstName,
+      lastName,
       email,
       password: hashedPassword,
       verificationCode,
@@ -118,7 +119,7 @@ const verifyRegistrationCode = async (req, res) => {
       code: "REG006",
       message: errors.REGISTRATION.REGISTRATION_SUCCESS.message,
       token,
-      userInfo: { username: user.username, email: user.email },
+      userInfo: { firstName: user.firstName, lastName: user.lastName, email: user.email },
     });
   } catch (err) {
     console.error("Verification error:", err.message);
@@ -160,7 +161,7 @@ const loginUser = async (req, res) => {
       code: "AUTH008",
       message: "Login successful.",
       token,
-      userInfo: { username: user.username, email: user.email },
+      userInfo: { firstName: user.firstName, lastName: user.lastName, email: user.email },
     });
   } catch (err) {
     console.error("Login error:", err.message);

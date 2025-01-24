@@ -4,14 +4,17 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import VerificationForm from "./VerificationForm";
 
 const Register = () => {
-  const [username, setUsername] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
   const [isVerificationStep, setIsVerificationStep] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasVerificationCode, setHasVerificationCode] = useState(false);
+  const [passwordsMatch, setPasswordsMatch] = useState(true);
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -19,8 +22,14 @@ const Register = () => {
     setMessage("");
     setIsLoading(true);
 
+    if (password !== confirmPassword) {
+      setPasswordsMatch(false);
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      const response = await registerUser(username, email, password);
+      const response = await registerUser(firstName, lastName, email, password);
       setMessage(response.data.message || "Registration successful!");
       setIsVerificationStep(true);
       setHasVerificationCode(true);
@@ -77,15 +86,27 @@ const Register = () => {
 
       {!isVerificationStep && !hasVerificationCode && (
         <form onSubmit={handleRegister}>
-          <div className="mb-3">
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Name"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
+          <div className="mb-3 row">
+            <div className="col-6">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                required
+              />
+            </div>
+            <div className="col-6">
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Last Name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+                required
+              />
+            </div>
           </div>
           <div className="mb-3">
             <input
@@ -107,11 +128,29 @@ const Register = () => {
               required
             />
           </div>
+          <div className="mb-3">
+            <input
+              type="password"
+              className="form-control"
+              placeholder="Confirm Password"
+              value={confirmPassword}
+              onChange={(e) => {
+                setConfirmPassword(e.target.value);
+                setPasswordsMatch(e.target.value === password);
+              }}
+              required
+            />
+          </div>
+
+          {!passwordsMatch && (
+            <div className="alert alert-danger">Passwords do not match.</div>
+          )}
+
           <button
             type="submit"
             className="btn btn-primary mb-3"
             style={{ fontFamily: "Poppins" }}
-            disabled={isLoading}
+            disabled={isLoading || !passwordsMatch}
           >
             {isLoading ? (
               <span
