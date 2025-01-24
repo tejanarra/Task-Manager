@@ -124,6 +124,20 @@ const EditProfile = () => {
             />
           </div>
           <div className="form-group mb-3">
+            <label htmlFor="bio" className="form-label">
+              Bio
+            </label>
+            <textarea
+              className="form-control"
+              id="bio"
+              name="bio"
+              rows="4"
+              value={profile.bio || ""}
+              onChange={handleChange}
+              placeholder="Write something about yourself..."
+            ></textarea>
+          </div>
+          <div className="form-group mb-3">
             <label htmlFor="firstName" className="form-label">
               First Name
             </label>

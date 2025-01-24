@@ -27,7 +27,7 @@ const Footer = () => {
               }}
             >
               <a
-                href="https://tejanarra.github.io/host/"
+                href="https://tejanarra.github.io/portfolio/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-link"
