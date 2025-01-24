@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ConfirmationModal from "./ConfirmationModal";
-import { formatRelativeTime } from "../utils/dateUtils"; // Import the utility function
+import { formatRelativeTime } from "../utils/dateUtils";
 
 const TaskItem = ({
   task,
@@ -100,7 +100,7 @@ const TaskItem = ({
       case "completed":
         return "#007a00";
       case "in-progress":
-        return "#daa520";
+        return "#FFC107";
       case "not-started":
       default:
         return "#a00000";
