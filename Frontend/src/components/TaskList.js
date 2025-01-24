@@ -64,11 +64,11 @@ const TaskList = () => {
       status: "not-started",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      priority: tasks.length + 1,
+      priority: 1,
     };
 
     setNewTaskId(newTask.id);
-    setTasks((prev) => [...prev, newTask]);
+    setTasks((prev) => [newTask, ...prev]);
   };
 
   const handleSaveNewTask = async (task) => {
