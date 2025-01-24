@@ -26,9 +26,14 @@ const sendEmail = async (mailOptions) => {
   }
 };
 
-const generateVerificationCode = () => Math.floor(100000 + Math.random() * 900000).toString();
+const generateVerificationCode = () =>
+  Math.floor(100000 + Math.random() * 900000).toString();
 
-const createVerificationEmail = (email, verificationCode, type = "passwordReset") => {
+const createVerificationEmail = (
+  email,
+  verificationCode,
+  type = "passwordReset"
+) => {
   let subject, text;
   if (type === "passwordReset") {
     subject = "Password Reset Verification Code";
@@ -76,7 +81,11 @@ const registerUser = async (req, res) => {
       isVerified: false,
     });
 
-    const mailOptions = createVerificationEmail(email, verificationCode, "registration");
+    const mailOptions = createVerificationEmail(
+      email,
+      verificationCode,
+      "registration"
+    );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.REGISTRATION.VERIFICATION_SENT);
@@ -119,7 +128,11 @@ const verifyRegistrationCode = async (req, res) => {
       code: "REG006",
       message: errors.REGISTRATION.REGISTRATION_SUCCESS.message,
       token,
-      userInfo: { firstName: user.firstName, lastName: user.lastName, email: user.email },
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
     });
   } catch (err) {
     console.error("Verification error:", err.message);
@@ -161,7 +174,11 @@ const loginUser = async (req, res) => {
       code: "AUTH008",
       message: "Login successful.",
       token,
-      userInfo: { firstName: user.firstName, lastName: user.lastName, email: user.email },
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
     });
   } catch (err) {
     console.error("Login error:", err.message);
@@ -189,7 +206,11 @@ const forgotPassword = async (req, res) => {
     user.verificationCodeExpiration = new Date(Date.now() + 600000);
     await user.save();
 
-    const mailOptions = createVerificationEmail(email, verificationCode, "passwordReset");
+    const mailOptions = createVerificationEmail(
+      email,
+      verificationCode,
+      "passwordReset"
+    );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.PASSWORD.VERIFICATION_SENT);
@@ -232,7 +253,8 @@ const verifyVerificationCode = async (req, res) => {
 
     return res.status(200).json({
       code: "PWD005",
-      message: "Password successfully reset. You can now log in with your new password.",
+      message:
+        "Password successfully reset. You can now log in with your new password.",
     });
   } catch (err) {
     console.error("Verification Code error:", err.message);
@@ -270,7 +292,11 @@ const resendVerificationEmail = async (req, res) => {
     user.verificationCodeExpiration = new Date(Date.now() + 600000);
     await user.save();
 
-    const mailOptions = createVerificationEmail(email, verificationCode, "registration");
+    const mailOptions = createVerificationEmail(
+      email,
+      verificationCode,
+      "registration"
+    );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.REGISTRATION.VERIFICATION_RESENT);
@@ -301,13 +327,62 @@ const sendContactFormEmail = async (req, res) => {
     await sendEmail(mailOptions);
     return res.status(200).json({
       code: "CNT004",
-      message: "Your message has been sent successfully. We will get back to you soon.",
+      message:
+        "Your message has been sent successfully. We will get back to you soon.",
     });
   } catch (error) {
     console.error("Contact Form Email error:", error.message);
     return res.status(500).json({
       code: "CNT005",
       message: "Failed to send your message. Please try again later.",
+    });
+  }
+};
+
+const changePassword = async (req, res) => {
+  const { currentPassword, newPassword } = req.body;
+  const userId = req.userId;
+
+  if (!currentPassword || !newPassword) {
+    return res.status(400).json({
+      code: "PWD001",
+      message: "Current password and new password are required.",
+    });
+  }
+
+  try {
+    const user = await User.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        code: "PWD002",
+        message: "User not found.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        code: "PWD003",
+        message: "Current password is incorrect.",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      code: "PWD004",
+      message: "Password updated successfully.",
+    });
+  } catch (err) {
+    console.error("Change Password error:", err.message);
+    return res.status(500).json({
+      code: "PWD005",
+      message: "An error occurred while updating the password.",
     });
   }
 };
@@ -320,4 +395,5 @@ module.exports = {
   verifyVerificationCode,
   resendVerificationEmail,
   sendContactFormEmail,
+  changePassword,
 };
