@@ -263,7 +263,6 @@ const TaskItem = ({
         message="Are you sure you want to delete this task? This action cannot be undone."
         onConfirm={confirmDelete}
         onCancel={() => setShowDeleteModal(false)}
-
       />
     </>
   );
