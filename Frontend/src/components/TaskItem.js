@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
+import ConfirmationModal from "./ConfirmationModal";
 
 const TaskItem = ({
   task,
@@ -13,7 +14,19 @@ const TaskItem = ({
   const [tempTitle, setTempTitle] = useState(task.title);
   const [tempDescription, setTempDescription] = useState(task.description);
   const [tempStatus, setTempStatus] = useState(task.status);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const cardRef = useRef(null);
+
+  const handleCancel = useCallback(() => {
+    setTempTitle(task.title);
+    setTempDescription(task.description);
+    setTempStatus(task.status);
+    if (isNewTask) {
+      onCancel(task.id);
+    } else {
+      setIsEditing(false);
+    }
+  }, [task.title, task.description, task.status, isNewTask, onCancel, task.id]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -26,11 +39,11 @@ const TaskItem = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  });
+  }, [isEditing, handleCancel]);
 
   const handleSave = async () => {
     if (tempTitle.trim() === "" || tempDescription.trim() === "") {
-      return; // Prevent saving empty fields
+      return;
     }
 
     if (
@@ -66,36 +79,30 @@ const TaskItem = ({
     }
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this task?")) return;
+  const handleDelete = () => {
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
     try {
       await deleteTask(task.id);
       setTasks((prev) => prev.filter((t) => t.id !== task.id));
+      setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting task:", error);
-    }
-  };
-
-  const handleCancel = () => {
-    setTempTitle(task.title); // Reset to original title
-    setTempDescription(task.description); // Reset to original description
-    setTempStatus(task.status); // Reset to original status
-    if (isNewTask) {
-      onCancel(task.id); // Discard new task creation
-    } else {
-      setIsEditing(false); // Exit edit mode
+      setShowDeleteModal(false);
     }
   };
 
   const getStripColor = (status) => {
     switch (status) {
       case "completed":
-        return "#007a00"; // Bright Green (Completed)
+        return "#007a00";
       case "in-progress":
-        return "#daa520"; // Goldenrod (In Progress)
+        return "#daa520";
       case "not-started":
       default:
-        return "#a00000"; // Crimson (Not Started)
+        return "#a00000";
     }
   };
 
@@ -114,120 +121,130 @@ const TaskItem = ({
   const statusIcon = getStatusIcon(task.status);
 
   return (
-    <div
-      ref={cardRef}
-      className="mb-4 shadow-sm d-flex position-relative"
-      style={{
-        borderRadius: "8px",
-        overflow: "hidden",
-        border: "1px solid #dee2e6",
-        cursor: "pointer",
-        transition: "transform 0.2s ease",
-        fontFamily: "Poppins, sans-serif",
-      }}
-      onClick={() => setIsEditing(true)}
-      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.01)")}
-      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
-    >
-      <div style={{ width: "8px", backgroundColor: stripColor }} />
-      <div className="flex-grow-1 p-3">
-        <div className="d-flex justify-content-between align-items-start flex-wrap mb-2">
+    <>
+      <div
+        ref={cardRef}
+        className="mb-4 shadow-sm d-flex position-relative"
+        style={{
+          borderRadius: "8px",
+          overflow: "hidden",
+          border: "1px solid #dee2e6",
+          cursor: "pointer",
+          transition: "transform 0.2s ease",
+          fontFamily: "Poppins, sans-serif",
+        }}
+        onClick={() => setIsEditing(true)}
+        onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.01)")}
+        onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+      >
+        <div style={{ width: "8px", backgroundColor: stripColor }} />
+        <div className="flex-grow-1 p-3">
+          <div className="d-flex justify-content-between align-items-start flex-wrap mb-2">
+            {!isEditing ? (
+              <>
+                <h5 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: stripColor }}>
+                  {task.title}
+                </h5>
+                <i
+                  className={`bi ${statusIcon}`}
+                  style={{ fontSize: "1.5rem", color: stripColor }}
+                />
+              </>
+            ) : (
+              <div className="w-100 mb-3">
+                <label className="form-label fw-semibold">Title</label>
+                <input
+                  type="text"
+                  className="form-control w-100"
+                  style={{ borderRadius: "6px" }}
+                  value={tempTitle}
+                  onChange={(e) => setTempTitle(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            )}
+          </div>
           {!isEditing ? (
-            <>
-              <h5 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: stripColor }}>
-                {task.title}
-              </h5>
-              <i
-                className={`bi ${statusIcon}`}
-                style={{ fontSize: "1.5rem", color: stripColor }}
-              />
-            </>
+            <p
+              style={{
+                whiteSpace: "pre-wrap",
+                marginBottom: "1rem",
+                fontSize: "1.25rem",
+              }}
+            >
+              {task.description}
+            </p>
           ) : (
             <div className="w-100 mb-3">
-              <label className="form-label fw-semibold">Title</label>
-              <input
-                type="text"
+              <label className="form-label fw-semibold">Description</label>
+              <textarea
                 className="form-control w-100"
+                rows={3}
                 style={{ borderRadius: "6px" }}
-                value={tempTitle}
-                onChange={(e) => setTempTitle(e.target.value)}
-                autoFocus
+                value={tempDescription}
+                onChange={(e) => setTempDescription(e.target.value)}
               />
             </div>
           )}
-        </div>
-        {!isEditing ? (
-          <p
-            style={{
-              whiteSpace: "pre-wrap",
-              marginBottom: "1rem",
-              fontSize: "1.25rem",
-            }}
-          >
-            {task.description}
-          </p>
-        ) : (
-          <div className="w-100 mb-3">
-            <label className="form-label fw-semibold">Description</label>
-            <textarea
-              className="form-control w-100"
-              rows={3}
-              style={{ borderRadius: "6px" }}
-              value={tempDescription}
-              onChange={(e) => setTempDescription(e.target.value)}
-            />
-          </div>
-        )}
-        {isEditing && (
-          <div className="w-100 mb-3">
-            <label className="form-label fw-semibold">Status</label>
-            <select
-              className="form-select w-100"
-              style={{ borderRadius: "6px" }}
-              value={tempStatus}
-              onChange={(e) => setTempStatus(e.target.value)}
-            >
-              <option value="not-started">Not Started</option>
-              <option value="in-progress">In Progress</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
-        )}
-        <i><small style={{ color: "#666" }}>
-          <strong>Created:</strong> {new Date(task.createdAt).toLocaleString()}{" "}
-          | <strong>Updated:</strong>{" "}
-          {new Date(task.updatedAt).toLocaleString()}
-        </small>
-        </i>
-        {isEditing && (
-          <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-            <button
-              className="btn btn-sm btn-outline-success"
-              style={{ borderRadius: "6px" }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSave();
-              }}
-              disabled={!tempTitle.trim() || !tempDescription.trim()}
-            >
-              Save
-            </button>
-            {!isNewTask && (
+          {isEditing && (
+            <div className="w-100 mb-3">
+              <label className="form-label fw-semibold">Status</label>
+              <select
+                className="form-select w-100"
+                style={{ borderRadius: "6px" }}
+                value={tempStatus}
+                onChange={(e) => setTempStatus(e.target.value)}
+              >
+                <option value="not-started">Not Started</option>
+                <option value="in-progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          )}
+          <i>
+            <small style={{ color: "#666" }}>
+              <strong>Created:</strong> {new Date(task.createdAt).toLocaleString()}{" "}
+              | <strong>Updated:</strong> {new Date(task.updatedAt).toLocaleString()}
+            </small>
+          </i>
+          {isEditing && (
+            <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
               <button
-                className="btn btn-sm btn-outline-danger"
+                className="btn btn-sm btn-outline-success"
                 style={{ borderRadius: "6px" }}
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleDelete();
+                  handleSave();
                 }}
+                disabled={!tempTitle.trim() || !tempDescription.trim()}
               >
-                Delete
+                Save
               </button>
-            )}
-          </div>
-        )}
+              {!isNewTask && (
+                <button
+                  className="btn btn-sm btn-outline-danger"
+                  style={{ borderRadius: "6px" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+
+      <ConfirmationModal
+        show={showDeleteModal}
+        title="Delete Task"
+        message="Are you sure you want to delete this task? This action cannot be undone."
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
+    </>
   );
 };
 
