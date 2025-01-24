@@ -53,6 +53,14 @@ export const resetPassword = (email, verificationCode, newPassword) => {
   return api.post("/auth/verify-code", { email, verificationCode, newPassword });
 };
 
+export const changePassword = (currentPassword, newPassword) => {
+  return api.post("/auth/change-password", { currentPassword, newPassword });
+};
+
+export const uploadAvatar = (email, verificationCode, newPassword) => {
+  return api.post("/auth/verify-code", { email, verificationCode, newPassword });
+};
+
 export const verifyToken = () => api.get("/verify-token");
 
 // Profile-related endpoints

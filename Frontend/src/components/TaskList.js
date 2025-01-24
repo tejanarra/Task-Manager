@@ -8,7 +8,7 @@ import "../Styles/TaskList.css";
 
 const TaskList = () => {
   const { user, logout } = useAuth();
-  const [tasks, setTasks] = useState([]);
+  const [tasks, setTasks] = useState(null);
   const [newTaskId, setNewTaskId] = useState(null);
 
   useEffect(() => {
@@ -96,6 +96,30 @@ const TaskList = () => {
     setTasks((prev) => prev.filter((task) => task.id !== taskId));
     setNewTaskId(null);
   };
+
+  const renderShimmerLoader = () => (
+    <div className="container mt-5">
+      <div className="task-container">
+        <div className="card-body p-3">
+          <div className="d-flex justify-content-between align-items-center mb-3 header-container">
+            <h2 className="card-title mb-0">Your Tasks</h2>
+          </div>
+          <div className="shimmer-list">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="shimmer-task-item">
+                <div className="shimmer-task-header"></div>
+                <div className="shimmer-task-body"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  if (!tasks) {
+    return renderShimmerLoader();
+  }
 
   return (
     <div className="container mt-5">

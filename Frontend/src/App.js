@@ -7,7 +7,9 @@ import Register from "./components/Register";
 import Navbar from "./components/Navbar";
 import Footer from "./components/footer";
 import ForgotPassword from "./components/ForgotPassword";
-import Profile from "./components/Profile";
+import ProfileOverview from "./components/ProfileOverview";
+import EditProfile from "./components/EditProfile";
+import ChangePassword from "./components/ChangePassword";
 
 function App() {
   return (
@@ -26,7 +28,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/profile" element={<Profile />} />
+            <Route path="/profile-overview" element={<ProfileOverview />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/change-password" element={<ChangePassword />} />
           </Routes>
         </div>
         <Footer />

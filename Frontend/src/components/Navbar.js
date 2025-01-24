@@ -1,26 +1,14 @@
-import React, { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import ConfirmationModal from "./ConfirmationModal";
 
 const Navbar = () => {
-  const { user, logout } = useAuth();
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation(); // Get current location
+  const { user } = useAuth();
 
-  const handleLogout = () => {
-    logout();
-    setShowLogoutModal(false);
-    navigate("/login");
-  };
+  const location = useLocation();
 
-  const logoutClicked = () => {
-    setShowLogoutModal(true);
-  };
-
-  // Check if we are on the Profile page
-  const isOnProfilePage = location.pathname === "/profile";
+  const isOnProfilePage =
+    location.pathname === "/profile-overview" ||
+    location.pathname === "/edit-profile";
 
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
@@ -70,42 +58,23 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <li className="nav-item d-flex align-items-center me-3">
+                <li className="nav-item icons d-flex align-items-center me-3">
                   <Link
-                    to={isOnProfilePage ? "/" : "/profile"}
-                    className={`nav-link text-dark ${
-                      isOnProfilePage ? "bi-house-door" : "bi-person-circle"
+                    to={isOnProfilePage ? "/" : "/profile-overview"}
+                    className={`nav-link ${
+                      isOnProfilePage ? "bi-list" : "bi-person-circle"
                     }`}
                     style={{
                       fontWeight: "500",
-                      fontSize: "1.5rem", // Adjust icon size
+                      fontSize: "1.5rem",
                     }}
                   ></Link>
-                </li>
-                <li className="nav-item">
-                  <button
-                    className="btn btn-outline-danger"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      logoutClicked();
-                    }}
-                    style={{ fontWeight: "500" }}
-                  >
-                    Logout
-                  </button>
                 </li>
               </>
             )}
           </ul>
         </div>
       </div>
-      <ConfirmationModal
-        show={showLogoutModal}
-        title="Logout"
-        message="Are you sure you want to log out?"
-        onConfirm={handleLogout}
-        onCancel={() => setShowLogoutModal(false)}
-      />
     </nav>
   );
 };
