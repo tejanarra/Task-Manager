@@ -18,11 +18,7 @@ const TaskItem = ({
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (isEditing && cardRef.current && !cardRef.current.contains(e.target)) {
-        if (isNewTask) {
-          onCancel(task.id);
-        } else {
-          handleSave();
-        }
+        handleCancel();
       }
     };
 
@@ -33,6 +29,10 @@ const TaskItem = ({
   });
 
   const handleSave = async () => {
+    if (tempTitle.trim() === "" || tempDescription.trim() === "") {
+      return; // Prevent saving empty fields
+    }
+
     if (
       tempTitle !== task.title ||
       tempDescription !== task.description ||
@@ -41,8 +41,8 @@ const TaskItem = ({
       if (isNewTask) {
         onSave({
           ...task,
-          title: tempTitle,
-          description: tempDescription,
+          title: tempTitle.trim(),
+          description: tempDescription.trim(),
           status: tempStatus,
         });
       } else {
@@ -76,18 +76,42 @@ const TaskItem = ({
     }
   };
 
+  const handleCancel = () => {
+    setTempTitle(task.title); // Reset to original title
+    setTempDescription(task.description); // Reset to original description
+    setTempStatus(task.status); // Reset to original status
+    if (isNewTask) {
+      onCancel(task.id); // Discard new task creation
+    } else {
+      setIsEditing(false); // Exit edit mode
+    }
+  };
+
   const getStripColor = (status) => {
     switch (status) {
       case "completed":
-        return "#198754";
+        return "#007a00"; // Bright Green (Completed)
       case "in-progress":
-        return "#ffc107";
+        return "#daa520"; // Goldenrod (In Progress)
+      case "not-started":
       default:
-        return "#6c757d";
+        return "#a00000"; // Crimson (Not Started)
+    }
+  };
+
+  const getStatusIcon = (status) => {
+    switch (status) {
+      case "completed":
+        return "bi-check-circle";
+      case "in-progress":
+        return "bi-hourglass";
+      default:
+        return "bi-dash-circle";
     }
   };
 
   const stripColor = getStripColor(task.status);
+  const statusIcon = getStatusIcon(task.status);
 
   return (
     <div
@@ -109,9 +133,15 @@ const TaskItem = ({
       <div className="flex-grow-1 p-3">
         <div className="d-flex justify-content-between align-items-start flex-wrap mb-2">
           {!isEditing ? (
-            <h5 className="fw-bold mb-1" style={{ fontSize: "1.2rem" }}>
-              {task.title}
-            </h5>
+            <>
+              <h5 className="fw-bold mb-1" style={{ fontSize: "1.5rem", color: stripColor }}>
+                {task.title}
+              </h5>
+              <i
+                className={`bi ${statusIcon}`}
+                style={{ fontSize: "1.5rem", color: stripColor }}
+              />
+            </>
           ) : (
             <div className="w-100 mb-3">
               <label className="form-label fw-semibold">Title</label>
@@ -131,7 +161,7 @@ const TaskItem = ({
             style={{
               whiteSpace: "pre-wrap",
               marginBottom: "1rem",
-              fontSize: "0.95rem",
+              fontSize: "1.25rem",
             }}
           >
             {task.description}
@@ -163,33 +193,37 @@ const TaskItem = ({
             </select>
           </div>
         )}
-        <small style={{ color: "#666" }}>
+        <i><small style={{ color: "#666" }}>
           <strong>Created:</strong> {new Date(task.createdAt).toLocaleString()}{" "}
           | <strong>Updated:</strong>{" "}
           {new Date(task.updatedAt).toLocaleString()}
         </small>
+        </i>
         {isEditing && (
           <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
             <button
-              className="btn btn-sm btn-success"
+              className="btn btn-sm btn-outline-success"
               style={{ borderRadius: "6px" }}
               onClick={(e) => {
                 e.stopPropagation();
                 handleSave();
               }}
+              disabled={!tempTitle.trim() || !tempDescription.trim()}
             >
               Save
             </button>
-            <button
-              className="btn btn-sm btn-danger"
-              style={{ borderRadius: "6px" }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDelete();
-              }}
-            >
-              Delete
-            </button>
+            {!isNewTask && (
+              <button
+                className="btn btn-sm btn-outline-danger"
+                style={{ borderRadius: "6px" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+              >
+                Delete
+              </button>
+            )}
           </div>
         )}
       </div>
