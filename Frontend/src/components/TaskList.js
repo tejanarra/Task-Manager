@@ -1,9 +1,12 @@
+// src/components/TaskList.jsx
+
 import React, { useState, useEffect } from "react";
 import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./TaskItem";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "../Styles/TaskList.css"; // Import custom CSS for additional styling
 
 const TaskList = () => {
   const { user, logout } = useAuth();
@@ -98,25 +101,29 @@ const TaskList = () => {
 
   return (
     <div className="container mt-5">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <div className="d-flex justify-content-between align-items-center">
-            <h2 className="card-title mb-4">Your Tasks</h2>
+      <div className="task-container">
+        <div className="card-body p-3">
+          <div className="d-flex justify-content-between align-items-center mb-3 header-container">
+            <h2 className="card-title mb-0">Your Tasks</h2>
             <button
-              className="btn btn-outline-primary d-flex align-items-center gap-1"
-              style={{ borderRadius: "6px" }}
+              className="btn btn-outline-primary d-flex align-items-center gap-2 add-task-button"
               onClick={handleAddTask}
+              aria-label="Add a new task"
             >
-              <i className="bi bi-plus"></i> Add Task
+              <i className="bi bi-plus" aria-hidden="true"></i> Add Task
             </button>
           </div>
           {tasks.length === 0 ? (
-            <p>No tasks available</p>
+            <p className="text-muted">No tasks available</p>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="taskList">
                 {(provided) => (
-                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                  <div
+                    {...provided.droppableProps}
+                    ref={provided.innerRef}
+                    className="task-list"
+                  >
                     {tasks
                       .sort((a, b) => a.priority - b.priority)
                       .map((task, index) => (
@@ -130,9 +137,9 @@ const TaskList = () => {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              className="mb-3"
                               style={{
                                 ...provided.draggableProps.style,
-                                marginBottom: "10px",
                               }}
                             >
                               <TaskItem
