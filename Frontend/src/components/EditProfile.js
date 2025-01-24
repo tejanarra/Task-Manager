@@ -71,7 +71,6 @@ const EditProfile = () => {
       formData.append("avatar", newAvatar);
     }
 
-    // Append other profile details to the form data
     formData.append("firstName", profile.firstName);
     formData.append("lastName", profile.lastName);
     formData.append("phoneNumber", profile.phoneNumber);
