@@ -50,15 +50,15 @@ export const sendForgotPasswordRequest = (email) => {
 };
 
 export const resetPassword = (email, verificationCode, newPassword) => {
-  return api.post("/auth/verify-code", { email, verificationCode, newPassword });
+  return api.post("/auth/verify-code", {
+    email,
+    verificationCode,
+    newPassword,
+  });
 };
 
 export const changePassword = (currentPassword, newPassword) => {
   return api.post("/auth/change-password", { currentPassword, newPassword });
-};
-
-export const uploadAvatar = (email, verificationCode, newPassword) => {
-  return api.post("/auth/verify-code", { email, verificationCode, newPassword });
 };
 
 export const verifyToken = () => api.get("/verify-token");
@@ -74,14 +74,9 @@ export const getProfile = async () => {
   }
 };
 
-// Update the profile data
 export const updateProfile = async (formData) => {
   try {
-    const response = await api.put("/profile", formData, {
-      headers: {
-        "Content-Type": "multipart/form-data", 
-      },
-    });
+    const response = await api.put("/profile", formData);
     return response.data;
   } catch (err) {
     console.error("Error updating profile:", err);

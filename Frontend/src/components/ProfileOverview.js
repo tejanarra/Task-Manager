@@ -23,13 +23,25 @@ const ProfileOverview = () => {
     setShowLogoutModal(true);
   };
 
+  function arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = [].slice.call(new Uint8Array(buffer));
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return window.btoa(binary);
+  }
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
+        if (data.avatar && data.avatar.data) {
+          const base64Avatar = arrayBufferToBase64(data.avatar.data);
+          data.avatar = `data:image/jpeg;base64,${base64Avatar}`;
+        }
         setProfile(data);
       } catch (err) {
         setError("Failed to fetch profile data.");
+        console.log(err);
       }
     };
 

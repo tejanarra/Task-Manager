@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const { validationResult } = require("express-validator");
 const sequelize = require("../config/db");
+const fs = require("fs").promises;
 import "pg";
 
 const fetchUser = async (userId) => {
@@ -36,13 +37,7 @@ const updateProfile = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const {
-    firstName,
-    lastName,
-    phoneNumber,
-    dob,
-    bio,
-  } = req.body;
+  const { firstName, lastName, phoneNumber, dob, bio } = req.body;
 
   const transaction = await sequelize.transaction();
 
@@ -61,7 +56,8 @@ const updateProfile = async (req, res) => {
     if (bio !== undefined) user.bio = bio;
 
     if (req.file) {
-      user.avatar = `/uploads/avatars/${req.file.filename}`;
+      const fileData = await fs.readFile(req.file.path);
+      user.avatar = fileData;
     }
 
     await user.save({ transaction });

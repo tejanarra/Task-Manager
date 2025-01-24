@@ -34,17 +34,11 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 1024 * 1024 * 2 }, // 2MB limit
+  limits: { fileSize: 1024 * 1024 * 2 },
 });
 
-// @route   GET /api/profile
-// @desc    Get current user's profile
-// @access  Private
 router.get("/", authenticateToken, getProfile);
 
-// @route   PUT /api/profile
-// @desc    Update current user's profile
-// @access  Private
 router.put(
   "/",
   authenticateToken,

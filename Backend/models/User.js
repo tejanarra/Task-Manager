@@ -67,7 +67,7 @@ const User = sequelize.define(
       },
     },
     avatar: {
-      type: DataTypes.STRING,
+      type: DataTypes.BLOB,
       allowNull: true,
     },
   },

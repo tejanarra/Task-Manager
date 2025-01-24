@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getProfile, updateProfile, uploadAvatar } from "../services/api";
+import { getProfile, updateProfile } from "../services/api";
 import "../Styles/EditProfile.css";
 
 const EditProfile = () => {
@@ -10,13 +10,27 @@ const EditProfile = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
+  function arrayBufferToBase64(buffer) {
+    var binary = "";
+    var bytes = [].slice.call(new Uint8Array(buffer));
+    bytes.forEach((b) => (binary += String.fromCharCode(b)));
+    return window.btoa(binary);
+  }
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
+        if (!data) throw new Error("Received no data");
+        if (data.avatar && data.avatar.data) {
+          const base64Avatar = arrayBufferToBase64(data.avatar.data);
+          data.avatar = `data:image/jpeg;base64,${base64Avatar}`;
+        }
         setProfile(data);
       } catch (err) {
-        setError("Failed to fetch profile data.");
+        setError(
+          `Failed to fetch profile data: ${err.message || err.toString()}`
+        );
       }
     };
 
@@ -25,7 +39,9 @@ const EditProfile = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
+    if (profile) {
+      setProfile({ ...profile, [name]: value });
+    }
   };
 
   const handleImageChange = (e) => {
@@ -34,7 +50,9 @@ const EditProfile = () => {
       setNewAvatar(file);
       const reader = new FileReader();
       reader.onload = () => {
-        setProfile((prev) => ({ ...prev, avatar: reader.result }));
+        if (profile) {
+          setProfile((prev) => ({ ...prev, avatar: reader.result }));
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -42,54 +60,48 @@ const EditProfile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const updatedProfile = { ...profile };
+
+    if (!profile) {
+      setError("No profile data available.");
+      return;
+    }
+
+    const formData = new FormData();
+    if (newAvatar) {
+      formData.append("avatar", newAvatar);
+    }
+
+    // Append other profile details to the form data
+    formData.append("firstName", profile.firstName);
+    formData.append("lastName", profile.lastName);
+    formData.append("phoneNumber", profile.phoneNumber);
+    formData.append("dob", profile.dob);
+    formData.append("bio", profile.bio || "");
 
     try {
-      if (newAvatar) {
-        const formData = new FormData();
-        formData.append("avatar", newAvatar);
-        const uploadedAvatarUrl = await uploadAvatar(formData);
-        updatedProfile.avatar = uploadedAvatarUrl;
-      }
-
-      await updateProfile(updatedProfile);
+      const response = await updateProfile(formData);
+      setProfile(response);
       setSuccess("Profile updated successfully!");
-      setTimeout(() => navigate("/profile-overview"), 2000);
+      navigate("/profile-overview");
     } catch (err) {
       setError("Failed to update profile.");
+      console.error(err);
     }
   };
+
+  if (!profile && !error) {
+    return (
+      <div className="profile-container">
+        <div>Loading profile...</div>
+      </div>
+    );
+  }
 
   if (error) {
     return (
       <div className="profile-container">
         <h2 className="profile-title">Edit Profile</h2>
         <p className="text-danger text-center">{error}</p>
-      </div>
-    );
-  }
-
-  if (!profile) {
-    return (
-      <div className="profile-container">
-        <div className="profile-card shadow rounded">
-          <h2 className="profile-title text-center mb-4">Edit Profile</h2>
-          <div className="skeleton-loader">
-            <div className="skeleton-avatar mb-4"></div>
-            <div className="skeleton-input mb-3"></div>
-            <div className="skeleton-input mb-3"></div>
-            <div className="skeleton-input mb-3"></div>
-            <div className="skeleton-input mb-3"></div>
-            <div className="row mt-4">
-              <div className="col-12 col-md-6 mb-2 mb-md-0">
-                <div className="skeleton-button"></div>
-              </div>
-              <div className="col-12 col-md-6">
-                <div className="skeleton-button"></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     );
   }
@@ -102,7 +114,7 @@ const EditProfile = () => {
         <form onSubmit={handleSubmit}>
           <div className="text-center mb-4">
             <label htmlFor="avatarUpload" className="profile-image-preview">
-              {profile.avatar ? (
+              {profile && profile.avatar ? (
                 <img
                   src={profile.avatar}
                   alt="Profile"
@@ -110,8 +122,16 @@ const EditProfile = () => {
                 />
               ) : (
                 <div className="placeholder-avatar">
-                  {profile.firstName[0]?.toUpperCase() || ""}
-                  {profile.lastName[0]?.toUpperCase() || ""}
+                  {profile ? (
+                    <>
+                      {profile.firstName && profile.firstName[0]
+                        ? profile.firstName[0].toUpperCase()
+                        : ""}
+                      {profile.lastName && profile.lastName[0]
+                        ? profile.lastName[0].toUpperCase()
+                        : ""}
+                    </>
+                  ) : null}
                 </div>
               )}
             </label>
@@ -123,74 +143,29 @@ const EditProfile = () => {
               className="d-none"
             />
           </div>
-          <div className="form-group mb-3">
-            <label htmlFor="bio" className="form-label">
-              Bio
-            </label>
-            <textarea
-              className="form-control"
-              id="bio"
-              name="bio"
-              rows="4"
-              value={profile.bio || ""}
-              onChange={handleChange}
-              placeholder="Write something about yourself..."
-            ></textarea>
-          </div>
-          <div className="form-group mb-3">
-            <label htmlFor="firstName" className="form-label">
-              First Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="firstName"
-              name="firstName"
-              value={profile.firstName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group mb-3">
-            <label htmlFor="lastName" className="form-label">
-              Last Name
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="lastName"
-              name="lastName"
-              value={profile.lastName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          <div className="form-group mb-3">
-            <label htmlFor="phoneNumber" className="form-label">
-              Phone Number
-            </label>
-            <input
-              type="text"
-              className="form-control"
-              id="phoneNumber"
-              name="phoneNumber"
-              value={profile.phoneNumber}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="form-group mb-3">
-            <label htmlFor="dob" className="form-label">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              className="form-control"
-              id="dob"
-              name="dob"
-              value={profile.dob}
-              onChange={handleChange}
-            />
-          </div>
+          {Object.entries({
+            firstName: "First Name",
+            lastName: "Last Name",
+            phoneNumber: "Phone Number",
+            dob: "Date of Birth",
+            bio: "Bio",
+          }).map(([key, label]) => (
+            <div key={key} className="form-group mb-3">
+              <label htmlFor={key} className="form-label">
+                {label}
+              </label>
+              <input
+                type={key === "bio" ? "textarea" : "text"}
+                className="form-control"
+                id={key}
+                name={key}
+                value={profile[key] || ""}
+                onChange={handleChange}
+                placeholder={`Enter your ${label.toLowerCase()}...`}
+                required={key !== "bio" && key !== "phoneNumber"}
+              />
+            </div>
+          ))}
           <div className="row mt-4">
             <div className="col-12 col-md-6 mb-2 mb-md-0">
               <button type="submit" className="btn btn-outline-success w-100">
