@@ -1,12 +1,10 @@
-// src/components/TaskList.jsx
-
 import React, { useState, useEffect } from "react";
 import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./TaskItem";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "../Styles/TaskList.css"; // Import custom CSS for additional styling
+import "../Styles/TaskList.css";
 
 const TaskList = () => {
   const { user, logout } = useAuth();
@@ -110,7 +108,7 @@ const TaskList = () => {
               onClick={handleAddTask}
               aria-label="Add a new task"
             >
-              <i className="bi bi-plus" aria-hidden="true"></i> Add Task
+              New Task
             </button>
           </div>
           {tasks.length === 0 ? (
