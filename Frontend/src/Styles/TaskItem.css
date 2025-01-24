@@ -1,32 +1,30 @@
 .task-card {
-  background: rgba(255, 255, 255, 0.43);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  font-family: "Poppins", sans-serif;
-  display: flex;
-  position: relative;
-}
-
-.task-card:hover {
-  transform: scale(1.01);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
-}
-
-.task-strip {
-  width: 8px;
-  flex-shrink: 0;
-  height: 100%;
-}
-
-.status-icon {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  font-size: 1.5rem;
-  pointer-events: none;
-}
+    background: rgba(255, 255, 255, 0.43);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    font-family: "Poppins", sans-serif;
+    display: flex;
+    position: relative;
+  }
+  
+  .task-card:hover {
+    transform: scale(1.01);
+    box-shadow: 0 2px 4px 0 rgba(13, 10, 10, 0.5);
+  }
+  
+  .task-strip {
+    width: 8px;
+    flex-shrink: 0;
+  }
+  
+  .status-icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+  }

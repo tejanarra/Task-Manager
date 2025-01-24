@@ -3,6 +3,7 @@ import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ConfirmationModal from "./ConfirmationModal";
 import { formatRelativeTime } from "../utils/dateUtils";
+import "../Styles/TaskItem.css";
 
 const TaskItem = ({
   task,
@@ -100,73 +101,49 @@ const TaskItem = ({
       case "completed":
         return "#007a00";
       case "in-progress":
-        return "#FFC107";
+        return "#daa520";
       case "not-started":
       default:
         return "#a00000";
     }
   };
 
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed":
-        return "bi-check-circle";
-      case "in-progress":
-        return "bi-hourglass";
-      default:
-        return "bi-dash-circle";
-    }
-  };
-
   const stripColor = getStripColor(task.status);
-  const statusIcon = getStatusIcon(task.status);
-
-  const cardStyle = {
-    background: "rgba(255, 255, 255, 0.43)",
-    backdropFilter: "blur(10px)",
-    WebkitBackdropFilter: "blur(10px)",
-    border: "1px solid #e0e0e0",
-    borderRadius: "8px",
-    overflow: "hidden",
-    cursor: "pointer",
-    transition: "transform 0.2s ease",
-    fontFamily: "Poppins, sans-serif",
-  };
-
-  const hoverStyle = {
-    transform: "scale(1.01)",
-  };
-
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
     <>
       <div
         ref={cardRef}
-        className="mb-4 d-flex position-relative"
-        style={{
-          ...cardStyle,
-          ...(isHovered ? hoverStyle : {}),
-        }}
+        className="task-card mb-4 position-relative d-flex"
         onClick={() => setIsEditing(true)}
-        onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
       >
-        <div style={{ width: "8px", backgroundColor: stripColor }} />
-        <div className="flex-grow-1 p-3">
-          <div className="d-flex justify-content-between align-items-start flex-wrap mb-2">
+        <div
+          className="task-strip"
+          style={{ backgroundColor: stripColor }}
+        ></div>
+        <div className="flex-grow-1 p-3 position-relative">
+          {!isEditing && (
+            <i
+              className={`bi ${
+                task.status === "completed"
+                  ? "bi-check-circle"
+                  : task.status === "in-progress"
+                  ? "bi-hourglass"
+                  : "bi-dash-circle"
+              } status-icon`}
+              style={{ color: stripColor }}
+            />
+          )}
+
+          <div className="d-flex justify-content-between align-items-start flex-nowrap mb-2">
             {!isEditing ? (
               <>
                 <h5
-                  className="fw-bold mb-1"
-                  style={{ fontSize: "1.5rem", color: stripColor }}
+                  className="fw-bold mb-1 task-title"
+                  style={{ color: stripColor }}
                 >
                   {task.title}
                 </h5>
-                <i
-                  className={`bi ${statusIcon}`}
-                  style={{ fontSize: "1.5rem", color: stripColor }}
-                />
               </>
             ) : (
               <div className="w-100 mb-3">
@@ -184,6 +161,7 @@ const TaskItem = ({
           </div>
           {!isEditing ? (
             <p
+              className="task-description"
               style={{
                 whiteSpace: "pre-wrap",
                 marginBottom: "1rem",
