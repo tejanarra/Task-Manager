@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../services/api";
-import { resizeImage } from "../utils/imageUtils";
+import AvatarEditor from "react-avatar-editor";
 import "../Styles/EditProfile.css";
 
 const EditProfile = () => {
@@ -9,14 +9,17 @@ const EditProfile = () => {
   const [newAvatar, setNewAvatar] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [scale, setScale] = useState(1);
+  const [rotate, setRotate] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const editorRef = useRef(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
         if (!data) throw new Error("Received no data");
-        // No need to convert avatar data here as it's now a URL
         setProfile(data);
       } catch (err) {
         setError(
@@ -38,22 +41,20 @@ const EditProfile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      resizeImage(file, 800, 800, (resizedBlob) => {
-        const resizedFile = new File([resizedBlob], file.name, {
-          type: "image/jpeg",
-          lastModified: Date.now(),
-        });
-
-        setNewAvatar(resizedFile);
-        const reader = new FileReader();
-        reader.onload = () => {
-          if (profile) {
-            setProfile((prev) => ({ ...prev, avatar: reader.result }));
-          }
-        };
-        reader.readAsDataURL(resizedFile);
-      });
+      setNewAvatar(file);
+      setScale(1);
+      setRotate(0);
     }
+  };
+
+  const handleScaleChange = (e) => {
+    const scaleValue = parseFloat(e.target.value);
+    setScale(scaleValue);
+  };
+
+  const handleRotateChange = (e) => {
+    const rotateValue = parseInt(e.target.value, 10);
+    setRotate(rotateValue);
   };
 
   const handleSubmit = async (e) => {
@@ -64,11 +65,26 @@ const EditProfile = () => {
       return;
     }
 
-    const formData = new FormData();
-    if (newAvatar) {
-      formData.append("avatar", newAvatar);
-    }
+    setIsLoading(true);
 
+    const formData = new FormData();
+    if (newAvatar && editorRef.current) {
+      const canvas = editorRef.current.getImageScaledToCanvas();
+      canvas.toBlob(async (blob) => {
+        const croppedFile = new File([blob], newAvatar.name, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        });
+
+        formData.append("avatar", croppedFile);
+        appendProfileData(formData);
+      }, "image/jpeg");
+    } else {
+      appendProfileData(formData);
+    }
+  };
+
+  const appendProfileData = async (formData) => {
     formData.append("firstName", profile.firstName);
     formData.append("lastName", profile.lastName);
     formData.append("phoneNumber", profile.phoneNumber);
@@ -79,17 +95,19 @@ const EditProfile = () => {
       const response = await updateProfile(formData);
       setProfile(response.user);
       setSuccess("Profile updated successfully!");
-      setTimeout(() => navigate("/profile-overview"), 1000);
+      setTimeout(() => navigate("/profile-overview"), 2000);
     } catch (err) {
       setError("Failed to update profile.");
       console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   if (!profile && !error) {
     return (
       <div className="profile-container">
-        <div>Loading profile...</div>
+        <div className="loading-spinner">Loading profile...</div>
       </div>
     );
   }
@@ -108,10 +126,24 @@ const EditProfile = () => {
       <div className="profile-card shadow rounded">
         <h2 className="profile-title text-center mb-4">Edit Profile</h2>
         {success && <p className="text-success text-center">{success}</p>}
+        {isLoading && <div className="loading-overlay">Updating...</div>}
         <form onSubmit={handleSubmit}>
           <div className="text-center mb-4">
             <label htmlFor="avatarUpload" className="profile-image-preview">
-              {profile.avatar ? (
+              {newAvatar ? (
+                <AvatarEditor
+                  ref={editorRef}
+                  image={newAvatar}
+                  width={250}
+                  height={250}
+                  border={25}
+                  borderRadius={125}
+                  color={[255, 255, 255, 0.6]}
+                  scale={scale}
+                  rotate={rotate}
+                  className="avatar-editor"
+                />
+              ) : profile.avatar ? (
                 <img
                   src={profile.avatar}
                   alt="Profile"
@@ -140,6 +172,34 @@ const EditProfile = () => {
               className="d-none"
             />
           </div>
+          {newAvatar && (
+            <div className="image-controls mb-4">
+              <div className="control-group">
+                <label htmlFor="zoomRange">Zoom:</label>
+                <input
+                  type="range"
+                  id="zoomRange"
+                  min="1"
+                  max="2"
+                  step="0.01"
+                  value={scale}
+                  onChange={handleScaleChange}
+                />
+              </div>
+              <div className="control-group">
+                <label htmlFor="rotateRange">Rotate:</label>
+                <input
+                  type="range"
+                  id="rotateRange"
+                  min="0"
+                  max="360"
+                  step="1"
+                  value={rotate}
+                  onChange={handleRotateChange}
+                />
+              </div>
+            </div>
+          )}
           {Object.entries({
             firstName: "First Name",
             lastName: "Last Name",
@@ -163,7 +223,7 @@ const EditProfile = () => {
                 />
               ) : (
                 <input
-                  type="text"
+                  type={key === "dob" ? "date" : "text"}
                   className="form-control"
                   id={key}
                   name={key}
@@ -177,7 +237,11 @@ const EditProfile = () => {
           ))}
           <div className="row mt-4">
             <div className="col-12 col-md-6 mb-2 mb-md-0">
-              <button type="submit" className="btn btn-outline-success w-100">
+              <button
+                type="submit"
+                className="btn btn-outline-success w-100"
+                disabled={isLoading}
+              >
                 Save Changes
               </button>
             </div>
@@ -186,6 +250,7 @@ const EditProfile = () => {
                 type="button"
                 className="btn btn-outline-danger w-100"
                 onClick={() => navigate("/profile-overview")}
+                disabled={isLoading}
               >
                 Cancel
               </button>
