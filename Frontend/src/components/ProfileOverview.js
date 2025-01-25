@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../services/api";
 import "../Styles/ProfileOverview.css";
-
 import { useAuth } from "../context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
+import { convertDateToWords } from "../utils/dateUtils";
 
 const ProfileOverview = () => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -129,25 +129,25 @@ const ProfileOverview = () => {
           <div className="detail-row">
             <strong className="detail-label">Date of Birth:</strong>
             <span className="detail-value">
-              {profile.dob || "Not provided"}
+              {profile.dob ? convertDateToWords(profile.dob) : "Not provided"}
             </span>
           </div>
         </div>
         <div className="row mt-4">
           <div className="col-12 col-md-6 mb-2 mb-md-0">
             <button
-              className="btn btn-outline-primary w-100"
-              onClick={() => navigate("/edit-profile")}
+              className="btn btn-secondary w-100"
+              onClick={() => navigate("/change-password")}
             >
-              Edit Profile
+              Change Password
             </button>
           </div>
           <div className="col-12 col-md-6">
             <button
-              className="btn btn-outline-dark w-100"
-              onClick={() => navigate("/change-password")}
+              className="btn btn-black w-100"
+              onClick={() => navigate("/edit-profile")}
             >
-              Change Password
+              Edit Profile
             </button>
           </div>
         </div>

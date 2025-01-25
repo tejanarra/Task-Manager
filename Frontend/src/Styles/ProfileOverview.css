@@ -174,3 +174,28 @@
         background-position: 200% 0;
     }
 }
+
+
+.btn-black {
+    background-color: #000;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+  }
+  
+.btn-black:hover {
+    background-color: #333;
+    color: #fff;
+  }
+
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+  
+  .custom-modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+    color: #fff;
+  }
+  

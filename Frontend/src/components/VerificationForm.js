@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { verifyRegistrationCode } from "../services/api";
+import "../Styles/VerificationForm.css";
 
 const VerificationForm = ({
   email,
@@ -37,38 +38,36 @@ const VerificationForm = ({
   };
 
   return (
-    <form onSubmit={handleVerifyCode}>
+    <form onSubmit={handleVerifyCode} className="verification-form">
       <div className="mb-3">
         <input
           type="email"
-          className="form-control"
-          placeholder="Email"
+          className="form-control py-2"
+          id="email"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
       </div>
+
       <div className="mb-3">
         <input
           type="text"
-          className="form-control"
-          placeholder="Enter Verification Code"
+          className="form-control py-2"
+          id="verificationCode"
+          placeholder="Enter verification code"
           value={verificationCode}
           onChange={(e) => setVerificationCode(e.target.value)}
           required
         />
       </div>
 
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <button
-          type="submit"
-          className="btn btn-primary mb-3"
-          style={{ fontFamily: "Poppins" }}
-          disabled={isLoading}
-        >
+      <div className="d-flex justify-content-between align-items-center mt-3">
+        <button type="submit" className="btn btn-dark" disabled={isLoading}>
           {isLoading ? (
             <span
-              className="spinner-border spinner-border-sm"
+              className="spinner-border spinner-border-sm text-light"
               role="status"
               aria-hidden="true"
             ></span>
@@ -76,11 +75,9 @@ const VerificationForm = ({
             "Verify Code"
           )}
         </button>
-
         <button
           type="button"
-          className="btn btn-link"
-          style={{ textDecoration: "none", fontFamily: "Poppins" }}
+          className="btn btn-link resend-link"
           onClick={handleSendVerificationCode}
         >
           Resend Code

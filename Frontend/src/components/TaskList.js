@@ -128,7 +128,7 @@ const TaskList = () => {
           <div className="d-flex justify-content-between align-items-center mb-3 header-container">
             <h2 className="card-title mb-0">Your Tasks</h2>
             <button
-              className="btn btn-outline-primary d-flex align-items-center gap-2 add-task-button"
+              className="btn btn-outline-dark d-flex align-items-center gap-2 add-task-button"
               onClick={handleAddTask}
               aria-label="Add a new task"
             >

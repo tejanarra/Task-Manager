@@ -129,7 +129,7 @@ const TaskItem = ({
                   ? "bi-check-circle"
                   : task.status === "in-progress"
                   ? "bi-hourglass"
-                  : "bi-dash-circle"
+                  : "bi-ban"
               } status-icon`}
               style={{ color: stripColor }}
             />
@@ -206,21 +206,10 @@ const TaskItem = ({
             </div>
           </div>
           {isEditing && (
-            <div className="d-flex justify-content-end align-items-center mt-3 gap-2">
-              <button
-                className="btn btn-sm btn-outline-success"
-                style={{ borderRadius: "6px" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSave();
-                }}
-                disabled={!tempTitle.trim() || !tempDescription.trim()}
-              >
-                Save
-              </button>
+            <div className="d-flex justify-content-between align-items-center mt-3">
               {!isNewTask && (
                 <button
-                  className="btn btn-sm btn-outline-danger"
+                  className="btn btn-sm btn-secondary"
                   style={{ borderRadius: "6px" }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -230,6 +219,17 @@ const TaskItem = ({
                   Delete
                 </button>
               )}
+              <button
+                className="btn btn-sm btn-dark"
+                style={{ borderRadius: "6px" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
+                }}
+                disabled={!tempTitle.trim() || !tempDescription.trim()}
+              >
+                Save
+              </button>
             </div>
           )}
         </div>

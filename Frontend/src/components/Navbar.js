@@ -12,9 +12,7 @@ const Navbar = () => {
 
   const avatarLink = isOnProfile ? "/" : "/profile-overview";
 
-  const avatarBorderStyle = isOnProfile
-    ? "2px dashed #000"
-    : "2px solid #000";
+  const avatarBorderStyle = isOnProfile ? "2px dashed #000" : "2px solid #000";
 
   const avatarStyle = {
     width: "35px",
@@ -69,7 +67,6 @@ const Navbar = () => {
                       location.pathname === "/login" ? "active" : ""
                     }`}
                   >
-                    <i className="bi bi-box-arrow-in-right me-1"></i>
                     Login
                   </Link>
                 </li>
@@ -80,7 +77,6 @@ const Navbar = () => {
                       location.pathname === "/register" ? "active" : ""
                     }`}
                   >
-                    <i className="bi bi-pencil-square me-1"></i>
                     Register
                   </Link>
                 </li>

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../services/api";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../Styles/Login.css";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,6 +17,7 @@ const Login = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+
     try {
       const { data } = await loginUser(email, password);
       const { token, userInfo } = data;
@@ -36,39 +38,47 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="mb-4" style={{ fontFamily: "Poppins", fontWeight: "600" }}>
-        Login
-      </h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="email"
-          className="form-control mb-3"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-        <input
-          type="password"
-          className="form-control mb-3"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+    <div className="login-page d-flex align-items-center justify-content-center">
+      <div className="login-form wider-form">
+        <h1 className="fw-bold mb-2">Welcome back</h1>
+        <p className="text-muted mb-4">Please enter your details</p>
+
         {error && <div className="alert alert-danger">{error}</div>}
 
-        <div className="d-flex justify-content-between align-items-center">
+        <form onSubmit={handleSubmit}>
+          {/* Email */}
+          <div className="mb-3">
+            <input
+              type="email"
+              className="form-control py-2"
+              id="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-3">
+            <input
+              type="password"
+              className="form-control py-2"
+              id="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
+
           <button
             type="submit"
-            className="btn btn-primary"
-            style={{ fontFamily: "Poppins" }}
+            className="btn btn-dark w-100 mb-3"
             disabled={isLoading}
           >
             {isLoading ? (
               <span
-                className="spinner-border spinner-border-sm"
+                className="spinner-border spinner-border-sm text-light"
                 role="status"
                 aria-hidden="true"
               ></span>
@@ -76,14 +86,20 @@ const Login = () => {
               "Login"
             )}
           </button>
+        </form>
+
+        <div className="d-flex justify-content-between mt-3">
+          <Link to="/register" className="register-link">
+            Register
+          </Link>
           <button
-            className="btn btn-link text-decoration-none"
+            className="btn btn-link forgot-password-link p-0"
             onClick={handleForgotPassword}
           >
-            Forgot Password?
+            Forgot password?
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 };

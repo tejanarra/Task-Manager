@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendForgotPasswordRequest, resetPassword } from "../services/api";
-import "bootstrap/dist/css/bootstrap.min.css";
+import "../Styles/ForgotPassword.css";
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState("");
@@ -71,109 +71,115 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div className="container mt-5">
-      <h2 className="mb-4" style={{ fontFamily: "Poppins", fontWeight: "600" }}>
-        Forgot Password
-      </h2>
+    <div className="forgot-password-page d-flex align-items-center justify-content-center">
+      <div className="forgot-password-form wider-form">
+        <h1 className="fw-bold mb-2">Forgot Password</h1>
+        <p className="text-muted mb-4">
+          {hasCode || isEmailSent
+            ? "Enter your verification code and reset your password."
+            : "Enter your email to receive a verification code."}
+        </p>
 
-      <form
-        onSubmit={
-          hasCode || isEmailSent ? handleResetPassword : handleSendEmail
-        }
-      >
-        <div className="form-check mb-3">
-          <input
-            type="checkbox"
-            className="form-check-input"
-            id="hasCodeCheck"
-            checked={hasCode}
-            onChange={() => {
-              setHasCode(!hasCode);
-              setError("");
-              setMessage("");
-            }}
-          />
-          <label
-            className="form-check-label"
-            htmlFor="hasCodeCheck"
-            style={{ fontFamily: "Poppins" }}
-          >
-            I already have a verification code
-          </label>
-        </div>
-
-        <input
-          type="email"
-          className="form-control mb-3"
-          placeholder="Enter your email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={isEmailSent}
-        />
-
-        {(hasCode || isEmailSent) && (
-          <>
+        <form
+          onSubmit={
+            hasCode || isEmailSent ? handleResetPassword : handleSendEmail
+          }
+        >
+          <div className="form-check mb-3">
             <input
-              type="text"
-              className="form-control mb-3"
-              placeholder="Verification Code"
-              value={verificationCode}
-              onChange={(e) => setVerificationCode(e.target.value)}
-              required
+              type="checkbox"
+              className="form-check-input"
+              id="hasCodeCheck"
+              checked={hasCode}
+              onChange={() => {
+                setHasCode(!hasCode);
+                setError("");
+                setMessage("");
+              }}
             />
+            <label className="form-check-label" htmlFor="hasCodeCheck">
+              I already have a verification code
+            </label>
+          </div>
+
+          <div className="mb-3">
             <input
-              type="password"
-              className="form-control mb-3"
-              placeholder="New Password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
+              type="email"
+              className="form-control py-2"
+              id="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              disabled={isEmailSent}
             />
-            <input
-              type="password"
-              className="form-control mb-3"
-              placeholder="Confirm New Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-          </>
-        )}
+          </div>
 
-        {error && <div className="alert alert-danger">{error}</div>}
-        {message && <div className="alert alert-success">{message}</div>}
+          {(hasCode || isEmailSent) && (
+            <>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control py-2"
+                  id="verificationCode"
+                  placeholder="Enter verification code"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="password"
+                  className="form-control py-2"
+                  id="newPassword"
+                  placeholder="Enter new password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="mb-3">
+                <input
+                  type="password"
+                  className="form-control py-2"
+                  id="confirmNewPassword"
+                  placeholder="Confirm new password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+            </>
+          )}
 
-        <div className="d-flex justify-content-between mt-3">
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{ fontFamily: "Poppins" }}
-            disabled={isLoading}
-          >
-            {isLoading ? (
-              <span
-                className="spinner-border spinner-border-sm"
-                role="status"
-                aria-hidden="true"
-              ></span>
-            ) : hasCode || isEmailSent ? (
-              "Reset Password"
-            ) : (
-              "Send Code"
-            )}
-          </button>
+          {error && <div className="alert alert-danger">{error}</div>}
+          {message && <div className="alert alert-success">{message}</div>}
 
-          <button
-            type="button"
-            className="btn btn-link"
-            style={{ textDecoration: "none" }}
-            onClick={() => navigate("/login")}
-          >
-            Back to Login
-          </button>
-        </div>
-      </form>
+          <div className="d-flex justify-content-between mt-4">
+            <button type="submit" className="btn btn-dark" disabled={isLoading}>
+              {isLoading ? (
+                <span
+                  className="spinner-border spinner-border-sm text-light"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+              ) : hasCode || isEmailSent ? (
+                "Reset Password"
+              ) : (
+                "Send Code"
+              )}
+            </button>
+            <button
+              type="button"
+              className="btn btn-link back-to-login"
+              onClick={() => navigate("/login")}
+            >
+              Back to Login
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };

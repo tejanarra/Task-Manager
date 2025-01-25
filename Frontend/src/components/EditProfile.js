@@ -238,21 +238,21 @@ const EditProfile = () => {
           <div className="row mt-4">
             <div className="col-12 col-md-6 mb-2 mb-md-0">
               <button
-                type="submit"
-                className="btn btn-outline-success w-100"
-                disabled={isLoading}
-              >
-                Save Changes
-              </button>
-            </div>
-            <div className="col-12 col-md-6">
-              <button
                 type="button"
-                className="btn btn-outline-danger w-100"
+                className="btn btn-secondary w-100"
                 onClick={() => navigate("/profile-overview")}
                 disabled={isLoading}
               >
                 Cancel
+              </button>
+            </div>
+            <div className="col-12 col-md-6">
+              <button
+                type="submit"
+                className="btn btn-black w-100"
+                disabled={isLoading}
+              >
+                Save Changes
               </button>
             </div>
           </div>

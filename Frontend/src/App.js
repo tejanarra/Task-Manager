@@ -10,19 +10,14 @@ import ForgotPassword from "./components/ForgotPassword";
 import ProfileOverview from "./components/ProfileOverview";
 import EditProfile from "./components/EditProfile";
 import ChangePassword from "./components/ChangePassword";
+import "./App.css";
 
 function App() {
   return (
     <AuthProvider>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          minHeight: "100vh",
-        }}
-      >
+      <div className="app-container">
         <Navbar />
-        <div style={{ flex: 1, paddingBottom: "2rem" }}>
+        <main className="main-content">
           <Routes>
             <Route path="/" element={<TaskList />} />
             <Route path="/login" element={<Login />} />
@@ -32,7 +27,7 @@ function App() {
             <Route path="/edit-profile" element={<EditProfile />} />
             <Route path="/change-password" element={<ChangePassword />} />
           </Routes>
-        </div>
+        </main>
         <Footer />
       </div>
     </AuthProvider>
