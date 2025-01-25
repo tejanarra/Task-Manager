@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-import "pg"
+import "pg";
 
 const User = sequelize.define(
   "User",
@@ -67,7 +67,7 @@ const User = sequelize.define(
       },
     },
     avatar: {
-      type: DataTypes.BLOB,
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },

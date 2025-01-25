@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../services/api";
+import { resizeImage } from "../utils/imageUtils";
 import "../Styles/EditProfile.css";
 
 const EditProfile = () => {
@@ -10,22 +11,12 @@ const EditProfile = () => {
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
 
-  function arrayBufferToBase64(buffer) {
-    var binary = "";
-    var bytes = [].slice.call(new Uint8Array(buffer));
-    bytes.forEach((b) => (binary += String.fromCharCode(b)));
-    return window.btoa(binary);
-  }
-
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const data = await getProfile();
         if (!data) throw new Error("Received no data");
-        if (data.avatar && data.avatar.data) {
-          const base64Avatar = arrayBufferToBase64(data.avatar.data);
-          data.avatar = `data:image/jpeg;base64,${base64Avatar}`;
-        }
+        // No need to convert avatar data here as it's now a URL
         setProfile(data);
       } catch (err) {
         setError(
@@ -47,14 +38,21 @@ const EditProfile = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setNewAvatar(file);
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (profile) {
-          setProfile((prev) => ({ ...prev, avatar: reader.result }));
-        }
-      };
-      reader.readAsDataURL(file);
+      resizeImage(file, 800, 800, (resizedBlob) => {
+        const resizedFile = new File([resizedBlob], file.name, {
+          type: "image/jpeg",
+          lastModified: Date.now(),
+        });
+
+        setNewAvatar(resizedFile);
+        const reader = new FileReader();
+        reader.onload = () => {
+          if (profile) {
+            setProfile((prev) => ({ ...prev, avatar: reader.result }));
+          }
+        };
+        reader.readAsDataURL(resizedFile);
+      });
     }
   };
 
@@ -79,9 +77,9 @@ const EditProfile = () => {
 
     try {
       const response = await updateProfile(formData);
-      setProfile(response);
+      setProfile(response.user);
       setSuccess("Profile updated successfully!");
-      navigate("/profile-overview");
+      setTimeout(() => navigate("/profile-overview"), 1000);
     } catch (err) {
       setError("Failed to update profile.");
       console.error(err);
@@ -113,11 +111,11 @@ const EditProfile = () => {
         <form onSubmit={handleSubmit}>
           <div className="text-center mb-4">
             <label htmlFor="avatarUpload" className="profile-image-preview">
-              {profile && profile.avatar ? (
+              {profile.avatar ? (
                 <img
                   src={profile.avatar}
                   alt="Profile"
-                  className="rounded-circle"
+                  className="rounded-circle profile-image"
                 />
               ) : (
                 <div className="placeholder-avatar">
@@ -153,16 +151,28 @@ const EditProfile = () => {
               <label htmlFor={key} className="form-label">
                 {label}
               </label>
-              <input
-                type={key === "bio" ? "textarea" : "text"}
-                className="form-control"
-                id={key}
-                name={key}
-                value={profile[key] || ""}
-                onChange={handleChange}
-                placeholder={`Enter your ${label.toLowerCase()}...`}
-                required={key !== "bio" && key !== "phoneNumber"}
-              />
+              {key === "bio" ? (
+                <textarea
+                  className="form-control"
+                  id={key}
+                  name={key}
+                  value={profile[key] || ""}
+                  onChange={handleChange}
+                  placeholder={`Enter your ${label.toLowerCase()}...`}
+                  rows="4"
+                />
+              ) : (
+                <input
+                  type="text"
+                  className="form-control"
+                  id={key}
+                  name={key}
+                  value={profile[key] || ""}
+                  onChange={handleChange}
+                  placeholder={`Enter your ${label.toLowerCase()}...`}
+                  required={key !== "bio" && key !== "phoneNumber"}
+                />
+              )}
             </div>
           ))}
           <div className="row mt-4">

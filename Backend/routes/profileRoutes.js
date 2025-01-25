@@ -1,8 +1,5 @@
 const express = require("express");
-const {
-  getProfile,
-  updateProfile,
-} = require("../controllers/profileController");
+const { getProfile, updateProfile } = require("../controllers/profileController");
 const authenticateToken = require("../middleware/authMiddleware");
 const { body } = require("express-validator");
 const multer = require("multer");
@@ -10,15 +7,7 @@ const path = require("path");
 
 const router = express.Router();
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads/avatars/");
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    cb(null, `${req.userId}-${Date.now()}${ext}`);
-  },
-});
+const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
   const allowedTypes = /jpeg|jpg|png/;
@@ -34,7 +23,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 1024 * 1024 * 2 },
+  limits: { fileSize: 1024 * 1024 * 5 },
 });
 
 router.get("/", authenticateToken, getProfile);

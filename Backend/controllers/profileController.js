@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const { validationResult } = require("express-validator");
 const sequelize = require("../config/db");
-const fs = require("fs").promises;
+const cloudinary = require("../config/cloudinary");
 import "pg";
 
 const fetchUser = async (userId) => {
@@ -56,8 +56,18 @@ const updateProfile = async (req, res) => {
     if (bio !== undefined) user.bio = bio;
 
     if (req.file) {
-      const fileData = await fs.readFile(req.file.path);
-      user.avatar = fileData;
+      const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: 'avatars',
+        width: 500,
+        height: 500,
+        crop: 'fill',
+        quality: 'auto',
+        fetch_format: 'auto',
+      });
+
+      user.avatar = result.secure_url;
     }
 
     await user.save({ transaction });
