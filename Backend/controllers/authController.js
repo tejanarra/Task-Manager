@@ -75,7 +75,7 @@ const registerUser = async (req, res) => {
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password: password,
       verificationCode,
       verificationCodeExpiration: new Date(Date.now() + 600000),
       isVerified: false,
