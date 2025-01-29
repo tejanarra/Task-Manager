@@ -54,7 +54,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           Task Manager
         </Link>
 
-        <ul className="navbar-nav ms-auto align-items-center d-flex flex-row">
+        <ul className="navbar-nav ms-auto align-items-center d-flex flex-row gap-2">
           <li className="nav-item">
             <button
               onClick={toggleTheme}
