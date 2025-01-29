@@ -146,7 +146,9 @@ const TaskList = ({ theme }) => {
             )}
           </div>
           {tasks.length === 0 ? (
-            <p className="text-muted">No tasks available</p>
+            <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
+              No tasks available
+            </p>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="taskList">
