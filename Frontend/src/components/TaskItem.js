@@ -114,7 +114,7 @@ const TaskItem = ({
     <>
       <div
         ref={cardRef}
-        className="task-card mb-4 position-relative d-flex"
+        className="task-card mb-4 position-relative"
         onClick={() => setIsEditing(true)}
       >
         <div
