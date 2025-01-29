@@ -152,7 +152,7 @@ const TaskItem = ({
                 <input
                   type="text"
                   className="form-control w-100"
-                  style={{ borderRadius: "6px"}}
+                  style={{ borderRadius: "6px" }}
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
                   autoFocus
@@ -210,7 +210,9 @@ const TaskItem = ({
             <div className="d-flex justify-content-between align-items-center mt-3">
               {!isNewTask && (
                 <button
-                  className="btn btn-sm btn-secondary"
+                  className={`btn btn-sm ${
+                    theme === "dark" ? "btn-outline-danger" : "btn-secondary"
+                  }`}
                   style={{ borderRadius: "6px" }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -220,28 +222,33 @@ const TaskItem = ({
                   Delete
                 </button>
               )}
-              {theme==="dark"?<button
-                className="btn btn-sm btn-dark"
-                style={{ borderRadius: "6px" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSave();
-                }}
-                disabled={!tempTitle.trim() || !tempDescription.trim()}
-              >
-                Save
-              </button>:<button
-                className="btn btn-sm btn-dark"
-                style={{ borderRadius: "6px" }}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleSave();
-                }}
-                disabled={!tempTitle.trim() || !tempDescription.trim()}
-              >
-                Save
-              </button>}
-              
+              {theme === "dark" ? (
+                <button
+                  className={`btn btn-sm ${
+                    theme === "dark" ? "btn-outline-light" : "btn-dark"
+                  }`}
+                  style={{ borderRadius: "6px" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSave();
+                  }}
+                  disabled={!tempTitle.trim() || !tempDescription.trim()}
+                >
+                  Save
+                </button>
+              ) : (
+                <button
+                  className="btn btn-sm btn-dark"
+                  style={{ borderRadius: "6px" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSave();
+                  }}
+                  disabled={!tempTitle.trim() || !tempDescription.trim()}
+                >
+                  Save
+                </button>
+              )}
             </div>
           )}
         </div>

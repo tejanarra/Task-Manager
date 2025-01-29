@@ -4,7 +4,7 @@ import VerificationForm from "./VerificationForm";
 import "../Styles/Register.css";
 import { Link } from "react-router-dom";
 
-const Register = () => {
+const Register = ({ theme }) => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -72,7 +72,7 @@ const Register = () => {
             ? "Verify Registration"
             : "Register"}
         </h1>
-        <p className="text-muted mb-4">
+        <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
           {isVerificationStep || hasVerificationCode
             ? "Enter your verification code"
             : "Fill in the details to create your account"}
@@ -158,7 +158,7 @@ const Register = () => {
 
             <button
               type="submit"
-              className="btn btn-dark w-100 mb-3"
+              className={`btn register-btn w-100 mb-3`}
               disabled={isLoading || !passwordsMatch}
             >
               {isLoading ? (
@@ -188,10 +188,7 @@ const Register = () => {
         )}
 
         <div className="text-center mt-4">
-          <p
-            className="mb-0 d-flex justify-content-center align-items-center gap-1"
-            style={{ color: "#000" }}
-          >
+          <p className="mb-0 d-flex justify-content-center align-items-center gap-1">
             Already have an account?{" "}
             <Link to="/login" className="login-link">
               Login

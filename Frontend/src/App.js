@@ -47,12 +47,24 @@ function App() {
         <main className="main-content">
           <Routes>
             <Route path="/" element={<TaskList theme={theme} />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/profile-overview" element={<ProfileOverview />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
-            <Route path="/change-password" element={<ChangePassword />} />
+            <Route path="/login" element={<Login theme={theme} />} />
+            <Route
+              path="/forgot-password"
+              element={<ForgotPassword theme={theme} />}
+            />
+            <Route path="/register" element={<Register theme={theme} />} />
+            <Route
+              path="/profile-overview"
+              element={<ProfileOverview theme={theme} />}
+            />
+            <Route
+              path="/edit-profile"
+              element={<EditProfile theme={theme} />}
+            />
+            <Route
+              path="/change-password"
+              element={<ChangePassword theme={theme} />}
+            />
           </Routes>
         </main>
         <Footer theme={theme} />

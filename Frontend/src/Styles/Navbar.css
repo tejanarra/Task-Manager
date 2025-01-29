@@ -1,37 +1,44 @@
+/* Navbar.css */
+
+/* Brand Styling */
 .navbar-brand {
-    font-family: "Poppins", sans-serif;
-    font-weight: 600;
-  }
-  
-  .nav-link {
-    color: #343a40 !important;
-  }
-  
-  .nav-link.active {
-    color: #000 !important;
-    font-weight: 600;
-  }
-  
-  .profile-avatar {
-    object-fit: cover;
-    border-radius: 50%;
-    border: 2px solid #dee2e6;
-  }
-  
-  .profile-placeholder-avatar {
-    width: 35px;
-    height: 35px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #6c757d;
-    color: #fff;
-    font-weight: bold;
-    border-radius: 50%;
-    border: 2px solid #dee2e6;
-  }
-  
-  .dropdown-menu {
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  }
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+}
+
+/* Navigation Links */
+.nav-link {
+  color: var(--color-nav-link) !important;
+}
+
+.nav-link.active {
+  color: var(--color-nav-link-active) !important;
+  font-weight: 600;
+}
+
+/* Profile Avatar */
+.profile-avatar {
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--color-avatar-border);
+}
+
+/* Profile Placeholder Avatar */
+.profile-placeholder-avatar {
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-profile-placeholder-bg);
+  color: #fff; /* Maintains white text for contrast */
+  font-weight: bold;
+  border-radius: 50%;
+  border: 2px solid var(--color-avatar-border);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px var(--color-dropdown-shadow);
+}

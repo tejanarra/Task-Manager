@@ -249,7 +249,7 @@ const EditProfile = () => {
             <div className="col-12 col-md-6">
               <button
                 type="submit"
-                className="btn btn-black w-100"
+                className="btn sign-in-btn w-100"
                 disabled={isLoading}
               >
                 Save Changes

@@ -1,47 +1,25 @@
 .verification-form h1 {
 font-size: 2rem;
 font-weight: bold;
-color: #000;
+color: var(--color-text-primary); /* Dynamic text color */
 }
 
 .verification-form p {
 font-size: 0.95rem;
-color: #555;
+color: var(--color-text-secondary); /* Dynamic text color */
 margin-bottom: 1rem;
 }
 
 .resend-link {
-color: #000;
+  color: var(--color-text-secondary); /* Dynamic link color */
 font-weight: 500;
 text-decoration: none;
 }
 
 .resend-link:hover {
 text-decoration: underline;
-color: #000;
+color: var(--color-text-primary); /* Dynamic link hover color */
 }
-
-.form-control {
-border: 1px solid #ddd;
-padding: 10px;
-font-size: 1rem;
-}
-
-.form-control:focus {
-border-color: #000;
-box-shadow: none;
-}
-
-.btn-outline-primary {
-    background-color: #000;
-    color: #fff;
-    border: none;
-    font-weight: 500;
-  }
-  
-  .btn-outline-primary:hover {
-    background-color: #333;
-  }
 
 @media (max-width: 720px) {
 .verification-form {
@@ -57,6 +35,20 @@ box-shadow: none;
 .resend-link {
     margin-top: 0.5rem;
 }
+}
+
+.verify-btn {
+  background-color: var(--color-button-bg); /* Dynamic background */
+  color: var(--color-button-text); /* Dynamic text color */
+  border: none;
+  font-weight: 500;
+  border-radius: 6px; /* Consistent border radius */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.verify-btn:hover {
+  background-color: var(--color-button-hover-bg); /* Dynamic hover background */
+  color: var(--color-button-hover-text); /* Dynamic text color */
 }
 
 @media (min-width: 721px) and (max-width: 1024px) {

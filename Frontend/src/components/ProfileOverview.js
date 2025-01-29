@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
 import { convertDateToWords } from "../utils/dateUtils";
 
-const ProfileOverview = () => {
+const ProfileOverview = (theme) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -112,7 +112,9 @@ const ProfileOverview = () => {
             </div>
           )}
           <h3 className="mt-3">{`${profile.firstName} ${profile.lastName}`}</h3>
-          <p className="text-muted">{profile.bio || "No bio available"}</p>
+          <p className={`${theme === "dark" ? "text-light" : "text-muted"}`}>
+            {profile.bio || "No bio available"}
+          </p>
         </div>
         <hr />
         <div className="profile-details mt-4">
@@ -144,7 +146,7 @@ const ProfileOverview = () => {
           </div>
           <div className="col-12 col-md-6">
             <button
-              className="btn btn-black w-100"
+              className="btn sign-in-btn w-100"
               onClick={() => navigate("/edit-profile")}
             >
               Edit Profile
@@ -154,7 +156,7 @@ const ProfileOverview = () => {
         <div className="row mt-3">
           <div className="col-12">
             <button
-              className="btn btn-outline-danger w-100 btn-lg"
+              className="btn btn-danger w-100 btn-lg"
               onClick={() => {
                 logoutClicked();
               }}

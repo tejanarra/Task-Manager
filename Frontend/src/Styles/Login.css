@@ -1,53 +1,62 @@
+/* Login.css */
+
 .login-page {
-    padding: 2rem;
-  }
-  
-  .login-form {
-    max-width: 50%;
-    width: 100%;
-    background: #fff;
-    padding: 2rem 2.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  }
-  
-  .login-form h1 {
-    font-size: 2rem;
-    color: #000;
-    font-weight: bold;
-    margin-bottom: 0.5rem;
-  }
-  
-  .login-form p {
-    font-size: 0.95rem;
-    color: #555;
-    margin-bottom: 1rem;
-  }
-  
-  .sign-in-btn {
-    background-color: #000;
-    color: #fff;
-    border: none;
-    font-weight: 500;
-  }
-  
-  .sign-in-btn:hover {
-    background-color: #333;
-  }
-  
-  .register-link,
-  .forgot-password-link {
-    color: #555;
-    font-weight: 500;
-    text-decoration: none;
-  }
-  
-  .register-link:hover,
-  .forgot-password-link:hover {
-    color: #000;
-    text-decoration: underline;
-  }
-  
+  padding: 2rem;
+  background-color: var(--color-background-secondary);
+  transition: background-color 0.3s ease;
+}
+
+.login-form {
+  max-width: 50%;
+  width: 100%;
+  background: var(--form-background); /* Dynamic background */
+  padding: 2rem 2.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+.login-form h1 {
+  font-size: 2rem;
+  color: var(--color-text-primary); /* Dynamic text color */
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.login-form p {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary); /* Dynamic text color */
+  margin-bottom: 1rem;
+}
+
+.sign-in-btn {
+  background-color: var(--color-button-bg); /* Dynamic background */
+  color: var(--color-button-text); /* Dynamic text color */
+  border: none;
+  font-weight: 500;
+  border-radius: 6px; /* Consistent border radius */
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.sign-in-btn:hover {
+  background-color: var(--color-button-hover-bg); /* Dynamic hover background */
+  color: var(--color-button-hover-text); /* Dynamic text color */
+
+}
+
+.register-link,
+.forgot-password-link {
+  color: var(--color-text-secondary); /* Dynamic link color */
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.register-link:hover,
+.forgot-password-link:hover {
+  color: var(--color-text-primary); /* Dynamic link hover color */
+  text-decoration: underline;
+}
+
 .d-flex.justify-content-between {
   display: flex;
   justify-content: space-between;
@@ -68,7 +77,7 @@
     text-align: center;
   }
 
-.login-form {
+  .login-form {
     max-width: clamp(280px, 90%, 100%);
     padding: 1.5rem 2rem;
   }

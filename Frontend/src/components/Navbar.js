@@ -12,7 +12,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   const avatarLink = isOnProfile ? "/" : "/profile-overview";
 
-  const avatarBorderStyle = isOnProfile ? "2px dashed #000" : "2px solid #000";
+  const avatarBorderStyle = isOnProfile ? (theme==="dark" ? "2px dashed #fff" : "2px dashed #000"): (theme==="dark" ? "2px solid #fff" : "2px solid #000");
 
   const avatarStyle = {
     width: "35px",
@@ -56,7 +56,7 @@ const Navbar = ({ theme, toggleTheme }) => {
               aria-label="Toggle Dark Mode"
             >
               {theme === "dark" ? (
-                <i className="bi bi-sun-fill"></i>
+                <i className="bi bi-sun-fill text-light"></i>
               ) : (
                 <i className="bi bi-moon-fill"></i>
               )}

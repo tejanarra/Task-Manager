@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { sendForgotPasswordRequest, resetPassword } from "../services/api";
 import "../Styles/ForgotPassword.css";
 
-const ForgotPassword = () => {
+const ForgotPassword = ({ theme }) => {
   const [email, setEmail] = useState("");
   const [verificationCode, setVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -74,7 +74,7 @@ const ForgotPassword = () => {
     <div className="forgot-password-page d-flex align-items-center justify-content-center">
       <div className="forgot-password-form wider-form">
         <h1 className="fw-bold mb-2">Forgot Password</h1>
-        <p className="text-muted mb-4">
+        <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
           {hasCode || isEmailSent
             ? "Enter your verification code and reset your password."
             : "Enter your email to receive a verification code."}
@@ -157,7 +157,11 @@ const ForgotPassword = () => {
           {message && <div className="alert alert-success">{message}</div>}
 
           <div className="d-flex justify-content-between mt-4">
-            <button type="submit" className="btn btn-dark" disabled={isLoading}>
+            <button
+              type="submit"
+              className="btn forgot-btn"
+              disabled={isLoading}
+            >
               {isLoading ? (
                 <span
                   className="spinner-border spinner-border-sm text-light"
