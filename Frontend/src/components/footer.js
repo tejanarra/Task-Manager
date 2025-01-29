@@ -1,8 +1,12 @@
 import React from "react";
 
-const Footer = () => {
+const Footer = ({ theme }) => {
+  const footerClasses = `${
+    theme === "dark" ? "bg-black text-light" : "bg-light text-dark"
+  } py-4 shadow-sm`;
+
   return (
-    <footer className="bg-light text-dark py-4 shadow-sm">
+    <footer className={footerClasses}>
       <div className="container">
         <div className="row">
           <div className="col-md-6 text-center text-md-start mb-3 mb-md-0">

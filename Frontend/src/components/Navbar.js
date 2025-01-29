@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import "../Styles/Navbar.css";
 
-const Navbar = () => {
+const Navbar = ({ theme, toggleTheme }) => {
   const { user } = useAuth();
   const location = useLocation();
 
@@ -33,8 +33,12 @@ const Navbar = () => {
     fontWeight: "bold",
   };
 
+  const navbarClasses = `navbar ${
+    theme === "dark" ? "navbar-dark bg-black" : "navbar-light bg-light"
+  } shadow-sm`;
+
   return (
-    <nav className="navbar navbar-light bg-light shadow-sm">
+    <nav className={navbarClasses}>
       <div className="container-fluid justify-content-between align-items-center">
         <Link
           className="navbar-brand"
@@ -45,6 +49,19 @@ const Navbar = () => {
         </Link>
 
         <ul className="navbar-nav ms-auto align-items-center d-flex flex-row gap-2">
+          <li className="nav-item">
+            <button
+              onClick={toggleTheme}
+              className="btn me-2"
+              aria-label="Toggle Dark Mode"
+            >
+              {theme === "dark" ? (
+                <i className="bi bi-sun-fill"></i>
+              ) : (
+                <i className="bi bi-moon-fill"></i>
+              )}
+            </button>
+          </li>
           {!user ? (
             <>
               <li className="nav-item">

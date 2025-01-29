@@ -1,5 +1,5 @@
 .task-card {
-    background: rgba(255, 255, 255, 0.43);
+    background: var(--color-background-secondary);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid #e0e0e0;
@@ -10,6 +10,7 @@
     font-family: "Poppins", sans-serif;
     display: flex;
     position: relative;
+    color: var(--color-text-primary);
   }
   
   .task-card:hover {

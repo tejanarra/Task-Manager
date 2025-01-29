@@ -6,6 +6,7 @@ import { formatRelativeTime } from "../utils/dateUtils";
 import "../Styles/TaskItem.css";
 
 const TaskItem = ({
+  theme,
   task,
   setTasks,
   isNewTask = false,
@@ -151,7 +152,7 @@ const TaskItem = ({
                 <input
                   type="text"
                   className="form-control w-100"
-                  style={{ borderRadius: "6px" }}
+                  style={{ borderRadius: "6px"}}
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
                   autoFocus
@@ -197,7 +198,7 @@ const TaskItem = ({
               </select>
             </div>
           )}
-          <div className="d-flex flex-column flex-md-row small text-muted mt-2">
+          <div className="d-flex flex-column flex-md-row small mt-2">
             <div>
               <strong>Created:</strong> {formatRelativeTime(task.createdAt)}
             </div>
@@ -219,7 +220,7 @@ const TaskItem = ({
                   Delete
                 </button>
               )}
-              <button
+              {theme==="dark"?<button
                 className="btn btn-sm btn-dark"
                 style={{ borderRadius: "6px" }}
                 onClick={(e) => {
@@ -229,7 +230,18 @@ const TaskItem = ({
                 disabled={!tempTitle.trim() || !tempDescription.trim()}
               >
                 Save
-              </button>
+              </button>:<button
+                className="btn btn-sm btn-dark"
+                style={{ borderRadius: "6px" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
+                }}
+                disabled={!tempTitle.trim() || !tempDescription.trim()}
+              >
+                Save
+              </button>}
+              
             </div>
           )}
         </div>
