@@ -68,8 +68,20 @@
     text-align: center;
   }
 
-    .login-form {
-        max-width: 100%;
-        width: 100%;
-      }
+.login-form {
+    max-width: clamp(280px, 90%, 100%);
+    padding: 1.5rem 2rem;
   }
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+  .login-form {
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .login-form {
+    max-width: 500px;
+  }
+}

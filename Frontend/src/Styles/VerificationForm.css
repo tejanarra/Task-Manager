@@ -45,6 +45,7 @@ box-shadow: none;
 
 @media (max-width: 720px) {
 .verification-form {
+    max-width: clamp(280px, 90%, 100%);
     padding: 1.5rem;
 }
 
@@ -55,5 +56,17 @@ box-shadow: none;
 
 .resend-link {
     margin-top: 0.5rem;
+}
+}
+
+@media (min-width: 721px) and (max-width: 1024px) {
+.verification-form {
+  max-width: 450px;
+}
+}
+
+@media (min-width: 1025px) {
+.verification-form {
+  max-width: 500px;
 }
 }
