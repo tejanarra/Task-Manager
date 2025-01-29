@@ -222,33 +222,19 @@ const TaskItem = ({
                   Delete
                 </button>
               )}
-              {theme === "dark" ? (
-                <button
-                  className={`btn btn-sm ${
-                    theme === "dark" ? "btn-outline-light" : "btn-dark"
-                  }`}
-                  style={{ borderRadius: "6px" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSave();
-                  }}
-                  disabled={!tempTitle.trim() || !tempDescription.trim()}
-                >
-                  Save
-                </button>
-              ) : (
-                <button
-                  className="btn btn-sm btn-dark"
-                  style={{ borderRadius: "6px" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSave();
-                  }}
-                  disabled={!tempTitle.trim() || !tempDescription.trim()}
-                >
-                  Save
-                </button>
-              )}
+              <button
+                className={`btn btn-sm ${
+                  theme === "dark" ? "btn-outline-light" : "btn-dark"
+                }`}
+                style={{ borderRadius: "6px" }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleSave();
+                }}
+                disabled={!tempTitle.trim() || !tempDescription.trim()}
+              >
+                Save
+              </button>
             </div>
           )}
         </div>
