@@ -6,8 +6,7 @@
   }
   
   .profile-card {
-    background: var(--form-background); /* Dynamic background */
-    transition: background 0.3s ease, color 0.3s ease;
+    background: var(--form-background);
     padding: 30px;
     border-radius: 15px;
     position: relative;

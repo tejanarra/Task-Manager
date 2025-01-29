@@ -166,7 +166,7 @@ const ProfileOverview = ({ theme }) => {
           </div>
         </div>
       </div>
-      <ConfirmationModal
+      <ConfirmationModal theme={theme}
         show={showLogoutModal}
         title="Logout"
         message="Are you sure you want to log out?"

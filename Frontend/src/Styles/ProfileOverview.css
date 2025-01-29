@@ -7,7 +7,7 @@
   .profile-title {
     font-size: 24px;
     font-weight: bold;
-    color: var(--color-text-primary); /* Dynamic text color */
+    color: var(--color-text-primary);
   }
   
   .profile-card {
@@ -38,7 +38,7 @@
   .initials-text {
     font-size: 36px;
     font-weight: bold;
-  color: var(--color-text-primary); /* Dynamic text color */
+  color: var(--color-text-primary);
   }
   
   .profile-details {
@@ -55,13 +55,13 @@
   
   .detail-label {
     font-weight: bold;
-    color: var(--color-text-secondary); /* Dynamic text color */
+    color: var(--color-text-secondary);
     flex: 0 0 40%;
     text-align: left;
   }
   
   .detail-value {
-    color: var(--color-text-primary); /* Dynamic link hover color */
+    color: var(--color-text-primary);
     flex: 1;
     text-align: right;
     word-wrap: break-word;

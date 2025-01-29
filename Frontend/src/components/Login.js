@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../services/api";
 import "../Styles/Login.css";
 
-const Login = ({ theme }) => { // Destructure theme from props
+const Login = ({ theme }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -49,7 +49,6 @@ const Login = ({ theme }) => { // Destructure theme from props
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div className="mb-3">
             <input
               type="email"
@@ -62,7 +61,6 @@ const Login = ({ theme }) => { // Destructure theme from props
             />
           </div>
 
-          {/* Password */}
           <div className="mb-3">
             <input
               type="password"
@@ -75,10 +73,9 @@ const Login = ({ theme }) => { // Destructure theme from props
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className={`btn sign-in-btn w-100 mb-3`} // Use custom class
+            className={`btn sign-in-btn w-100 mb-3`}
             disabled={isLoading}
           >
             {isLoading ? (
@@ -93,7 +90,6 @@ const Login = ({ theme }) => { // Destructure theme from props
           </button>
         </form>
 
-        {/* Links */}
         <div className="d-flex justify-content-between mt-3">
           <Link to="/register" className="register-link">
             Register

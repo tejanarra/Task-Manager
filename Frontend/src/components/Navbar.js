@@ -12,7 +12,13 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   const avatarLink = isOnProfile ? "/" : "/profile-overview";
 
-  const avatarBorderStyle = isOnProfile ? (theme==="dark" ? "2px dashed #fff" : "2px dashed #000"): (theme==="dark" ? "2px solid #fff" : "2px solid #000");
+  const avatarBorderStyle = isOnProfile
+    ? theme === "dark"
+      ? "2px dashed #fff"
+      : "2px dashed #000"
+    : theme === "dark"
+    ? "2px solid #fff"
+    : "2px solid #000";
 
   const avatarStyle = {
     width: "35px",
@@ -48,11 +54,11 @@ const Navbar = ({ theme, toggleTheme }) => {
           Task Manager
         </Link>
 
-        <ul className="navbar-nav ms-auto align-items-center d-flex flex-row gap-2">
+        <ul className="navbar-nav ms-auto align-items-center d-flex flex-row">
           <li className="nav-item">
             <button
               onClick={toggleTheme}
-              className="btn me-2"
+              className="btn"
               aria-label="Toggle Dark Mode"
             >
               {theme === "dark" ? (
