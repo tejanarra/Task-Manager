@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import ConfirmationModal from "./ConfirmationModal";
 import { convertDateToWords } from "../utils/dateUtils";
 
-const ProfileOverview = (theme) => {
+const ProfileOverview = ({ theme }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
@@ -112,7 +112,7 @@ const ProfileOverview = (theme) => {
             </div>
           )}
           <h3 className="mt-3">{`${profile.firstName} ${profile.lastName}`}</h3>
-          <p className={`${theme === "dark" ? "text-light" : "text-muted"}`}>
+          <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
             {profile.bio || "No bio available"}
           </p>
         </div>
