@@ -2,29 +2,9 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const { Op } = require("sequelize");
-const dotenv = require("dotenv");
-const nodemailer = require("nodemailer");
 const errors = require("../utils/errors");
+const { sendEmail } = require("../utils/mailer");
 import "pg";
-
-dotenv.config();
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
-
-const sendEmail = async (mailOptions) => {
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    console.error("Email sending error:", error);
-    throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
-  }
-};
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();

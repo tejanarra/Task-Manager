@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Task Reminder</title>
+    <style>
+      /* General Styles */
+      body {
+        font-family: "Poppins", sans-serif;
+        margin: 0;
+        padding: 0;
+        color: #333;
+        background-color: #ffffff; /* White background */
+      }
+
+      /* Container */
+      .email-container {
+        width: 100%;
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      /* Header */
+      .email-header {
+        background-color: #000000; /* Black header */
+        padding: 20px;
+        text-align: center;
+        color: white;
+      }
+
+      .logo {
+        font-size: 36px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+      }
+
+      /* Content */
+      .email-content {
+        padding: 20px;
+        color: #333; /* Dark text for readability */
+        font-size: 16px;
+        line-height: 1.5;
+      }
+
+      .email-content p {
+        margin-bottom: 16px;
+      }
+
+      .email-content strong {
+        font-weight: 600;
+        color: #000; /* Black color for emphasis */
+      }
+
+      /* Button */
+      .cta-button {
+        display: inline-block;
+        padding: 12px 25px;
+        background-color: #000000; /* Black button */
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        font-size: 16px;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
+
+      .cta-button:hover {
+        background-color: #333333; /* Darker black when hovered */
+      }
+
+      /* Footer */
+      .email-footer {
+        background-color: #f8f8f8; /* Light gray background */
+        padding: 15px;
+        text-align: center;
+        font-size: 12px;
+        color: #777;
+      }
+
+      .email-footer a {
+        color: #000000; /* Black footer links */
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .email-footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Dark Mode */
+      .dark-mode body {
+        background-color: #1a1a1a; /* Dark background for dark mode */
+        color: #ddd; /* Light text color for dark mode */
+      }
+
+      .dark-mode .email-container {
+        background-color: #333333;
+      }
+
+      .dark-mode .email-header {
+        background-color: #111111; /* Darker header for dark mode */
+      }
+
+      .dark-mode .cta-button {
+        background-color: #ffffff;
+        color: #000000;
+      }
+
+      .dark-mode .cta-button:hover {
+        background-color: #ddd;
+      }
+
+      .dark-mode .email-footer {
+        background-color: #222222;
+        color: #bbb;
+      }
+
+      .dark-mode .email-footer a {
+        color: #ddd;
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 600px) {
+        .email-header {
+          padding: 15px;
+        }
+
+        .logo {
+          font-size: 30px;
+        }
+
+        .email-content {
+          padding: 15px;
+        }
+
+        .cta-button {
+          width: 100%;
+          padding: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body class="<%= theme === 'dark' ? 'dark-mode' : '' %>">
+    <div class="email-container">
+      <!-- Header Section -->
+      <div class="email-header">
+        <div class="logo">Task Manager</div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="email-content">
+        <p>Hello <%= userName %>,</p>
+        <p>
+          This is a reminder that your task "<strong><%= task.title %></strong>"
+          is due soon at <strong><%= task.deadline.toLocaleString() %></strong>.
+        </p>
+        <p>Please take action as needed to complete the task.</p>
+        <a href="<%=actionLink %>" class="cta-button">View Task</a>
+      </div>
+
+      <!-- Footer Section -->
+      <div class="email-footer">
+        <p>
+          If you have any questions, feel free to
+          <a href="https://tejanarra.github.io/portfolio/">contact us</a>.
+        </p>
+        <p>Best regards,<br />Your Task Manager Team</p>
+      </div>
+    </div>
+  </body>
+</html>

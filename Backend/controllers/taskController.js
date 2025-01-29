@@ -9,34 +9,8 @@ const fetchTask = async (taskId, userId) => {
   return task;
 };
 
-const normalizeTaskPriorities = async (userId, transaction) => {
-  const tasks = await Task.findAll({
-    where: { userId },
-    order: [["priority", "ASC"]],
-    transaction,
-  });
-
-  const bulkUpdates = tasks.map((task, index) => ({
-    id: task.id,
-    priority: index + 1,
-  }));
-
-  if (bulkUpdates.length === 0) return;
-
-  const updateCases = bulkUpdates
-    .map((task, idx) => `WHEN id = '${task.id}' THEN ${task.priority}`)
-    .join(" ");
-
-  const ids = bulkUpdates.map((task) => `'${task.id}'`).join(",");
-
-  await sequelize.query(
-    `UPDATE "Tasks" SET priority = CASE ${updateCases} END WHERE id IN (${ids})`,
-    { transaction }
-  );
-};
-
 const createTask = async (req, res) => {
-  const { title, description, status } = req.body;
+  const { title, description, status, deadline } = req.body;
   const userId = req.userId;
 
   if (!title || !description || !status) {
@@ -59,6 +33,7 @@ const createTask = async (req, res) => {
         description,
         status,
         userId,
+        deadline,
         priority: 1,
       },
       { transaction }
@@ -106,7 +81,7 @@ const getTaskById = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const { taskId } = req.params;
-  const { title, description, status } = req.body;
+  const { title, description, status, deadline } = req.body;
   const userId = req.userId;
 
   try {
@@ -119,6 +94,8 @@ const updateTask = async (req, res) => {
     if (title) updatedFields.title = title;
     if (description) updatedFields.description = description;
     if (status) updatedFields.status = status;
+    if (deadline) updatedFields.deadline = deadline;
+    if (deadline) updatedFields.reminderSent = false;
 
     if (Object.keys(updatedFields).length === 0) {
       return res.status(400).json({ message: "No fields to update" });

@@ -2,7 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { deleteTask, updateTask } from "../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";
 import ConfirmationModal from "./ConfirmationModal";
-import { formatRelativeTime } from "../utils/dateUtils";
+import {
+  formatRelativeTime,
+  formatDateTimeLocal,
+  convertDateToWords,
+} from "../utils/dateUtils";
 import "../Styles/TaskItem.css";
 
 const TaskItem = ({
@@ -17,6 +21,7 @@ const TaskItem = ({
   const [tempTitle, setTempTitle] = useState(task.title);
   const [tempDescription, setTempDescription] = useState(task.description);
   const [tempStatus, setTempStatus] = useState(task.status);
+  const [tempDeadline, setTempDeadline] = useState(task.deadline || "");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const cardRef = useRef(null);
 
@@ -24,12 +29,21 @@ const TaskItem = ({
     setTempTitle(task.title);
     setTempDescription(task.description);
     setTempStatus(task.status);
+    setTempDeadline(task.deadline || "");
     if (isNewTask) {
       onCancel(task.id);
     } else {
       setIsEditing(false);
     }
-  }, [task.title, task.description, task.status, isNewTask, onCancel, task.id]);
+  }, [
+    task.title,
+    task.description,
+    task.status,
+    task.deadline,
+    isNewTask,
+    onCancel,
+    task.id,
+  ]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -52,23 +66,24 @@ const TaskItem = ({
     if (
       tempTitle !== task.title ||
       tempDescription !== task.description ||
-      tempStatus !== task.status
+      tempStatus !== task.status ||
+      tempDeadline !== task.deadline
     ) {
+      const updatedTaskData = {
+        title: tempTitle.trim(),
+        description: tempDescription.trim(),
+        status: tempStatus,
+        deadline: tempDeadline ? new Date(tempDeadline).toISOString() : null,
+      };
+
       if (isNewTask) {
         onSave({
           ...task,
-          title: tempTitle.trim(),
-          description: tempDescription.trim(),
-          status: tempStatus,
+          ...updatedTaskData,
         });
       } else {
-        const updatedTask = {
-          title: tempTitle.trim(),
-          description: tempDescription.trim(),
-          status: tempStatus,
-        };
         try {
-          const response = await updateTask(task.id, updatedTask);
+          const response = await updateTask(task.id, updatedTaskData);
           setTasks((prev) =>
             prev.map((t) => (t.id === response.data.id ? response.data : t))
           );
@@ -184,18 +199,36 @@ const TaskItem = ({
             </div>
           )}
           {isEditing && (
+            <>
+              <div className="w-100 mb-3">
+                <label className="form-label fw-semibold">Status</label>
+                <select
+                  className="form-select w-100"
+                  style={{ borderRadius: "6px" }}
+                  value={tempStatus}
+                  onChange={(e) => setTempStatus(e.target.value)}
+                >
+                  <option value="not-started">Not Started</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+              <div className="w-100 mb-3">
+                <label className="form-label fw-semibold">Deadline</label>
+                <input
+                  type="datetime-local"
+                  className="form-control w-100"
+                  style={{ borderRadius: "6px" }}
+                  value={tempDeadline ? formatDateTimeLocal(tempDeadline) : ""}
+                  onChange={(e) => setTempDeadline(e.target.value)}
+                />
+              </div>
+            </>
+          )}
+          {!isEditing && task.deadline && (
             <div className="w-100 mb-3">
-              <label className="form-label fw-semibold">Status</label>
-              <select
-                className="form-select w-100"
-                style={{ borderRadius: "6px" }}
-                value={tempStatus}
-                onChange={(e) => setTempStatus(e.target.value)}
-              >
-                <option value="not-started">Not Started</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
+              <strong>Deadline:</strong> {convertDateToWords(task.deadline)} ({" "}
+              {formatRelativeTime(task.deadline)})
             </div>
           )}
           <div className="d-flex flex-column flex-md-row small mt-2">

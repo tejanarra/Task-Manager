@@ -21,7 +21,17 @@ const Task = sequelize.define("Task", {
   priority: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 9999,
+    defaultValue: 1,
+  },
+
+  deadline: {
+    type: DataTypes.DATE,
+    allowNull: true,
+  },
+  reminderSent: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true,
+    defaultValue: false,
   },
 });
 
