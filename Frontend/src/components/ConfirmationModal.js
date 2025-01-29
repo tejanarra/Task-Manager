@@ -3,6 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/ConfirmationModal.css";
 
 const ConfirmationModal = ({
+  theme,
   show,
   title = "Confirm Action",
   message = "Are you sure you want to proceed?",
@@ -24,7 +25,7 @@ const ConfirmationModal = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="custom-modal-header">
-          <h5 className="modal-title fw-bold">{title}</h5>
+          <h5 className="modal2-title fw-bold">{title}</h5>
           <button
             type="button"
             className="btn-close"
@@ -33,7 +34,9 @@ const ConfirmationModal = ({
           ></button>
         </div>
         <div className="custom-modal-body">
-          <p className="text-muted">{message}</p>
+          <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
+            {message}
+          </p>
         </div>
         <div className="custom-modal-footer d-flex justify-content-end gap-2">
           <button
@@ -43,7 +46,7 @@ const ConfirmationModal = ({
           >
             Cancel
           </button>
-          <button type="button" className="btn btn-black" onClick={onConfirm}>
+          <button type="button" className="btn sign-in-btn" onClick={onConfirm}>
             Confirm
           </button>
         </div>

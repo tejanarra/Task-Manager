@@ -6,6 +6,7 @@ import { formatRelativeTime } from "../utils/dateUtils";
 import "../Styles/TaskItem.css";
 
 const TaskItem = ({
+  theme,
   task,
   setTasks,
   isNewTask = false,
@@ -197,7 +198,7 @@ const TaskItem = ({
               </select>
             </div>
           )}
-          <div className="d-flex flex-column flex-md-row small text-muted mt-2">
+          <div className="d-flex flex-column flex-md-row small mt-2">
             <div>
               <strong>Created:</strong> {formatRelativeTime(task.createdAt)}
             </div>
@@ -209,7 +210,9 @@ const TaskItem = ({
             <div className="d-flex justify-content-between align-items-center mt-3">
               {!isNewTask && (
                 <button
-                  className="btn btn-sm btn-secondary"
+                  className={`btn btn-sm ${
+                    theme === "dark" ? "btn-outline-danger" : "btn-secondary"
+                  }`}
                   style={{ borderRadius: "6px" }}
                   onClick={(e) => {
                     e.stopPropagation();
@@ -220,7 +223,9 @@ const TaskItem = ({
                 </button>
               )}
               <button
-                className="btn btn-sm btn-dark"
+                className={`btn btn-sm ${
+                  theme === "dark" ? "btn-outline-light" : "btn-dark"
+                }`}
                 style={{ borderRadius: "6px" }}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -236,6 +241,7 @@ const TaskItem = ({
       </div>
 
       <ConfirmationModal
+        theme={theme}
         show={showDeleteModal}
         title="Delete Task"
         message="Are you sure you want to delete this task? This action cannot be undone."

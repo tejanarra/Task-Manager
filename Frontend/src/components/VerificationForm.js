@@ -4,6 +4,7 @@ import { verifyRegistrationCode } from "../services/api";
 import "../Styles/VerificationForm.css";
 
 const VerificationForm = ({
+  theme,
   email,
   setEmail,
   handleSendVerificationCode,
@@ -64,7 +65,7 @@ const VerificationForm = ({
       </div>
 
       <div className="d-flex justify-content-between align-items-center mt-3">
-        <button type="submit" className="btn btn-dark" disabled={isLoading}>
+        <button type="submit" className="btn verify-btn" disabled={isLoading}>
           {isLoading ? (
             <span
               className="spinner-border spinner-border-sm text-light"

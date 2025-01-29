@@ -6,7 +6,7 @@ import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
 
-const TaskList = () => {
+const TaskList = ({ theme }) => {
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
   const [newTaskId, setNewTaskId] = useState(null);
@@ -127,16 +127,28 @@ const TaskList = () => {
         <div className="card-body p-3">
           <div className="d-flex justify-content-between align-items-center mb-3 header-container">
             <h2 className="card-title mb-0">Your Tasks</h2>
-            <button
-              className="btn btn-outline-dark d-flex align-items-center gap-2 add-task-button"
-              onClick={handleAddTask}
-              aria-label="Add a new task"
-            >
-              New Task
-            </button>
+            {theme === "dark" ? (
+              <button
+                className="btn btn-outline-light d-flex align-items-center gap-2 add-task-button"
+                onClick={handleAddTask}
+                aria-label="Add a new task"
+              >
+                New Task
+              </button>
+            ) : (
+              <button
+                className="btn btn-outline-dark d-flex align-items-center gap-2 add-task-button"
+                onClick={handleAddTask}
+                aria-label="Add a new task"
+              >
+                New Task
+              </button>
+            )}
           </div>
           {tasks.length === 0 ? (
-            <p className="text-muted">No tasks available</p>
+            <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
+              No tasks available
+            </p>
           ) : (
             <DragDropContext onDragEnd={handleDragEnd}>
               <Droppable droppableId="taskList">
@@ -165,6 +177,7 @@ const TaskList = () => {
                               }}
                             >
                               <TaskItem
+                                theme={theme}
                                 task={task}
                                 setTasks={setTasks}
                                 isNewTask={task.id === newTaskId}

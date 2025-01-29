@@ -1,10 +1,12 @@
+// Login.js
+
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginUser } from "../services/api";
 import "../Styles/Login.css";
 
-const Login = () => {
+const Login = ({ theme }) => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -24,7 +26,7 @@ const Login = () => {
       login(token, userInfo);
       navigate("/");
     } catch (err) {
-      console.error("Login failed:", err.response?.message || err.message);
+      console.error("Login failed:", err.response?.data?.message || err.message);
       setError(
         err.response?.data?.message || "Login failed. Please try again."
       );
@@ -39,14 +41,14 @@ const Login = () => {
 
   return (
     <div className="login-page d-flex align-items-center justify-content-center">
-      <div className="login-form wider-form">
+      <div className="login-form">
         <h1 className="fw-bold mb-2">Welcome back</h1>
-        <p className="text-muted mb-4">Please enter your details</p>
+        <p className={`text-${theme === "dark" ? "light":"muted"} mb-4`}>Please enter your details</p>
+
 
         {error && <div className="alert alert-danger">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          {/* Email */}
           <div className="mb-3">
             <input
               type="email"
@@ -73,7 +75,7 @@ const Login = () => {
 
           <button
             type="submit"
-            className="btn btn-dark w-100 mb-3"
+            className={`btn sign-in-btn w-100 mb-3`}
             disabled={isLoading}
           >
             {isLoading ? (
