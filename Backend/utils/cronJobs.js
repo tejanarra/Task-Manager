@@ -94,6 +94,7 @@ const sendDeadlineReminder = async (task) => {
         path.join(__dirname, "../templates/taskReminder.ejs"),
         {
           task: task,
+          deadlineIn: timeBeforeDeadline,
           userName: `${user.firstName} ${user.lastName}`,
           actionLink: `https://tejanarra.github.io/Task-Manager`,
           theme: "dark",
