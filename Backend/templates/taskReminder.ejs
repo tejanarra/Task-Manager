@@ -5,16 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Reminder</title>
     <style>
-      /* General Styles */
       body {
         font-family: "Poppins", sans-serif;
         margin: 0;
         padding: 0;
         color: #333;
-        background-color: #ffffff; /* Light mode background */
+        background-color: #ffffff;
       }
 
-      /* Container */
       .email-container {
         width: 100%;
         max-width: 600px;
@@ -25,9 +23,8 @@
         overflow: hidden;
       }
 
-      /* Header */
       .email-header {
-        background-color: #000000; /* Black header */
+        background-color: #000000;
         padding: 20px;
         text-align: center;
         color: white;
@@ -40,10 +37,9 @@
         letter-spacing: 2px;
       }
 
-      /* Content */
       .email-content {
         padding: 20px;
-        color: #333; /* Dark text for readability */
+        color: #333;
         font-size: 16px;
         line-height: 1.5;
       }
@@ -54,14 +50,13 @@
 
       .email-content strong {
         font-weight: 600;
-        color: #000; /* Black text for emphasis */
+        color: #000;
       }
 
-      /* Button */
       .cta-button {
         display: inline-block;
         padding: 12px 25px;
-        background-color: #000000; /* Black button */
+        background-color: #000000;
         color: white;
         text-align: center;
         text-decoration: none;
@@ -72,12 +67,11 @@
       }
 
       .cta-button:hover {
-        background-color: #444444; /* Dark gray hover */
+        background-color: #444444;
       }
 
-      /* Footer */
       .email-footer {
-        background-color: #f8f8f8; /* Light gray background */
+        background-color: #f8f8f8;
         padding: 15px;
         text-align: center;
         font-size: 12px;
@@ -85,7 +79,7 @@
       }
 
       .email-footer a {
-        color: #000000; /* Black footer links */
+        color: #000000;
         text-decoration: none;
         font-weight: 600;
       }
@@ -94,27 +88,26 @@
         text-decoration: underline;
       }
 
-      /* 🌙 Dark Mode */
       .dark-mode {
-        background-color: #1e1e1e !important; /* Dark background */
-        color: #e0e0e0 !important; /* Light gray text */
+        background-color: #1e1e1e !important;
+        color: #e0e0e0 !important;
       }
 
       .dark-mode .email-container {
-        background-color: #222222 !important; /* Dark gray background */
+        background-color: #222222 !important;
       }
 
       .dark-mode .email-header {
-        background-color: #111111 !important; /* Even darker header */
+        background-color: #111111 !important;
         color: #f8f8f8 !important;
       }
 
       .dark-mode .email-content {
-        color: #f1f1f1 !important; /* Light text */
+        color: #f1f1f1 !important;
       }
 
       .dark-mode .email-content strong {
-        color: #ffffff !important; /* White text for emphasis */
+        color: #ffffff !important;
       }
 
       .dark-mode .cta-button {
@@ -135,7 +128,6 @@
         color: #f1f1f1 !important;
       }
 
-      /* Responsive Styles */
       @media (max-width: 600px) {
         .email-header {
           padding: 15px;
@@ -158,23 +150,20 @@
   </head>
   <body class="<%= theme === 'dark' ? 'dark-mode' : '' %>">
     <div class="email-container">
-      <!-- Header Section -->
       <div class="email-header">
         <div class="logo">Task Manager</div>
       </div>
 
-      <!-- Content Section -->
       <div class="email-content">
         <p>Hello <%= userName %>,</p>
         <p>
           This is a reminder that your task "<strong><%= task.title %></strong>"
-          is due soon in <strong><%= deadlineIn %></strong>.
+          is due soon on <strong><%= deadlineIn %></strong>.
         </p>
         <p>Please take action as needed to complete the task.</p>
         <a href="<%= actionLink %>" class="cta-button">View Task</a>
       </div>
 
-      <!-- Footer Section -->
       <div class="email-footer">
         <p>
           If you have any questions, feel free to

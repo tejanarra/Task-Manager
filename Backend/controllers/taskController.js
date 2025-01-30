@@ -10,7 +10,7 @@ const fetchTask = async (taskId, userId) => {
 };
 
 const createTask = async (req, res) => {
-  const { title, description, status, deadline } = req.body;
+  const { title, description, status, deadline, reminders } = req.body;
   const userId = req.userId;
 
   if (!title || !description || !status) {
@@ -35,6 +35,7 @@ const createTask = async (req, res) => {
         userId,
         deadline,
         priority: 1,
+        reminders: reminders || [],
       },
       { transaction }
     );
@@ -81,7 +82,7 @@ const getTaskById = async (req, res) => {
 
 const updateTask = async (req, res) => {
   const { taskId } = req.params;
-  const { title, description, status, deadline } = req.body;
+  const { title, description, status, deadline, reminders } = req.body;
   const userId = req.userId;
 
   try {
@@ -96,6 +97,7 @@ const updateTask = async (req, res) => {
     if (status) updatedFields.status = status;
     if (deadline) updatedFields.deadline = deadline;
     if (deadline) updatedFields.reminderSent = false;
+    if(reminders) updatedFields.reminders = reminders;
 
     if (Object.keys(updatedFields).length === 0) {
       return res.status(400).json({ message: "No fields to update" });

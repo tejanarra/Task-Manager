@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-import "pg"
+import "pg";
 
 const Task = sequelize.define("Task", {
   title: {
@@ -28,10 +28,10 @@ const Task = sequelize.define("Task", {
     type: DataTypes.DATE,
     allowNull: true,
   },
-  reminderSent: {
-    type: DataTypes.BOOLEAN,
-    allowNull: true,
-    defaultValue: false,
+  reminders: {
+    type: DataTypes.JSONB,
+    allowNull: false,
+    defaultValue: [],
   },
 });
 
