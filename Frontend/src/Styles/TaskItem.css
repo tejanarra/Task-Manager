@@ -1,31 +1,101 @@
 .task-card {
-    background: var(--color-background-secondary);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    overflow: hidden;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    font-family: "Poppins", sans-serif;
-    display: flex;
-    position: relative;
-    color: var(--color-text-primary);
-  }
-  
-  .task-card:hover {
-    transform: scale(1.01);
-    box-shadow: 0 2px 4px 0 rgba(13, 10, 10, 0.5);
-  }
-  
-  .task-strip {
-    width: 8px;
-    flex-shrink: 0;
-  }
-  
-  .status-icon {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    font-size: 1.5rem;
-  }
+  background: var(--color-background-secondary);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  position: relative;
+  color: var(--color-text-primary);
+}
+.task-card.dark-mode {
+  background: #2c2c2c;
+  border: 1px solid #444;
+  color: #e0e0e0;
+}
+
+.task-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 2px 4px rgba(13, 10, 10, 0.5);
+}
+
+.task-strip {
+  width: 8px;
+  flex-shrink: 0;
+}
+
+.status-icon {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 1.5rem;
+}
+
+/* Alarm clock bottom-right - always absolute */
+.reminder-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+}
+.task-card.dark-mode .reminder-indicator {
+  color: #ccc;
+}
+
+/* Remove the media query that repositions the reminder icon */
+/* @media (max-width: 576px) {
+   .reminder-indicator {
+     position: static;
+     margin-top: 0.5rem;
+     margin-left: auto;
+   }
+} */
+
+.deadline-text {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.85;
+}
+
+.task-title {
+  font-size: 1.2rem;
+  color: inherit;
+}
+
+.task-description {
+  margin-bottom: 0.5rem;
+}
+
+/* Reminders in Edit Mode => horizontal */
+.reminder-checkbox-label {
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  background-color: #fff;
+}
+
+.task-card.dark-mode .reminder-checkbox-label {
+  background-color: #444;
+  border-color: #666;
+ 
+}
+
+.form-check-input {
+  accent-color: #000; /* black accent if supported */
+}
+
+.text-muted {
+  font-size: 0.85rem;
+  opacity: 0.7;
+}

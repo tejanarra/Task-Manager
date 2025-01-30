@@ -26,7 +26,10 @@ const Login = ({ theme }) => {
       login(token, userInfo);
       navigate("/");
     } catch (err) {
-      console.error("Login failed:", err.response?.data?.message || err.message);
+      console.error(
+        "Login failed:",
+        err.response?.data?.message || err.message
+      );
       setError(
         err.response?.data?.message || "Login failed. Please try again."
       );
@@ -43,8 +46,9 @@ const Login = ({ theme }) => {
     <div className="login-page d-flex align-items-center justify-content-center">
       <div className="login-form">
         <h1 className="fw-bold mb-2">Welcome back</h1>
-        <p className={`text-${theme === "dark" ? "light":"muted"} mb-4`}>Please enter your details</p>
-
+        <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
+          Please enter your details
+        </p>
 
         {error && <div className="alert alert-danger">{error}</div>}
 

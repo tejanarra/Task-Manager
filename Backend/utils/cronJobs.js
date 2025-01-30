@@ -8,8 +8,6 @@ const { format } = require("date-fns");
 
 const executeCron = async () => {
   try {
-    console.log("Executing cron job for reminders...");
-
     const tasks = await Task.findAll({
       where: {
         deadline: { [Op.gt]: new Date() },
@@ -17,17 +15,13 @@ const executeCron = async () => {
       },
     });
 
-    console.log(`Fetched ${tasks.length} tasks to check for reminders.`);
-
     for (const task of tasks) {
       if (!Array.isArray(task.reminders) || task.reminders.length === 0) {
-        console.log(`Skipping task #${task.id} - no reminders set.`);
         continue;
       }
 
       const now = new Date();
       const deadlineDate = new Date(task.deadline);
-
       const sortedReminders = [...task.reminders].sort(
         (a, b) => a.remindBefore - b.remindBefore
       );
@@ -36,7 +30,6 @@ const executeCron = async () => {
 
       for (let i = 0; i < sortedReminders.length; i++) {
         const reminder = sortedReminders[i];
-
         if (reminder.sent) {
           continue;
         }
@@ -48,18 +41,7 @@ const executeCron = async () => {
           await sendDeadlineReminder(task, reminder.remindBefore);
           reminder.sent = true;
           isUpdated = true;
-
-          for (let j = i + 1; j < sortedReminders.length; j++) {
-            const higherReminder = sortedReminders[j];
-            if (!higherReminder.sent) {
-              higherReminder.sent = true;
-              isUpdated = true;
-              console.log(
-                `Marking remindBefore:${higherReminder.remindBefore} as sent (no email).`
-              );
-            }
-          }
-
+          sortedReminders.splice(i);
           break;
         }
       }
@@ -68,7 +50,6 @@ const executeCron = async () => {
         task.reminders = sortedReminders;
         task.changed("reminders", true);
         await task.save();
-        console.log(`Task #${task.id} updated in DB.`);
       }
     }
   } catch (error) {
@@ -82,7 +63,6 @@ const sendDeadlineReminder = async (task, remindBefore) => {
     if (!user) return;
 
     const email = user.email;
-
     const htmlContent = await ejs.renderFile(
       path.join(__dirname, "../templates/taskReminder.ejs"),
       {
@@ -103,14 +83,8 @@ const sendDeadlineReminder = async (task, remindBefore) => {
     };
 
     await sendEmail(emailData);
-    console.log(
-      `✅ Email sent for task "${task.title}" (remindBefore: ${remindBefore}hr).`
-    );
   } catch (emailError) {
-    console.error(
-      `🚨 Failed to send email for task: ${task.title}`,
-      emailError
-    );
+    console.error(`Failed to send email for task: ${task.title}`, emailError);
   }
 };
 
@@ -121,14 +95,11 @@ const formatRelativeTime = (dateString) => {
 
   if (diffInSeconds > 0) {
     if (diffInSeconds < 60) return `${diffInSeconds} seconds`;
-    if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes`;
-    if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours`;
-    return format(date, "MMM dd, yyyy hh:mm a");
-  } else {
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours`;
     return format(date, "MMM dd, yyyy hh:mm a");
   }
+  return format(date, "MMM dd, yyyy hh:mm a");
 };
 
 module.exports = { executeCron };

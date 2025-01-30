@@ -62,7 +62,7 @@ const TaskList = ({ theme }) => {
       title: "",
       description: "",
       status: "not-started",
-      deadline: "",
+      deadline: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       priority: 1,
