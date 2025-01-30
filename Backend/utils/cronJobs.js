@@ -2,33 +2,33 @@
 const { Op } = require("sequelize");
 const User = require("../models/User");
 const Task = require("../models/Task");
-// const ejs = require("ejs");
-// const path = require("path");
+const ejs = require("ejs");
+const path = require("path");
 // const jwt = require("jsonwebtoken");
-const nodemailer = require("nodemailer");
-const dotenv = require("dotenv");
-const errors = require("./errors");
-// const { sendEmail } = require("./mailer");
+// const nodemailer = require("nodemailer");
+// const dotenv = require("dotenv");
+// const errors = require("./errors");
+const { sendEmail } = require("./mailer");
 
-dotenv.config();
+// dotenv.config();
 
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// const transporter = nodemailer.createTransport({
+//   service: "gmail",
+//   auth: {
+//     user: process.env.EMAIL_USER,
+//     pass: process.env.EMAIL_PASSWORD,
+//   },
+// });
 
-const sendEmail = async (mailOptions) => {
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Email sent to ${mailOptions.to}`);
-  } catch (error) {
-    console.error("Email sending error:", error);
-    throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
-  }
-};
+// const sendEmail = async (mailOptions) => {
+//   try {
+//     await transporter.sendMail(mailOptions);
+//     console.log(`Email sent to ${mailOptions.to}`);
+//   } catch (error) {
+//     console.error("Email sending error:", error);
+//     throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
+//   }
+// };
 
 const executeCron = async (req, res) => {
   try {
@@ -90,30 +90,30 @@ const sendDeadlineReminder = async (task) => {
 
       const email = user.email;
 
-    //   const htmlContent = await ejs.renderFile(
-    //     path.join(__dirname, "../templates/taskReminder.ejs"),
-    //     {
-    //       task: task,
-    //       userName: `${user.firstName} ${user.lastName}`,
-    //       actionLink: `https://tejanarra.github.io/Task-Manager`,
-    //       theme: "dark",
-    //     }
-    //   );
+      const htmlContent = await ejs.renderFile(
+        path.join(__dirname, "../templates/taskReminder.ejs"),
+        {
+          task: task,
+          userName: `${user.firstName} ${user.lastName}`,
+          actionLink: `https://tejanarra.github.io/Task-Manager`,
+          theme: "dark",
+        }
+      );
 
       const emailData = {
         from: process.env.EMAIL_USER,
         to: email,
         subject: `Task Reminder: ${task.title}`,
-        text: `Hi you have pending task ${task.title} which is approaching deadline ${task.deadline}. Please take necessary action.`,
+        html: htmlContent,
       };
 
       sendEmail(emailData);
-      //   console.log(`Sending mail for task: ${task.title}`);
+        console.log(`Sending mail for task: ${task.title}`);
 
-        // task.reminderSent = true;
-        // await task.save();
+        task.reminderSent = true;
+        await task.save();
 
-      //   console.log(`Reminder sent for task: ${task.title}`);
+        console.log(`Reminder sent for task: ${task.title}`);
     }
   } catch (error) {
     console.error(`Error sending reminder for task ${task.title}:`, error);
