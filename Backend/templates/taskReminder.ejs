@@ -11,7 +11,7 @@
         margin: 0;
         padding: 0;
         color: #333;
-        background-color: #ffffff; /* White background */
+        background-color: #ffffff; /* Light mode background */
       }
 
       /* Container */
@@ -54,7 +54,7 @@
 
       .email-content strong {
         font-weight: 600;
-        color: #000; /* Black color for emphasis */
+        color: #000; /* Black text for emphasis */
       }
 
       /* Button */
@@ -72,7 +72,7 @@
       }
 
       .cta-button:hover {
-        background-color: #333333; /* Darker black when hovered */
+        background-color: #444444; /* Dark gray hover */
       }
 
       /* Footer */
@@ -81,7 +81,7 @@
         padding: 15px;
         text-align: center;
         font-size: 12px;
-        color: #777;
+        color: #555;
       }
 
       .email-footer a {
@@ -94,36 +94,45 @@
         text-decoration: underline;
       }
 
-      /* Dark Mode */
-      .dark-mode body {
-        background-color: #1a1a1a; /* Dark background for dark mode */
-        color: #ddd; /* Light text color for dark mode */
+      /* 🌙 Dark Mode */
+      .dark-mode {
+        background-color: #1e1e1e !important; /* Dark background */
+        color: #e0e0e0 !important; /* Light gray text */
       }
 
       .dark-mode .email-container {
-        background-color: #333333;
+        background-color: #222222 !important; /* Dark gray background */
       }
 
       .dark-mode .email-header {
-        background-color: #111111; /* Darker header for dark mode */
+        background-color: #111111 !important; /* Even darker header */
+        color: #f8f8f8 !important;
+      }
+
+      .dark-mode .email-content {
+        color: #f1f1f1 !important; /* Light text */
+      }
+
+      .dark-mode .email-content strong {
+        color: #ffffff !important; /* White text for emphasis */
       }
 
       .dark-mode .cta-button {
-        background-color: #ffffff;
-        color: #000000;
+        background-color: #f1f1f1 !important;
+        color: #111111 !important;
       }
 
       .dark-mode .cta-button:hover {
-        background-color: #ddd;
+        background-color: #bbbbbb !important;
       }
 
       .dark-mode .email-footer {
-        background-color: #222222;
-        color: #bbb;
+        background-color: #181818 !important;
+        color: #aaaaaa !important;
       }
 
       .dark-mode .email-footer a {
-        color: #ddd;
+        color: #f1f1f1 !important;
       }
 
       /* Responsive Styles */
@@ -162,7 +171,7 @@
           is due soon at <strong><%= task.deadline.toLocaleString() %></strong>.
         </p>
         <p>Please take action as needed to complete the task.</p>
-        <a href="<%=actionLink %>" class="cta-button">View Task</a>
+        <a href="<%= actionLink %>" class="cta-button">View Task</a>
       </div>
 
       <!-- Footer Section -->
@@ -171,7 +180,7 @@
           If you have any questions, feel free to
           <a href="https://tejanarra.github.io/portfolio/">contact us</a>.
         </p>
-        <p>Best regards,<br />Your Task Manager Team</p>
+        <p>Best regards,<br />Teja Narra</p>
       </div>
     </div>
   </body>
