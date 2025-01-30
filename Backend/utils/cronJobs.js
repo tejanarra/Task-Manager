@@ -14,6 +14,7 @@ const executeCron = async (res) => {
       where: {
         deadline: { [Op.gt]: new Date() },
         reminderSent: false,
+        status: { [Op.ne]: "completed" }
       },
     });
 
