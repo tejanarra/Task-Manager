@@ -111,8 +111,8 @@ A production-ready Task Manager application built with **Node.js**, **Express**,
 ## Installation
 1. Clone the repository:
     ```bash
-    git clone https://github.com/your-username/your-repo-name.git
-    cd your-repo-name
+    git clone https://github.com/tejanarra/Task-Manager.git
+    cd backend
     ```
 
 2. Install dependencies:
