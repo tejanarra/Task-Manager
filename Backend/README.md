@@ -1,5 +1,3 @@
-Below is a professional, single-file README in standard Markdown formatting, suitable for rendering properly on GitHub. It contains all the details—features, setup instructions, environment variables, database configuration, usage examples, error codes, and more. Copy the entire content into a README.md file in your repository.
-
 Task Manager Application
 
 A production-ready Task Manager application built with Node.js, Express, Sequelize, PostgreSQL, and Cloudinary. It includes:
