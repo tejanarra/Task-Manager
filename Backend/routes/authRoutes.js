@@ -23,6 +23,14 @@ router.post("/forgot-password", forgotPassword);
 router.post("/verify-code", verifyVerificationCode);
 router.post("/contact", sendContactFormEmail);
 router.post("/change-password", authenticateToken, changePassword);
-router.get("/cronrun", executeCron);
+router.get("/cronrun", async (res) => {
+  try {
+    await executeCron();
+    return res.status(200).json({ message: "Cron job executed successfully!" });
+  } catch (error) {
+    console.error("Error executing cron job:", error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 module.exports = router;

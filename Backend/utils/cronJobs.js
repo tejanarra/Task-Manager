@@ -1,53 +1,27 @@
-// const cron = require("node-cron");
 const { Op } = require("sequelize");
 const User = require("../models/User");
 const Task = require("../models/Task");
 const ejs = require("ejs");
 const path = require("path");
-// const jwt = require("jsonwebtoken");
-// const nodemailer = require("nodemailer");
-// const dotenv = require("dotenv");
-// const errors = require("./errors");
 const { sendEmail } = require("./mailer");
-import { format } from "date-fns";
-
-// dotenv.config();
-
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASSWORD,
-//   },
-// });
-
-// const sendEmail = async (mailOptions) => {
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     console.log(`Email sent to ${mailOptions.to}`);
-//   } catch (error) {
-//     console.error("Email sending error:", error);
-//     throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
-//   }
-// };
+const { format } = require("date-fns");
 
 const executeCron = async (req, res) => {
   try {
     console.log("Executing manual cron job...");
+
     const tasks = await Task.findAll({
       where: {
-        deadline: {
-          [Op.gt]: new Date(),
-        },
+        deadline: { [Op.gt]: new Date() },
         reminderSent: false,
       },
     });
 
     console.log(`Fetched ${tasks.length} tasks`);
 
-    tasks.forEach(async (task) => {
+    for (const task of tasks) {
       await sendDeadlineReminder(task);
-    });
+    }
 
     return res.status(200).json({ message: "Cron job executed successfully!" });
   } catch (error) {
@@ -55,29 +29,6 @@ const executeCron = async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
-// cron.schedule("* * * * *", async () => {
-//   console.log("Scheduled cron job running...");
-
-//   try {
-//     const tasks = await Task.findAll({
-//       where: {
-//         deadline: {
-//           [Op.gt]: new Date(),
-//         },
-//         reminderSent: false,
-//       },
-//     });
-
-//     console.log(`Fetched ${tasks.length} tasks`);
-
-//     tasks.forEach((task) => {
-//       sendDeadlineReminder(task);
-//     });
-//   } catch (error) {
-//     console.error("Error fetching tasks:", error);
-//   }
-// });
 
 const sendDeadlineReminder = async (task) => {
   try {
@@ -95,7 +46,7 @@ const sendDeadlineReminder = async (task) => {
         path.join(__dirname, "../templates/taskReminder.ejs"),
         {
           task: task,
-          deadlineIn: formatRelativeTime(new Date(task.deadline).toISOString()),
+          deadlineIn: formatRelativeTime(task.deadline),
           userName: `${user.firstName} ${user.lastName}`,
           actionLink: `https://tejanarra.github.io/Task-Manager`,
           theme: "dark",
@@ -109,66 +60,39 @@ const sendDeadlineReminder = async (task) => {
         html: htmlContent,
       };
 
-      const emailStatus = await sendEmail(emailData);
-
-      if (emailStatus === 100) {
-        console.log(`✅ Sending mail for task: ${task.title}`);
+      try {
+        await sendEmail(emailData);
+        console.log(`✅ Email sent for task: ${task.title}`);
 
         task.reminderSent = true;
         await task.save();
 
-        console.log(`✅ Reminder sent for task: ${task.title}`);
-      } else {
-        console.log(`FAILED TO SEND EMAIL`);
+        console.log(`✅ Reminder sent successfully for task: ${task.title}`);
+      } catch (emailError) {
+        console.error(`🚨 Failed to send email for task: ${task.title}`, emailError);
       }
     }
   } catch (error) {
-    console.error(`Error sending reminder for task ${task.title}:`, error);
+    console.error(`🚨 Error sending reminder for task ${task.title}:`, error);
   }
 };
 
-export const formatRelativeTime = (dateString) => {
+const formatRelativeTime = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-
-  const justNowThreshold = 60;
+  const diffInSeconds = Math.floor((date - now) / 1000);
 
   if (diffInSeconds < 0) {
     const futureDiff = Math.abs(diffInSeconds);
-    if (futureDiff < justNowThreshold) {
-      return "Just now";
-    } else if (futureDiff < 60) {
-      return `in ${futureDiff} second${futureDiff !== 1 ? "s" : ""}`;
-    } else if (futureDiff < 3600) {
-      const minutes = Math.ceil(futureDiff / 60);
-      return `in ${minutes} minute${minutes !== 1 ? "s" : ""}`;
-    } else if (futureDiff < 86400) {
-      const hours = Math.ceil(futureDiff / 3600);
-      return `in ${hours} hour${hours !== 1 ? "s" : ""}`;
-    } else if (futureDiff < 604800) {
-      const days = Math.ceil(futureDiff / 86400);
-      return `in ${days} day${days !== 1 ? "s" : ""}`;
-    } else {
-      return format(date, "MMM dd, yyyy");
-    }
+    if (futureDiff < 60) return `in ${futureDiff} second${futureDiff !== 1 ? "s" : ""}`;
+    if (futureDiff < 3600) return `in ${Math.ceil(futureDiff / 60)} minutes`;
+    if (futureDiff < 86400) return `in ${Math.ceil(futureDiff / 3600)} hours`;
+    return format(date, "MMM dd, yyyy");
   } else {
-    if (diffInSeconds < justNowThreshold) {
-      return "Just now";
-    } else if (diffInSeconds < 60) {
-      return `${diffInSeconds} second${diffInSeconds !== 1 ? "s" : ""} ago`;
-    } else if (diffInSeconds < 3600) {
-      const minutes = Math.floor(diffInSeconds / 60);
-      return `${minutes} minute${minutes !== 1 ? "s" : ""} ago`;
-    } else if (diffInSeconds < 86400) {
-      const hours = Math.floor(diffInSeconds / 3600);
-      return `${hours} hour${hours !== 1 ? "s" : ""} ago`;
-    } else if (diffInSeconds < 604800) {
-      const days = Math.floor(diffInSeconds / 86400);
-      return days === 1 ? "Yesterday" : `${days} days ago`;
-    } else {
-      return format(date, "MMM dd, yyyy");
-    }
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    return format(date, "MMM dd, yyyy");
   }
 };
 
