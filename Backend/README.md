@@ -351,15 +351,6 @@ It looks like you want to add additional **Error / Success Codes** for various o
 
 ---
 
-### **CONTACT** (Contact Form)
-
-| **Code**   | **Message**                                  | **Potential Reasons**                             |
-|------------|----------------------------------------------|---------------------------------------------------|
-| CNT001     | "All fields (name, email, subject, message) are required." | Missing required fields for contact form submission. |
-| CNT002     | "Your message has been sent successfully. We will get back to you soon." | Success for sending contact message.             |
-
----
-
 ### **SERVER** (Server Errors)
 
 | **Code**   | **Message**                                  | **Potential Reasons**                             |
