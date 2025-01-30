@@ -57,44 +57,46 @@ const executeCron = async (req, res) => {
 
 const sendDeadlineReminder = async (task) => {
   try {
-    if (!task || !task.deadline) {
-      console.log(`🚨 Skipping invalid task: ${JSON.stringify(task)}`);
-      return;
-    }
-
     const deadlineDate = new Date(task.deadline);
     const timeBeforeDeadline = deadlineDate - new Date();
-    const reminderTime = 60 * 60 * 1000; // 1 hour
+    const reminderTime = 60 * 60 * 1000;
 
-    if (timeBeforeDeadline > reminderTime || timeBeforeDeadline <= 0) {
-      console.log(
-        `🚨 Skipping task: ${task.title}, deadline is too far or passed`
+    if (timeBeforeDeadline <= reminderTime && timeBeforeDeadline > 0) {
+      const user = await fetchEmail(task.userId);
+      if (!user) return;
+
+      const email = user.email;
+      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRATION,
+      });
+
+      const htmlContent = await ejs.renderFile(
+        path.join(__dirname, "../templates/taskReminder.ejs"),
+        {
+          task: task,
+          userName: `${user.firstName} ${user.lastName}`,
+          actionLink: `http://localhost:3000/Task-Manager#/`,
+          theme: "light",
+        }
       );
-      return;
+
+      const emailData = {
+        from: process.env.EMAIL_USER,
+        to: email,
+        subject: `Task Reminder: ${task.title}`,
+        html: htmlContent,
+      };
+
+      sendEmail(emailData);
+      console.log(`Sending mail for task: ${task.title}`);
+
+      task.reminderSent = true;
+      await task.save();
+
+      console.log(`Reminder sent for task: ${task.title}`);
     }
-
-    const user = await fetchEmail(task.userId);
-    if (!user || !user.email) {
-      console.log(`🚨 No email found for user: ${task.userId}`);
-      return;
-    }
-
-    console.log(`📩 Sending reminder for: ${task.title} to ${user.email}`);
-
-    const emailData = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: `Task Reminder: ${task.title}`,
-      text: `Your task "${task.title}" is due soon ${task.deadline}. Please take action.`,
-    };
-
-    await sendEmail(emailData);
-
-    console.log(`✅ Reminder sent for task: ${task.title}`);
-    task.reminderSent = true;
-    await task.save();
   } catch (error) {
-    console.error(`❌ Error sending reminder for ${task.title}:`, error);
+    console.error(`Error sending reminder for task ${task.title}:`, error);
   }
 };
 
