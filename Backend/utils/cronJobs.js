@@ -8,27 +8,27 @@ const Task = require("../models/Task");
 const nodemailer = require("nodemailer");
 const dotenv = require("dotenv");
 const errors = require("./errors");
-const { sendEmail } = require("./mailer");
+// const { sendEmail } = require("./mailer");
 
-// dotenv.config();
+dotenv.config();
 
-// const transporter = nodemailer.createTransport({
-//   service: "gmail",
-//   auth: {
-//     user: process.env.EMAIL_USER,
-//     pass: process.env.EMAIL_PASSWORD,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASSWORD,
+  },
+});
 
-// const sendEmail = async (mailOptions) => {
-//   try {
-//     await transporter.sendMail(mailOptions);
-//     console.log(`Email sent to ${mailOptions.to}`);
-//   } catch (error) {
-//     console.error("Email sending error:", error);
-//     throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
-//   }
-// };
+const sendEmail = async (mailOptions) => {
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Email sent to ${mailOptions.to}`);
+  } catch (error) {
+    console.error("Email sending error:", error);
+    throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
+  }
+};
 
 const executeCron = async (req, res) => {
   try {
@@ -110,8 +110,8 @@ const sendDeadlineReminder = async (task) => {
       sendEmail(emailData);
       //   console.log(`Sending mail for task: ${task.title}`);
 
-        task.reminderSent = true;
-        await task.save();
+        // task.reminderSent = true;
+        // await task.save();
 
       //   console.log(`Reminder sent for task: ${task.title}`);
     }
