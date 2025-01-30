@@ -6,7 +6,7 @@ const path = require("path");
 const { sendEmail } = require("./mailer");
 const { format } = require("date-fns");
 
-const executeCron = async (req, res) => {
+const executeCron = async () => {
   try {
     console.log("Executing manual cron job...");
 
@@ -22,11 +22,8 @@ const executeCron = async (req, res) => {
     for (const task of tasks) {
       await sendDeadlineReminder(task);
     }
-
-    return res.status(200).json({ message: "Cron job executed successfully!" });
   } catch (error) {
     console.error("Error executing cron job:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
