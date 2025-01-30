@@ -14,7 +14,7 @@
   ],
   "crons": [{
     "path": "/api/auth/cronrun",
-    "schedule": "*/1 * * * *"
+    "schedule": "0 0 * * *"
   }]
 }
 

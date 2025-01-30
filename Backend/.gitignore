@@ -50,3 +50,4 @@ Thumbs.db
 /connect.lock
 bower_components/
 public/
+.vercel
