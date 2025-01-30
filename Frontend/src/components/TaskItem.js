@@ -237,6 +237,23 @@ const TaskItem = ({
     setCustomValue("");
   };
 
+  // Decide which custom units are possible based on the time left
+  const getAllowedUnits = () => {
+    if (!isDeadlineInFuture) return ["minutes"]; 
+    const now = new Date();
+    const deadlineDate = new Date(tempDeadline);
+    const diffInHours = (deadlineDate - now) / (1000 * 60 * 60);
+
+    const allowed = ["minutes"]; 
+    if (diffInHours >= 1) {
+      allowed.push("hours");
+      if (diffInHours >= 24) {
+        allowed.push("days");
+      }
+    }
+    return allowed;
+  };
+
   return (
     <>
       <div
@@ -336,48 +353,40 @@ const TaskItem = ({
 
           {isEditing && isDeadlineInFuture && (
             <div className="mb-3">
-              <label className="form-label fw-semibold d-block">
-                Reminders
-              </label>
+              <label className="form-label fw-semibold d-block">Reminders</label>
               {(() => {
                 const intervals = getDisplayIntervals();
-                if (!intervals.length) {
+                if (intervals.length > 0) {
                   return (
-                    <small
-                      className={`text-${theme === "dark" ? "light" : "muted"}`}
+                    <div
+                      className="d-flex flex-row flex-wrap gap-2 mb-2"
+                      style={{ overflowX: "auto", whiteSpace: "nowrap" }}
                     >
-                      No valid intervals.
-                    </small>
+                      {intervals.map((item) => {
+                        const existing = tempReminders.find(
+                          (r) => r.remindBefore === item.value
+                        );
+                        const checked = existing ? !existing.sent : false;
+                        return (
+                          <div key={item.value} className="d-inline-block">
+                            <label className="reminder-checkbox-label d-inline-flex align-items-center">
+                              <input
+                                type="checkbox"
+                                className="form-check-input me-2"
+                                checked={checked}
+                                onChange={(e) =>
+                                  toggleReminder(item.value, e.target.checked)
+                                }
+                              />
+                              {item.label}
+                            </label>
+                          </div>
+                        );
+                      })}
+                    </div>
                   );
                 }
-                return (
-                  <div
-                    className="d-flex flex-row flex-wrap gap-2 mb-2"
-                    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
-                  >
-                    {intervals.map((item) => {
-                      const existing = tempReminders.find(
-                        (r) => r.remindBefore === item.value
-                      );
-                      const checked = existing ? !existing.sent : false;
-                      return (
-                        <div key={item.value} className="d-inline-block">
-                          <label className="reminder-checkbox-label d-inline-flex align-items-center">
-                            <input
-                              type="checkbox"
-                              className="form-check-input me-2"
-                              checked={checked}
-                              onChange={(e) =>
-                                toggleReminder(item.value, e.target.checked)
-                              }
-                            />
-                            {item.label}
-                          </label>
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
+                return null;
               })()}
 
               <div
@@ -400,9 +409,15 @@ const TaskItem = ({
                   value={customUnit}
                   onChange={(e) => setCustomUnit(e.target.value)}
                 >
-                  <option value="minutes">Min</option>
-                  <option value="hours">Hrs</option>
-                  <option value="days">Days</option>
+                  {getAllowedUnits().includes("minutes") && (
+                    <option value="minutes">Min</option>
+                  )}
+                  {getAllowedUnits().includes("hours") && (
+                    <option value="hours">Hrs</option>
+                  )}
+                  {getAllowedUnits().includes("days") && (
+                    <option value="days">Days</option>
+                  )}
                 </select>
                 <button
                   className={`btn btn-sm ${
