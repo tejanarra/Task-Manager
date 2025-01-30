@@ -9,6 +9,7 @@ const {
   sendContactFormEmail,
   changePassword,
 } = require("../controllers/authController");
+const { executeCron } = require("../utils/cronJobs");
 const router = express.Router();
 const authenticateToken = require("../middleware/authMiddleware");
 
@@ -22,5 +23,6 @@ router.post("/forgot-password", forgotPassword);
 router.post("/verify-code", verifyVerificationCode);
 router.post("/contact", sendContactFormEmail);
 router.post("/change-password", authenticateToken, changePassword);
+router.get("/cronrun", executeCron);
 
 module.exports = router;

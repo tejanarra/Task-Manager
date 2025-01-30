@@ -5,7 +5,7 @@ const authRoutes = require("./routes/authRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const sequelize = require("./config/db");
-require("./utils/cronJobs");
+// require("./utils/cronJobs");
 import "pg";
 dotenv.config();
 
