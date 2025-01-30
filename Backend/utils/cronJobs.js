@@ -56,49 +56,46 @@ const executeCron = async (req, res) => {
 // });
 
 const sendDeadlineReminder = async (task) => {
-  try {
-    const deadlineDate = new Date(task.deadline);
-    const timeBeforeDeadline = deadlineDate - new Date();
-    const reminderTime = 60 * 60 * 1000;
-
-    if (timeBeforeDeadline <= reminderTime && timeBeforeDeadline > 0) {
+    try {
+      if (!task || !task.deadline) {
+        console.log(`🚨 Skipping invalid task: ${JSON.stringify(task)}`);
+        return;
+      }
+  
+      const deadlineDate = new Date(task.deadline);
+      const timeBeforeDeadline = deadlineDate - new Date();
+      const reminderTime = 60 * 60 * 1000; // 1 hour
+  
+      if (timeBeforeDeadline > reminderTime || timeBeforeDeadline <= 0) {
+        console.log(`🚨 Skipping task: ${task.title}, deadline is too far or passed`);
+        return;
+      }
+  
       const user = await fetchEmail(task.userId);
-      if (!user) return;
-
-      const email = user.email;
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRATION,
-      });
-
-      const htmlContent = await ejs.renderFile(
-        path.join(__dirname, "../templates/taskReminder.ejs"),
-        {
-          task: task,
-          userName: `${user.firstName} ${user.lastName}`,
-          actionLink: `http://localhost:3000/Task-Manager#/`,
-          theme: "light",
-        }
-      );
-
+      if (!user || !user.email) {
+        console.log(`🚨 No email found for user: ${task.userId}`);
+        return;
+      }
+  
+      console.log(`📩 Sending reminder for: ${task.title} to ${user.email}`);
+  
       const emailData = {
         from: process.env.EMAIL_USER,
-        to: email,
+        to: user.email,
         subject: `Task Reminder: ${task.title}`,
-        html: htmlContent,
+        text: `Your task "${task.title}" is due soon (${convertDateToWords(task.deadline)}). Please take action.`,
       };
-
-      sendEmail(emailData);
-      console.log(`Sending mail for task: ${task.title}`);
-
-      task.reminderSent = true;
+  
+      await sendEmail(emailData);
+  
+      console.log(`✅ Reminder sent for task: ${task.title}`);
+        task.reminderSent = true;
       await task.save();
-
-      console.log(`Reminder sent for task: ${task.title}`);
+  
+    } catch (error) {
+      console.error(`❌ Error sending reminder for ${task.title}:`, error);
     }
-  } catch (error) {
-    console.error(`Error sending reminder for task ${task.title}:`, error);
-  }
-};
+  };
 
 const fetchEmail = async (userId) => {
   try {
