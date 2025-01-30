@@ -12,10 +12,9 @@
       "dest": "/server.js"
     }
   ],
-  "crons": [
-    {
-      "path": "/api/auth/cronrun",
-      "schedule": "*/1 * * * *"
-    }
-  ]
+  "crons": [{
+    "path": "/api/auth/cronrun",
+    "schedule": "*/1 * * * *"
+  }]
 }
+
