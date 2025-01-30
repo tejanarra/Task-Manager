@@ -352,7 +352,7 @@ const TaskItem = ({
                 }
                 return (
                   <div
-                    className="d-flex flex-row flex-nowrap gap-2 mb-2"
+                    className="d-flex flex-row flex-wrap gap-2 mb-2"
                     style={{ overflowX: "auto", whiteSpace: "nowrap" }}
                   >
                     {intervals.map((item) => {
