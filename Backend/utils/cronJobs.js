@@ -84,7 +84,7 @@ const sendDeadlineReminder = async (task) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: `Task Reminder: ${task.title}`,
-        html: htmlContent,
+        text: `Hi you have pending task ${task.title} which is approaching deadline ${task.deadline}. Please take necessary action.`,
       };
 
       sendEmail(emailData);
