@@ -11,6 +11,10 @@
       "src": "/(.*)",
       "dest": "/server.js"
     }
-  ]
+  ],
+  "crons": [{
+    "path": "/api/auth/cronrun",
+    "schedule": "*/1 * * * *"
+  }]
 }
 
