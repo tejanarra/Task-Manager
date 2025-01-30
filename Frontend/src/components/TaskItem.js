@@ -353,7 +353,7 @@ const TaskItem = ({
 
           {isEditing && isDeadlineInFuture && (
             <div className="mb-3">
-              <label className="form-label fw-semibold d-block">Reminders</label>
+              <label className="form-label fw-semibold d-block">Remind Before</label>
               {(() => {
                 const intervals = getDisplayIntervals();
                 if (intervals.length > 0) {
