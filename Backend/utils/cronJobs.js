@@ -84,23 +84,23 @@ const sendDeadlineReminder = async (task) => {
     const reminderTime = 60 * 60 * 1000;
 
     if (timeBeforeDeadline <= reminderTime && timeBeforeDeadline > 0) {
-      const user = await fetchEmail(task.userId);
+      const user = await User.findByPk(task.userId);
       if (!user) return;
 
       const email = user.email;
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRATION,
-      });
+    //   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+    //     expiresIn: process.env.JWT_EXPIRATION,
+    //   });
 
-      const htmlContent = await ejs.renderFile(
-        path.join(__dirname, "../templates/taskReminder.ejs"),
-        {
-          task: task,
-          userName: `${user.firstName} ${user.lastName}`,
-          actionLink: `http://localhost:3000/Task-Manager#/`,
-          theme: "light",
-        }
-      );
+    //   const htmlContent = await ejs.renderFile(
+    //     path.join(__dirname, "../templates/taskReminder.ejs"),
+    //     {
+    //       task: task,
+    //       userName: `${user.firstName} ${user.lastName}`,
+    //       actionLink: `http://localhost:3000/Task-Manager#/`,
+    //       theme: "light",
+    //     }
+    //   );
 
       const emailData = {
         from: process.env.EMAIL_USER,
@@ -110,12 +110,12 @@ const sendDeadlineReminder = async (task) => {
       };
 
       sendEmail(emailData);
-      console.log(`Sending mail for task: ${task.title}`);
+    //   console.log(`Sending mail for task: ${task.title}`);
 
-      task.reminderSent = true;
-      await task.save();
+    //   task.reminderSent = true;
+    //   await task.save();
 
-      console.log(`Reminder sent for task: ${task.title}`);
+    //   console.log(`Reminder sent for task: ${task.title}`);
     }
   } catch (error) {
     console.error(`Error sending reminder for task ${task.title}:`, error);
@@ -125,6 +125,7 @@ const sendDeadlineReminder = async (task) => {
 const fetchEmail = async (userId) => {
   try {
     const user = await User.findByPk(userId);
+    console.error(`fetching email for user ${userId}:`, user);
     return user || null;
   } catch (error) {
     console.error(`Error fetching email for user ${userId}:`, error);
