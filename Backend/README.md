@@ -1,75 +1,82 @@
-Task Manager Application
+# Task Manager Application
 
-A production-ready Task Manager application built with Node.js, Express, Sequelize, PostgreSQL, and Cloudinary. It includes:
-	•	User authentication (JWT-based)
-	•	Email verification
-	•	Password resets
-	•	Profile management (with avatar uploads to Cloudinary)
-	•	Task management (CRUD, priorities, deadline reminders)
-	•	Cron-based email reminders for tasks nearing their deadline
-	•	Contact form submission
+A production-ready Task Manager application built with **Node.js**, **Express**, **Sequelize**, **PostgreSQL**, and **Cloudinary**. This app provides an easy-to-use platform to manage tasks with features such as user authentication, task management, profile management, and email reminders for deadlines.
 
-Table of Contents
-	•	Features
-	•	Tech Stack
-	•	Project Structure
-	•	Prerequisites
-	•	Installation
-	•	Environment Variables
-	•	Database Setup
-	•	Running the Application
-	•	API Endpoints & Usage
-	•	Authentication Routes
-	•	Task Routes
-	•	Profile Routes
-	•	Protected Routes
-	•	Cron Jobs
-	•	Error Handling
-	•	Error / Success Codes
-	•	Example Request & Response
-	•	Code Explanation
-	•	Useful Commands
-	•	License
+## Table of Contents
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Database Setup](#database-setup)
+- [Running the Application](#running-the-application)
+- [API Endpoints & Usage](#api-endpoints--usage)
+  - [Authentication Routes](#authentication-routes)
+  - [Task Routes](#task-routes)
+  - [Profile Routes](#profile-routes)
+  - [Protected Routes](#protected-routes)
+  - [Cron Jobs](#cron-jobs)
+- [Error Handling](#error-handling)
+- [Error / Success Codes](#error--success-codes)
+- [Example Request & Response](#example-request--response)
+- [Code Explanation](#code-explanation)
+- [Useful Commands](#useful-commands)
+- [License](#license)
 
-Features
-	1.	User Registration & Verification
-	•	Users verify their email by entering a verification code.
-	2.	JWT Authentication
-	•	Login returns a JWT token.
-	3.	Password Reset
-	•	Users can reset their password by verifying a code sent to their email.
-	4.	Profile Management
-	•	Update personal info and upload an avatar using Cloudinary.
-	5.	Task Management
-	•	Create, read, update, delete tasks with priority ordering.
-	6.	Deadline Reminders
-	•	Automatic email reminders for tasks nearing their deadline, powered by a cron job.
-	7.	Contact Form
-	•	Users can submit a contact form, which sends an email to an admin inbox.
-	8.	Cloudinary Integration
-	•	Store and manage user avatar images in the cloud.
-	9.	PostgreSQL Database
-	•	With Sequelize ORM for data modeling.
+---
 
-Tech Stack
-	•	Node.js - JavaScript runtime
-	•	Express - Web framework
-	•	Sequelize - ORM for PostgreSQL
-	•	PostgreSQL - Relational database
-	•	Cloudinary - Image hosting & transformations
-	•	Nodemailer - Email sending library
-	•	JWT - Token-based authentication
-	•	Cron - Scheduled tasks
+## Features
+1. **User Registration & Verification**  
+   Users can register, and a verification code is sent to their email to confirm their email address.
 
-Project Structure
+2. **JWT Authentication**  
+   Login returns a JWT token for secure authentication on subsequent requests.
 
+3. **Password Reset**  
+   Users can reset their password by verifying a code sent to their email.
+
+4. **Profile Management**  
+   Users can update their personal information and upload an avatar using Cloudinary.
+
+5. **Task Management**  
+   Users can perform CRUD operations on tasks, including priority setting and deadline reminders.
+
+6. **Deadline Reminders**  
+   Cron jobs send email reminders for tasks nearing their deadline.
+
+7. **Contact Form**  
+   Users can submit a contact form that sends an email to the admin inbox.
+
+8. **Cloudinary Integration**  
+   User avatars are stored and managed via Cloudinary.
+
+9. **PostgreSQL Database**  
+   The application uses a PostgreSQL database with Sequelize ORM for data modeling.
+
+---
+
+## Tech Stack
+- **Node.js** – JavaScript runtime for backend logic
+- **Express** – Web framework for creating APIs
+- **Sequelize** – ORM for PostgreSQL database interaction
+- **PostgreSQL** – Relational database
+- **Cloudinary** – Image hosting & transformations for user avatars
+- **Nodemailer** – Email sending library
+- **JWT** – Token-based authentication
+- **Cron** – Scheduled tasks for reminders
+
+---
+
+## Project Structure
+```
 ├── config
 │   ├── cloudinary.js         # Cloudinary configuration
 │   ├── db.js                 # Sequelize DB configuration
 │   └── config.js             # Centralized config (reads from .env)
 ├── controllers
-│   ├── authController.js     # Registration, login, password reset, etc.
-│   ├── profileController.js  # Profile fetch & update
+│   ├── authController.js     # Auth logic (register, login, etc.)
+│   ├── profileController.js  # Profile fetch & update logic
 │   └── taskController.js     # Task CRUD logic
 ├── middleware
 │   └── authMiddleware.js     # JWT verification middleware
@@ -83,40 +90,45 @@ Project Structure
 ├── utils
 │   ├── cronJobs.js           # Scheduled tasks (e.g., reminders)
 │   ├── errors.js             # Central error/success messages & codes
-│   └── mailer.js             # Nodemailer sending logic
-├── .env                      # Environment variable file (ignored in git)
-├── package.json
-├── README.md
-└── server.js                 # Main entry point
+│   └── mailer.js             # Email sending logic
+├── .env                      # Environment variables (ignored in git)
+├── package.json              # Project dependencies
+├── README.md                 # Documentation
+└── server.js                 # Main entry point for the app
+```
 
-Prerequisites
-	•	Node.js (v14 or later)
-	•	npm or yarn
-	•	PostgreSQL (running locally or remotely)
-	•	Cloudinary account (for avatar/image storage)
-	•	An email account (e.g. Gmail) for sending emails (Nodemailer)
+---
 
-Installation
-	1.	Clone the repository:
+## Prerequisites
+- **Node.js** (v14 or later)
+- **npm** or **yarn**
+- **PostgreSQL** (running locally or remotely)
+- **Cloudinary** account (for avatar/image storage)
+- An email account (e.g., Gmail) for **Nodemailer**
 
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
+---
 
+## Installation
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/your-repo-name.git
+    cd your-repo-name
+    ```
 
-	2.	Install dependencies:
+2. Install dependencies:
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
 
-npm install
+---
 
-or
+## Environment Variables
 
-yarn install
+Create a `.env` file in the project root containing the following:
 
-
-
-Environment Variables
-
-Create a .env file in the project root, containing:
-
+```
 # Server
 PORT=5001
 
@@ -143,555 +155,379 @@ CONTACT_FORM_RECEIVER_EMAIL=admin@example.com
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_cloudinary_api_key
 CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-
-	Note: Never commit .env to public repos.
-
-Database Setup
-	1.	Create a PostgreSQL database:
-
-createdb your_database_name
-
-
-	2.	Ensure your .env points to the correct database credentials.
-	3.	The app uses Sequelize to auto-sync the models. On server start, tables will be created if they don’t exist.
-
-Running the Application
-	1.	Start the server:
-
-npm start
-
-or
-
-yarn start
-
-
-	2.	Validate:
-	•	You should see logs like Database synced successfully. and Server is running on port 5001.
-
-API Endpoints & Usage
-
-All routes are prefixed with /api. Below are the key endpoints, their usage, and example requests/responses.
-
-Authentication Routes
-	1.	Register
-POST /api/auth/register
-	•	Body:
-
-{
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  "password": "SecurePass123"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "REG002",
-  "message": "A verification code has been sent to your email..."
-}
-
-
-	•	Error (400 if missing fields):
-
-{
-  "code": "REG001",
-  "message": "First name, last name, email, and password are required."
-}
-
-
-	2.	Resend Verification Email
-POST /api/auth/resend-verification
-	•	Body:
-
-{ "email": "john.doe@example.com" }
-
-
-	•	Response (200 on success):
-
-{
-  "code": "REG004",
-  "message": "A new verification code has been sent to your email."
-}
-
-
-	3.	Verify Registration
-POST /api/auth/verify-registration
-	•	Body:
-
-{
-  "email": "john.doe@example.com",
-  "verificationCode": "123456"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "REG006",
-  "message": "Registration successful. You can now log in.",
-  "token": "<JWT Token>",
-  "userInfo": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com"
-  }
-}
-
-
-	•	Error (400 if code is invalid/expired):
-
-{
-  "code": "AUTH004",
-  "message": "Invalid or expired verification code."
-}
-
-
-	4.	Login
-POST /api/auth/login
-	•	Body:
-
-{
-  "email": "john.doe@example.com",
-  "password": "SecurePass123"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "AUTH008",
-  "message": "Login successful.",
-  "token": "<JWT Token>",
-  "userInfo": {
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "avatar": null
-  }
-}
-
-
-	•	Error (400 if credentials invalid):
-
-{
-  "code": "AUTH006",
-  "message": "Invalid email or password."
-}
-
-
-	5.	Forgot Password
-POST /api/auth/forgot-password
-	•	Body:
-
-{ "email": "john.doe@example.com" }
-
-
-	•	Response (200 on success):
-
-{
-  "code": "PWD002",
-  "message": "Verification code sent. Please check your inbox."
-}
-
-
-	6.	Verify Code & Reset Password
-POST /api/auth/verify-code
-	•	Body:
-
-{
-  "email": "john.doe@example.com",
-  "verificationCode": "123456",
-  "newPassword": "NewSecure123"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "PWD005",
-  "message": "Password successfully reset. You can now log in..."
-}
-
-
-	7.	Contact Form
-POST /api/auth/contact
-	•	Body:
-
-{
-  "yourName": "John Doe",
-  "yourEmail": "john.doe@example.com",
-  "subject": "General Inquiry",
-  "message": "Hello, I'd like to know more..."
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "CNT004",
-  "message": "Your message has been sent successfully. We will get back..."
-}
-
-
-	8.	Change Password
-POST /api/auth/change-password (Protected)
-	•	Headers: Authorization: Bearer <JWT Token>
-	•	Body:
-
-{
-  "currentPassword": "SecurePass123",
-  "newPassword": "NewSecure123"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "code": "PWD004",
-  "message": "Password updated successfully."
-}
-
-
-
-Task Routes
-
-	All Task routes require a valid JWT.
-
-	1.	Create Task
-POST /api/tasks
-	•	Body:
-
-{
-  "title": "My Task",
-  "description": "Task details",
-  "status": "not-started",
-  "deadline": "2025-01-31T23:59:59.999Z"
-}
-
-
-	•	Response (201 on success):
-
-{
-  "id": 1,
-  "title": "My Task",
-  "description": "Task details",
-  "status": "not-started",
-  "userId": 123,
-  "priority": 1,
-  "deadline": "2025-01-31T23:59:59.999Z",
-  "reminderSent": false,
-  "createdAt": "...",
-  "updatedAt": "..."
-}
-
-
-	2.	Get All Tasks
-GET /api/tasks
-	•	Response (200 on success):
-
-[
-  {
-    "id": 1,
-    "title": "My Task",
-    "description": "Task details",
-    "status": "not-started",
-    ...
-  },
-  ...
-]
-
-
-	3.	Get Task By ID
-GET /api/tasks/:taskId
-	•	Response (200 on success):
-
-{
-  "id": 1,
-  "title": "My Task",
-  "description": "Task details",
-  ...
-}
-
-
-	4.	Update Task
-PUT /api/tasks/:taskId
-	•	Body:
-
-{
-  "title": "Updated Title",
-  "status": "in-progress",
-  "deadline": "2025-02-01T10:00:00.000Z"
-}
-
-
-	•	Response (200 on success):
-
-{
-  "id": 1,
-  "title": "Updated Title",
-  "description": "Task details",
-  "status": "in-progress",
-  "deadline": "2025-02-01T10:00:00.000Z",
-  "reminderSent": false,
-  ...
-}
-
-
-	5.	Delete Task
-DELETE /api/tasks/:taskId
-	•	Response (200 on success):
-
-{
-  "message": "Task deleted successfully and priorities updated."
-}
-
-
-	6.	Update Task Priority
-PUT /api/tasks/:taskId/priority
-	•	Body:
-
-{ "priority": 2 }
-
-
-	•	Response (200 on success):
-
-{
-  "id": 1,
-  "title": "Updated Title",
-  "priority": 2,
-  ...
-}
-
-
-
-Profile Routes
-
-	All Profile routes require a valid JWT.
-
-	1.	Get Profile
-GET /api/profile
-	•	Response (200 on success):
-
-{
-  "id": 123,
-  "firstName": "John",
-  "lastName": "Doe",
-  "email": "john.doe@example.com",
-  ...
-}
-
-
-	2.	Update Profile
-PUT /api/profile
-	•	Content-Type: multipart/form-data (if uploading an avatar)
-	•	Fields:
-	•	firstName (optional)
-	•	lastName (optional)
-	•	phoneNumber (optional)
-	•	dob (optional)
-	•	bio (optional)
-	•	avatar (optional, image file)
-	•	Response (200 on success):
-
-{
-  "message": "Profile updated successfully",
-  "user": {
-    "id": 123,
-    "firstName": "John",
-    "lastName": "Doe",
-    "email": "john.doe@example.com",
-    "avatar": "https://res.cloudinary.com/...",
-    ...
-  }
-}
-
-
-
-Protected Routes
-
-For protected routes, the request must include:
-
-Authorization: Bearer <Your JWT Token>
-
-If missing or invalid, you might see:
-
-{ "message": "No token provided" }
-
-or
-
-{ "message": "Invalid or expired token" }
-
-Cron Jobs
-	•	Defined in utils/cronJobs.js.
-	•	Runs every minute (* * * * *).
-	•	Finds tasks whose deadlines are within the next hour and sends reminder emails if reminderSent === false.
-	•	Updates reminderSent to true to prevent duplicate reminders.
-
-Error Handling
-
-All error codes and messages are in utils/errors.js. The server typically responds with a JSON object like:
-
+```
+
+**Note**: Never commit `.env` to public repositories.
+
+---
+
+## Database Setup
+1. Create a PostgreSQL database:
+    ```bash
+    createdb your_database_name
+    ```
+
+2. Ensure your `.env` file points to the correct database credentials.
+
+3. Sequelize will auto-sync the models on server start, creating the necessary tables.
+
+---
+
+## Running the Application
+1. Start the server:
+    ```bash
+    npm start
+    # or
+    yarn start
+    ```
+
+2. Validate:
+   You should see logs like `Database synced successfully.` and `Server is running on port 5001`.
+
+---
+
+## API Endpoints & Usage
+
+All routes are prefixed with `/api`. Below are the key endpoints, usage, and example requests/responses.
+
+### Authentication Routes
+
+#### 1. Register
+- **POST /api/auth/register**
+    - **Body**:
+    ```json
+    {
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "password": "SecurePass123"
+    }
+    ```
+    - **Response**:
+    ```json
+    {
+      "code": "REG002",
+      "message": "A verification code has been sent to your email..."
+    }
+    ```
+
+#### 2. Login
+- **POST /api/auth/login**
+    - **Body**:
+    ```json
+    {
+      "email": "john.doe@example.com",
+      "password": "SecurePass123"
+    }
+    ```
+    - **Response**:
+    ```json
+    {
+      "code": "AUTH008",
+      "message": "Login successful.",
+      "token": "<JWT Token>",
+      "userInfo": {
+        "firstName": "John",
+        "lastName": "Doe",
+        "email": "john.doe@example.com",
+        "avatar": null
+      }
+    }
+    ```
+
+---
+
+### Task Routes
+
+All task routes require a valid JWT token.
+
+#### 1. Create Task
+- **POST /api/tasks**
+    - **Body**:
+    ```json
+    {
+      "title": "My Task",
+      "description": "Task details",
+      "status": "not-started",
+      "deadline": "2025-01-31T23:59:59.999Z"
+    }
+    ```
+    - **Response**:
+    ```json
+    {
+      "id": 1,
+      "title": "My Task",
+      "description": "Task details",
+      "status": "not-started",
+      "userId": 123,
+      "priority": 1,
+      "deadline": "2025-01-31T23:59:59.999Z",
+      "reminderSent": false,
+      "createdAt": "...",
+      "updatedAt": "..."
+    }
+    ```
+
+---
+
+### Profile Routes
+
+All profile routes require a valid JWT token.
+
+#### 1. Get Profile
+- **GET /api/profile**
+    - **Response**:
+    ```json
+    {
+      "id": 123,
+      "firstName": "John",
+      "lastName": "Doe",
+      "email": "john.doe@example.com",
+      "avatar": "https://res.cloudinary.com/...",
+      ...
+    }
+    ```
+
+---
+
+## Cron Jobs
+- Defined in `utils/cronJobs.js`.
+- Runs every minute (`* * * * *`).
+- Checks for tasks whose deadlines are within the next hour and sends reminder emails if `reminderSent` is false.
+- Sets `reminderSent` to true after sending the reminder to avoid duplicates.
+
+---
+
+## Error Handling
+All error codes and messages are centralized in `utils/errors.js`. The server typically responds with a JSON object like:
+
+```json
 {
   "code": "AUTH001",
   "message": "Required fields are missing."
 }
+```
 
-or simpler forms like:
+---
 
-{
-  "message": "Server error during task creation"
-}
+It looks like you want to add additional **Error / Success Codes** for various operations like **Authentication**, **Password Reset**, **Registration**, **Contact**, and **Server Errors** as well as the **Example Request & Response** for a typical registration flow, along with the **Code Explanation** section. Below is the completed version with these details added:
 
-Error / Success Codes
+---
 
-AUTH
+## Error / Success Codes
 
-Code	Message	Potential Reasons
-AUTH001	“Required fields are missing.”	Missing email or password fields, etc.
-AUTH002	“Invalid email or password.”	User not found or incorrect password.
-AUTH003	“User already exists…”	Duplicate registration attempt with same email/username.
-AUTH004	“Invalid or expired verification code.”	Wrong or expired email verification code.
-AUTH005	“User is not verified…”	Attempt to log in without verifying email.
-AUTH006	“Invalid email or password.”	Generic invalid credentials message.
+### **AUTH** (Authentication)
 
-PASSWORD
+| **Code**   | **Message**                                | **Potential Reasons**                             |
+|------------|--------------------------------------------|---------------------------------------------------|
+| AUTH001    | "Required fields are missing."             | Missing email or password fields, etc.            |
+| AUTH002    | "Invalid email or password."               | User not found or incorrect password.             |
+| AUTH003    | "User already exists…"                     | Duplicate registration attempt with same email/username. |
+| AUTH004    | "Invalid or expired verification code."    | Wrong or expired email verification code.         |
+| AUTH005    | "User is not verified…"                    | Attempt to log in without verifying email.        |
+| AUTH006    | "Invalid email or password."               | Generic invalid credentials message.              |
 
-Code	Message	Potential Reasons
-PWD001	“Email is required.”	Missing email for password reset request.
-PWD002	“Verification code sent…”	Success for starting password reset.
-PWD003	“Password successfully reset.”	Success after verifying code & updating password.
+---
 
-REGISTRATION
+### **PASSWORD** (Password Reset)
 
-Code	Message	Potential Reasons
-REG001	“First name, last name, email, and password are required.”	Missing fields in registration.
-REG002	“A verification code has been sent to your email. Please verify…”	Success after new user registration.
-REG003	“Registration successful. You can now log in.”	Success after verifying code.
-REG004	“A new verification code has been sent to your email.”	Success upon re-requesting verification code.
-REG005	“Email and verification code are required to verify your registration.”	Missing either email or verification code in request.
+| **Code**   | **Message**                                  | **Potential Reasons**                             |
+|------------|----------------------------------------------|---------------------------------------------------|
+| PWD001     | "Email is required."                         | Missing email for password reset request.         |
+| PWD002     | "Verification code sent…"                   | Success for starting password reset.              |
+| PWD003     | "Password successfully reset."               | Success after verifying code & updating password. |
 
-CONTACT
+---
 
-Code	Message	Potential Reasons
-CNT001	“All fields (name, email, subject, message) are required.”	Missing required fields for contact form submission.
-CNT002	“Your message has been sent successfully. We will get back to you soon.”	Success for sending contact message.
+### **REGISTRATION** (User Registration)
 
-SERVER
+| **Code**   | **Message**                                  | **Potential Reasons**                             |
+|------------|----------------------------------------------|---------------------------------------------------|
+| REG001     | "First name, last name, email, and password are required." | Missing fields in registration.                  |
+| REG002     | "A verification code has been sent to your email. Please verify…" | Success after new user registration.             |
+| REG003     | "Registration successful. You can now log in." | Success after verifying code.                    |
+| REG004     | "A new verification code has been sent to your email." | Success upon re-requesting verification code.    |
+| REG005     | "Email and verification code are required to verify your registration." | Missing either email or verification code in request. |
 
-Code	Message	Potential Reasons
-SRV001	“An unexpected server error occurred. Please try again later.”	General internal error, DB issues, etc.
-SRV002	“Failed to send email. Please try again later.”	Email service not working, invalid credentials, etc.
+---
 
-Example Request & Response
+### **CONTACT** (Contact Form)
 
-Register > Verify > Login (Typical Flow)
-	1.	Register
+| **Code**   | **Message**                                  | **Potential Reasons**                             |
+|------------|----------------------------------------------|---------------------------------------------------|
+| CNT001     | "All fields (name, email, subject, message) are required." | Missing required fields for contact form submission. |
+| CNT002     | "Your message has been sent successfully. We will get back to you soon." | Success for sending contact message.             |
 
+---
+
+### **SERVER** (Server Errors)
+
+| **Code**   | **Message**                                  | **Potential Reasons**                             |
+|------------|----------------------------------------------|---------------------------------------------------|
+| SRV001     | "An unexpected server error occurred. Please try again later." | General internal error, DB issues, etc.           |
+| SRV002     | "Failed to send email. Please try again later." | Email service not working, invalid credentials, etc. |
+
+---
+
+## Example Request & Response
+
+### **Register > Verify > Login** (Typical Flow)
+
+#### 1. **Register**
+
+**Request**:
+```bash
 POST /api/auth/register
+Content-Type: application/json
+
 {
   "firstName": "Alice",
   "lastName": "Smith",
   "email": "alice@example.com",
   "password": "Secret123"
 }
+```
 
-Response:
-
+**Response**:
+```json
 {
   "code": "REG002",
-  "message": "A verification code has been sent..."
+  "message": "A verification code has been sent to your email. Please verify your registration."
 }
+```
 
+#### 2. **Verify Registration** (Using the verification code from email)
 
-	2.	Verify Registration (using the code from email)
-
+**Request**:
+```bash
 POST /api/auth/verify-registration
+Content-Type: application/json
+
 {
   "email": "alice@example.com",
   "verificationCode": "123456"
 }
+```
 
-Response:
-
+**Response**:
+```json
 {
-  "code": "REG006",
+  "code": "REG003",
   "message": "Registration successful. You can now log in.",
-  "token": "<JWT>",
-  "userInfo": { ... }
+  "token": "<JWT_TOKEN>",
+  "userInfo": {
+    "id": 1,
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "email": "alice@example.com",
+    "avatar": "https://res.cloudinary.com/your-cloud-name/image/upload/v123456789/avatars/your-avatar.jpg"
+  }
 }
+```
 
+#### 3. **Login**
 
-	3.	Login
-
+**Request**:
+```bash
 POST /api/auth/login
+Content-Type: application/json
+
 {
   "email": "alice@example.com",
   "password": "Secret123"
 }
+```
 
-Response:
-
+**Response**:
+```json
 {
   "code": "AUTH008",
   "message": "Login successful.",
-  "token": "<JWT>",
-  "userInfo": { ... }
+  "token": "<JWT_TOKEN>",
+  "userInfo": {
+    "id": 1,
+    "firstName": "Alice",
+    "lastName": "Smith",
+    "email": "alice@example.com",
+    "avatar": "https://res.cloudinary.com/your-cloud-name/image/upload/v123456789/avatars/your-avatar.jpg"
+  }
 }
+```
 
+---
 
+## Code Explanation
 
-Code Explanation
-	•	server.js
-	•	Bootstraps Express, sets up routes, initializes DB sync, and starts listening.
-	•	models/User.js
-	•	Defines the User schema (fields like firstName, lastName, etc.).
-	•	Hashes the password before creation.
-	•	models/Task.js
-	•	Defines the Task schema (fields like title, status, deadline, etc.).
-	•	Includes a reminderSent flag.
-	•	controllers/authController.js
-	•	Contains logic for register, login, email verification, password resets, etc.
-	•	controllers/taskController.js
-	•	Handles task creation, retrieval, updating, deletion, and priority reordering.
-	•	controllers/profileController.js
-	•	Lets a user fetch/update profile info (including avatar upload via Cloudinary).
-	•	middleware/authMiddleware.js
-	•	Verifies JWT in Authorization: Bearer <token>.
-	•	utils/cronJobs.js
-	•	Runs a cron job every minute to check tasks nearing their deadlines and sends reminders.
-	•	utils/mailer.js
-	•	Configures Nodemailer to send emails using environment credentials.
-	•	utils/errors.js
-	•	Central repository for error and success message definitions.
+- **server.js**  
+  - Initializes the Express app, configures middleware, sets up routes, and starts the server.
+  - Syncs the database using Sequelize on startup and listens for incoming requests.
 
-Useful Commands
-	•	Start (production mode):
+- **models/User.js**  
+  - Defines the `User` schema with fields like `firstName`, `lastName`, `email`, and `password`.
+  - Password is hashed before saving into the database using `bcrypt`.
 
-npm start
+- **models/Task.js**  
+  - Defines the `Task` schema with fields like `title`, `description`, `status`, and `deadline`.
+  - Includes a `reminderSent` flag to track if a reminder has been sent for the task's deadline.
 
+- **controllers/authController.js**  
+  - Handles the logic for registering, logging in, email verification, and password resets.
+  - Sends email verification codes and reset passwords using `Nodemailer`.
 
-	•	Start (development mode with nodemon):
+- **controllers/taskController.js**  
+  - Handles task CRUD operations: Create, Read, Update, Delete, and Change Task Status.
+  - Allows users to assign priorities and set deadlines for tasks.
 
-npm run dev
+- **controllers/profileController.js**  
+  - Handles retrieving and updating user profile information.
+  - Allows users to upload an avatar using Cloudinary for image storage.
 
+- **middleware/authMiddleware.js**  
+  - Verifies the JWT token included in the `Authorization` header for protected routes.
+  - If the token is valid, it attaches the user's information to the request.
 
-	•	Install dependencies:
+- **utils/cronJobs.js**  
+  - Defines background tasks to run periodically (e.g., every minute).
+  - It checks for tasks nearing their deadlines and sends email reminders to users about upcoming deadlines.
 
-npm install
+- **utils/mailer.js**  
+  - Configures Nodemailer to send email notifications.
+  - Uses environment credentials (e.g., Gmail or custom SMTP) to handle email delivery.
 
+- **utils/errors.js**  
+  - Centralizes error codes and success messages used across the application.
+  - Ensures consistent error handling for API responses.
 
-	•	Run tests (if configured):
+---
 
-npm test
+## Useful Commands
 
+- **Start (production mode)**:
+    ```bash
+    npm start
+    ```
 
+- **Start (development mode with nodemon)**:
+    ```bash
+    npm run dev
+    ```
 
-License
+- **Install dependencies**:
+    ```bash
+    npm install
+    ```
 
-This project is licensed under the MIT License.
+- **Run tests** (if configured):
+    ```bash
+    npm test
+    ```
+
+---
+
+## License
+
+This project is licensed under the **MIT License**.  
 Feel free to modify and distribute under these terms.
 
-Thank you for using the Task Manager Application!
+Thank you for using the Task Manager Application!  
 Please open an issue or submit a pull request for questions or contributions.
