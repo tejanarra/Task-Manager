@@ -6,7 +6,7 @@ const path = require("path");
 const { sendEmail } = require("./mailer");
 const { format } = require("date-fns");
 
-const executeCron = async () => {
+const executeCron = async (res) => {
   try {
     console.log("Executing manual cron job...");
 
@@ -22,8 +22,11 @@ const executeCron = async () => {
     for (const task of tasks) {
       await sendDeadlineReminder(task);
     }
+
+    return res.status(200).json({ message: "Cron job executed successfully!" });
   } catch (error) {
     console.error("Error executing cron job:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -66,7 +69,10 @@ const sendDeadlineReminder = async (task) => {
 
         console.log(`✅ Reminder sent successfully for task: ${task.title}`);
       } catch (emailError) {
-        console.error(`🚨 Failed to send email for task: ${task.title}`, emailError);
+        console.error(
+          `🚨 Failed to send email for task: ${task.title}`,
+          emailError
+        );
       }
     }
   } catch (error) {
@@ -81,14 +87,17 @@ const formatRelativeTime = (dateString) => {
 
   if (diffInSeconds < 0) {
     const futureDiff = Math.abs(diffInSeconds);
-    if (futureDiff < 60) return `in ${futureDiff} second${futureDiff !== 1 ? "s" : ""}`;
+    if (futureDiff < 60)
+      return `in ${futureDiff} second${futureDiff !== 1 ? "s" : ""}`;
     if (futureDiff < 3600) return `in ${Math.ceil(futureDiff / 60)} minutes`;
     if (futureDiff < 86400) return `in ${Math.ceil(futureDiff / 3600)} hours`;
     return format(date, "MMM dd, yyyy");
   } else {
     if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
     return format(date, "MMM dd, yyyy");
   }
 };
