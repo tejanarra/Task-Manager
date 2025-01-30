@@ -284,7 +284,11 @@ const TaskItem = ({
                 Reminders
               </label>
               {getAllowedIntervals().length === 0 ? (
-                <small className="text-muted">No valid intervals.</small>
+                <small
+                  className={`text-${theme === "dark" ? "light" : "muted"}`}
+                >
+                  No valid intervals.
+                </small>
               ) : (
                 <div className="d-flex flex-row flex-wrap gap-2">
                   {getAllowedIntervals().map((interval) => {
