@@ -14,6 +14,12 @@ const ALL_INTERVALS = [
   { value: 168, label: "1 week" },
 ];
 
+function formatHoursLabel(h) {
+  if (h < 1) return `${Math.round(h * 60)} min`;
+  if (Number.isInteger(h)) return `${h} hr${h > 1 ? "s" : ""}`;
+  return `${h} hrs`;
+}
+
 const TaskItem = ({
   theme,
   task,
@@ -32,6 +38,9 @@ const TaskItem = ({
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const cardRef = useRef(null);
+
+  const [customValue, setCustomValue] = useState("");
+  const [customUnit, setCustomUnit] = useState("minutes");
 
   const handleCancel = useCallback(() => {
     setTempTitle(task.title);
@@ -85,9 +94,8 @@ const TaskItem = ({
         ? (deadlineDate - now) / (1000 * 60 * 60)
         : 0;
 
-    const validIntervals = ALL_INTERVALS.filter((i) => i.value <= diffInHours);
     const finalReminders = tempReminders.filter(
-      (r) => validIntervals.some((v) => v.value === r.remindBefore) && !r.sent
+      (r) => r.remindBefore <= diffInHours && !r.sent
     );
 
     const updatedTaskData = {
@@ -128,32 +136,6 @@ const TaskItem = ({
     }
   };
 
-  const getAllowedIntervals = () => {
-    if (!tempDeadline) return [];
-    const now = new Date();
-    const deadlineDate = new Date(tempDeadline);
-    if (deadlineDate <= now) return [];
-    const diffInHours = (deadlineDate - now) / (1000 * 60 * 60);
-    return ALL_INTERVALS.filter((i) => i.value <= diffInHours);
-  };
-
-  const toggleReminder = (value, checked) => {
-    setTempReminders((prev) => {
-      const existing = prev.find((r) => r.remindBefore === value);
-      if (checked) {
-        if (!existing) {
-          return [...prev, { remindBefore: value, sent: false }];
-        } else {
-          return prev.map((r) =>
-            r.remindBefore === value ? { ...r, sent: false } : r
-          );
-        }
-      } else {
-        return prev.filter((r) => r.remindBefore !== value);
-      }
-    });
-  };
-
   const getStripColor = (status) => {
     switch (status) {
       case "completed":
@@ -173,13 +155,87 @@ const TaskItem = ({
     if (!notSent.length) return null;
     const maxVal = Math.max(...notSent.map((r) => r.remindBefore));
     const found = ALL_INTERVALS.find((i) => i.value === maxVal);
-    return found ? found.label : `${maxVal} hrs`;
+    if (found) return found.label;
+    return formatHoursLabel(maxVal);
   };
 
   const largestReminder = isEditing ? null : getLargestNotSentReminder();
 
   const isDeadlineInFuture =
     tempDeadline && new Date(tempDeadline) > new Date();
+
+  const getDisplayIntervals = () => {
+    if (!tempDeadline) return [];
+    const now = new Date();
+    const deadlineDate = new Date(tempDeadline);
+    if (deadlineDate <= now) return [];
+    const diffInHours = (deadlineDate - now) / (1000 * 60 * 60);
+
+    const builtIn = ALL_INTERVALS.filter((i) => i.value <= diffInHours);
+    const custom = tempReminders
+      .filter((r) => !ALL_INTERVALS.some((ai) => ai.value === r.remindBefore))
+      .filter((r) => r.remindBefore <= diffInHours)
+      .map((r) => ({
+        value: r.remindBefore,
+        label: formatHoursLabel(r.remindBefore),
+      }));
+
+    const combined = [...builtIn, ...custom];
+    const uniqueMap = new Map();
+    combined.forEach((item) => {
+      if (!uniqueMap.has(item.value)) {
+        uniqueMap.set(item.value, item.label);
+      }
+    });
+    const final = Array.from(uniqueMap.entries())
+      .map(([value, label]) => ({ value, label }))
+      .sort((a, b) => a.value - b.value);
+
+    return final;
+  };
+
+  const toggleReminder = (value, checked) => {
+    setTempReminders((prev) => {
+      const existing = prev.find((r) => r.remindBefore === value);
+      if (checked) {
+        if (!existing) {
+          return [...prev, { remindBefore: value, sent: false }];
+        }
+        return prev.map((r) =>
+          r.remindBefore === value ? { ...r, sent: false } : r
+        );
+      }
+      return prev.filter((r) => r.remindBefore !== value);
+    });
+  };
+
+  const handleAddCustomReminder = () => {
+    if (!customValue || isNaN(customValue)) return;
+    const numeric = parseFloat(customValue);
+    if (numeric <= 0) return;
+
+    let hours = 0;
+    if (customUnit === "minutes") hours = numeric / 60;
+    else if (customUnit === "hours") hours = numeric;
+    else hours = numeric * 24;
+
+    const now = new Date();
+    const deadlineDate = tempDeadline ? new Date(tempDeadline) : null;
+    const diffInHours =
+      deadlineDate && deadlineDate > now
+        ? (deadlineDate - now) / (1000 * 60 * 60)
+        : 0;
+
+    if (hours <= diffInHours) {
+      setTempReminders((prev) => {
+        if (!prev.some((r) => r.remindBefore === hours)) {
+          return [...prev, { remindBefore: hours, sent: false }];
+        }
+        return prev;
+      });
+    }
+    setCustomValue("");
+  };
 
   return (
     <>
@@ -236,7 +292,7 @@ const TaskItem = ({
                 type="datetime-local"
                 className="form-control"
                 style={{ borderRadius: "6px" }}
-                value={tempDeadline ? formatDateTimeLocal(tempDeadline) : null}
+                value={tempDeadline ? formatDateTimeLocal(tempDeadline) : ""}
                 onChange={(e) => setTempDeadline(e.target.value)}
               />
             </div>
@@ -283,37 +339,85 @@ const TaskItem = ({
               <label className="form-label fw-semibold d-block">
                 Reminders
               </label>
-              {getAllowedIntervals().length === 0 ? (
-                <small
-                  className={`text-${theme === "dark" ? "light" : "muted"}`}
+              {(() => {
+                const intervals = getDisplayIntervals();
+                if (!intervals.length) {
+                  return (
+                    <small
+                      className={`text-${theme === "dark" ? "light" : "muted"}`}
+                    >
+                      No valid intervals.
+                    </small>
+                  );
+                }
+                return (
+                  <div
+                    className="d-flex flex-row flex-nowrap gap-2 mb-2"
+                    style={{ overflowX: "auto", whiteSpace: "nowrap" }}
+                  >
+                    {intervals.map((item) => {
+                      const existing = tempReminders.find(
+                        (r) => r.remindBefore === item.value
+                      );
+                      const checked = existing ? !existing.sent : false;
+                      return (
+                        <div key={item.value} className="d-inline-block">
+                          <label className="reminder-checkbox-label d-inline-flex align-items-center">
+                            <input
+                              type="checkbox"
+                              className="form-check-input me-2"
+                              checked={checked}
+                              onChange={(e) =>
+                                toggleReminder(item.value, e.target.checked)
+                              }
+                            />
+                            {item.label}
+                          </label>
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              <div
+                className="d-flex flex-row flex-nowrap align-items-center gap-2"
+                style={{ overflowX: "auto", whiteSpace: "nowrap" }}
+              >
+                <span className="small fw-semibold mb-0">Custom:</span>
+                <input
+                  type="number"
+                  className="form-control form-control-sm"
+                  min="1"
+                  style={{ width: "65px", borderRadius: "6px" }}
+                  placeholder="Value"
+                  value={customValue}
+                  onChange={(e) => setCustomValue(e.target.value)}
+                />
+                <select
+                  className="form-select form-select-sm"
+                  style={{ width: "65px", borderRadius: "6px" }}
+                  value={customUnit}
+                  onChange={(e) => setCustomUnit(e.target.value)}
                 >
-                  No valid intervals.
-                </small>
-              ) : (
-                <div className="d-flex flex-row flex-wrap gap-2">
-                  {getAllowedIntervals().map((interval) => {
-                    const existing = tempReminders.find(
-                      (r) => r.remindBefore === interval.value
-                    );
-                    const checked = existing ? !existing.sent : false;
-                    return (
-                      <div key={interval.value}>
-                        <label className="reminder-checkbox-label d-inline-flex align-items-center">
-                          <input
-                            type="checkbox"
-                            className="form-check-input me-2"
-                            checked={checked}
-                            onChange={(e) =>
-                              toggleReminder(interval.value, e.target.checked)
-                            }
-                          />
-                          {interval.label}
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                  <option value="minutes">Min</option>
+                  <option value="hours">Hrs</option>
+                  <option value="days">Days</option>
+                </select>
+                <button
+                  className={`btn btn-sm ${
+                    theme === "dark" ? "btn-outline-light" : "btn-outline-dark"
+                  }`}
+                  style={{
+                    borderRadius: "6px",
+                    padding: "0.25rem 0.5rem",
+                    minWidth: "50px",
+                  }}
+                  onClick={handleAddCustomReminder}
+                >
+                  Add
+                </button>
+              </div>
             </div>
           )}
 

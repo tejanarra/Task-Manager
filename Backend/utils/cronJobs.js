@@ -95,8 +95,10 @@ const formatRelativeTime = (dateString) => {
 
   if (diffInSeconds > 0) {
     if (diffInSeconds < 60) return `${diffInSeconds} seconds`;
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours`;
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} minutes`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} hours`;
     return format(date, "MMM dd, yyyy hh:mm a");
   }
   return format(date, "MMM dd, yyyy hh:mm a");

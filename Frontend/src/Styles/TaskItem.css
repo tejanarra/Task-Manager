@@ -1,5 +1,5 @@
 .task-card {
-  background: var(--color-background-secondary);
+  background: var(--color-background);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid #e0e0e0;
@@ -12,11 +12,7 @@
   position: relative;
   color: var(--color-text-primary);
 }
-.task-card.dark-mode {
-  background: #2c2c2c;
-  border: 1px solid #444;
-  color: #e0e0e0;
-}
+
 
 .task-card:hover {
   transform: scale(1.01);
