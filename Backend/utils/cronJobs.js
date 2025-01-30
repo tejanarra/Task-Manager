@@ -91,11 +91,11 @@ const formatRelativeTime = (dateString) => {
     if (futureDiff < 86400) return `in ${Math.ceil(futureDiff / 3600)} hours`;
     return format(date, "MMM dd, yyyy");
   } else {
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds ago`;
+    if (diffInSeconds < 60) return `${diffInSeconds} seconds`;
     if (diffInSeconds < 3600)
-      return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+      return `${Math.floor(diffInSeconds / 60)} minutes`;
     if (diffInSeconds < 86400)
-      return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+      return `${Math.floor(diffInSeconds / 3600)} hours`;
     return format(date, "MMM dd, yyyy");
   }
 };
