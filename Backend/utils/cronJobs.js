@@ -23,10 +23,8 @@ const executeCron = async (res) => {
       await sendDeadlineReminder(task);
     }
 
-    return res.status(200).json({ message: "Cron job executed successfully!" });
   } catch (error) {
     console.error("Error executing cron job:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
