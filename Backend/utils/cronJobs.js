@@ -21,8 +21,8 @@ const executeCron = async (req, res) => {
 
     console.log(`Fetched ${tasks.length} tasks`);
 
-    tasks.forEach((task) => {
-      sendDeadlineReminder(task);
+    tasks.forEach(async (task) => {
+      await sendDeadlineReminder(task);
     });
 
     return res.status(200).json({ message: "Cron job executed successfully!" });
