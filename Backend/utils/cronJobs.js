@@ -107,13 +107,18 @@ const sendDeadlineReminder = async (task) => {
         html: htmlContent,
       };
 
-      sendEmail(emailData);
-        console.log(`Sending mail for task: ${task.title}`);
+      const emailStatus = await sendEmail(emailData);
+
+      if (emailStatus === 100) {
+        console.log(`✅ Sending mail for task: ${task.title}`);
 
         task.reminderSent = true;
         await task.save();
 
-        console.log(`Reminder sent for task: ${task.title}`);
+        console.log(`✅ Reminder sent for task: ${task.title}`);
+      }else{
+        console.log(`FAILED TO SEND EMAIL`);
+      }
     }
   } catch (error) {
     console.error(`Error sending reminder for task ${task.title}:`, error);
