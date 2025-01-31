@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>New Message from <%= yourName %></title>
+    <style>
+      /* General Reset */
+      body,
+      div,
+      p,
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* Body Styling */
+      body {
+        font-family: "Poppins", sans-serif;
+        background-color: #f7f7f7;
+        color: #333;
+        line-height: 1.5;
+        padding: 20px;
+      }
+
+      .email-wrapper {
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Header Section */
+      .header {
+        background-color: #09122c;
+        padding: 20px;
+        text-align: center;
+        color: #fff;
+      }
+
+      .header h1 {
+        font-size: 24px;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+      }
+
+      .header p {
+        font-size: 16px;
+        margin: 0;
+      }
+
+      /* Main Content */
+      .content {
+        padding: 30px;
+        background-color: #fafafa;
+      }
+
+      .content h2 {
+        font-size: 22px;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .content p {
+        font-size: 16px;
+        color: #555;
+        margin-bottom: 10px;
+      }
+
+      .message {
+        background-color: #f1f1f1;
+        padding: 15px;
+        border-radius: 6px;
+        margin-top: 20px;
+        font-size: 16px;
+        color: #444;
+      }
+
+      /* Contact Information Section */
+      .contact-info {
+        margin-top: 30px;
+        background-color: #eaf1f6;
+        padding: 20px;
+        border-radius: 8px;
+      }
+
+      .contact-info h3 {
+        font-size: 20px;
+        color: #34495e;
+        margin-bottom: 15px;
+      }
+
+      .contact-info p {
+        color: #666;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      /* Footer Section */
+      .footer {
+        background-color: #09122c;
+        color: #fff;
+        text-align: center;
+        padding: 15px;
+        font-size: 14px;
+      }
+
+      .footer a {
+        text-decoration: none;
+        font-weight: bold;
+      }
+
+      .footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Button Styling */
+      .btn {
+        display: inline-block;
+        background-color: #BE3144;
+        padding: 12px 20px;
+        color: #000;
+        text-decoration: none;
+        font-weight: bold;
+        border-radius: 6px;
+        text-transform: uppercase;
+        margin-top: 20px;
+        transition: background-color 0.3s ease;
+      }
+
+      .btn:hover {
+        background-color: #872341;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 600px) {
+        .email-wrapper {
+          width: 100%;
+          padding: 10px;
+        }
+
+        .header h1 {
+          font-size: 20px;
+        }
+
+        .content h2 {
+          font-size: 18px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-wrapper">
+      <!-- Header -->
+      <div class="header">
+        <h1>New Message from <%= yourName %></h1>
+        <p>You've received a new message!</p>
+      </div>
+
+      <!-- Content Section -->
+      <div class="content">
+        <h2>Message Details</h2>
+        <p><strong>Sender:</strong> <%= yourName %></p>
+        <p><strong>Email:</strong> <%= yourEmail %></p>
+        <p><strong>Subject:</strong> <%= subject %></p>
+
+        <div class="message">
+          <h3>Message:</h3>
+          <p><%= message %></p>
+        </div>
+      </div>
+
+      <!-- Footer Section -->
+      <div class="footer">
+        <p>Click below to reply directly to the sender:</p>
+        <a href="mailto:<%= yourEmail %>" class="btn">Reply to Sender</a>
+      </div>
+    </div>
+  </body>
+</html>

@@ -8,16 +8,18 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "templates"));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/verification", (req, res) => {
-  const verificationCode = "123456";
-  const userName = "John Doe";
-  const purpose = "password reset";
+app.get("/send-email", (req, res) => {
+  const message =
+    "Hello, I would like more information about your services. Could you please send me more details?";
+  const yourName = "John Doe";
+  const yourEmail = "johndoe@example.com";
+  const subject = "Inquiry about Services";
 
-  res.render("verificationEmail", {
-    userName,
-    verificationCode,
-    purpose,
-    theme: "dark",
+  res.render("contactFormEmail", {
+    yourName,
+    subject,
+    yourEmail,
+    message,
   });
 });
 

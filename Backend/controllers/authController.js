@@ -315,17 +315,21 @@ const sendContactFormEmail = async (req, res) => {
 
   const mailOptions = {
     from: yourEmail,
-    to: process.env.CONTACT_FORM_RECEIVER_EMAIL || "narrateja9699@gmail.com",
+    to: "narrateja9699@gmail.com",
     subject: `New Contact Form Submission: ${subject}`,
-    text: `Message from ${yourName} (${yourEmail}):\n\n${message}`,
+    html: await ejs.renderFile(path.join(__dirname, "../templates/contactFormEmail.ejs"), {
+      yourName,
+      yourEmail,
+      subject,
+      message,
+    }),
   };
 
   try {
     await sendEmail(mailOptions);
     return res.status(200).json({
       code: "CNT004",
-      message:
-        "Your message has been sent successfully. We will get back to you soon.",
+      message: "Your message has been sent successfully. We will get back to you soon.",
     });
   } catch (error) {
     console.error("Contact Form Email error:", error.message);
