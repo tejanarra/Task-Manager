@@ -63,6 +63,7 @@ const TaskList = ({ theme }) => {
       description: "",
       status: "not-started",
       deadline: null,
+      reminders: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       priority: 1,
@@ -80,6 +81,7 @@ const TaskList = ({ theme }) => {
         status: task.status,
         deadline: task.deadline,
         priority: tasks.length + 1,
+        reminders: task.reminders,
       });
 
       setTasks((prev) =>
