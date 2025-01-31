@@ -304,7 +304,7 @@ const resendVerificationEmail = async (req, res) => {
 };
 
 const sendContactFormEmail = async (req, res) => {
-  const { yourName, yourEmail, subject, message } = req.body;
+  const { yourName, yourEmail, subject, message } = req.body.data;
 
   if (!yourName || !yourEmail || !subject || !message) {
     return res.status(400).json({
