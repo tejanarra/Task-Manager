@@ -10,7 +10,7 @@ const Navbar = ({ theme, toggleTheme }) => {
     location.pathname === "/profile-overview" ||
     location.pathname === "/edit-profile";
 
-  const avatarLink = isOnProfile ? "/" : "/profile-overview";
+  const avatarLink = isOnProfile ? "/tasks" : "/profile-overview";
 
   const avatarBorderStyle = isOnProfile
     ? theme === "dark"
@@ -45,7 +45,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   return (
     <nav className={navbarClasses}>
-      <div className="container-fluid justify-content-between align-items-center">
+      <div className="container-fluid d-flex justify-content-between align-items-center">
         <Link
           className="navbar-brand"
           to="/"
@@ -54,7 +54,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           Task Manager
         </Link>
 
-        <ul className="navbar-nav ms-auto align-items-center d-flex flex-row gap-2">
+        <ul className="navbar-nav d-flex flex-row align-items-center justify-content-between">
           <li className="nav-item">
             <button
               onClick={toggleTheme}
@@ -70,7 +70,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           </li>
           {!user ? (
             <>
-              <li className="nav-item">
+              <li className="nav-item me-1">
                 <Link
                   to="/login"
                   className={`nav-link ${
@@ -92,18 +92,30 @@ const Navbar = ({ theme, toggleTheme }) => {
               </li>
             </>
           ) : (
-            <li className="nav-item">
-              <Link to={avatarLink} style={{ textDecoration: "none" }}>
-                {user.avatar ? (
-                  <img src={user.avatar} alt="Profile" style={avatarStyle} />
-                ) : (
-                  <div style={placeholderStyle}>
-                    {user.firstName?.[0]?.toUpperCase()}
-                    {user.lastName?.[0]?.toUpperCase()}
-                  </div>
-                )}
-              </Link>
-            </li>
+            <>
+              <li className="nav-item">
+                <Link to="/tasks" className="btn" aria-label="Home">
+                  <i
+                    className={`bi bi-house ${
+                      theme === "dark" ? "text-light" : "text-dark"
+                    }`}
+                    style={{ fontSize: "1.5rem" }}
+                  ></i>
+                </Link>
+              </li>
+              <li className="nav-item">
+                <Link to={avatarLink} style={{ textDecoration: "none" }}>
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="Profile" style={avatarStyle} />
+                  ) : (
+                    <div style={placeholderStyle}>
+                      {user.firstName?.[0]?.toUpperCase()}
+                      {user.lastName?.[0]?.toUpperCase()}
+                    </div>
+                  )}
+                </Link>
+              </li>
+            </>
           )}
         </ul>
       </div>

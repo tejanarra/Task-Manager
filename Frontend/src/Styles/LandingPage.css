@@ -1,0 +1,317 @@
+.lp-container {
+    font-family: "Poppins", sans-serif;
+    color: var(--color-text-primary);
+    background-color: var(--color-background);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hero Section */
+.lp-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6rem 4rem;
+    background-color: var(--color-background-secondary);
+    min-height: 80vh;
+}
+
+.lp-hero-content {
+    max-width: 45%;
+}
+
+.lp-hero-content h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.lp-hero-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
+.lp-cta-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Base button styles */
+.lp-btn {
+    padding: 0.875rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    cursor: pointer;
+}
+
+/* Primary button */
+.lp-btn-primary {
+    background-color: var(--color-button-bg); /* Black */
+    color: var(--color-button-text); /* White */
+    border: 2px solid var(--color-button-bg);
+}
+
+.lp-btn-secondary {
+    background-color: transparent;
+    color: var(--color-button-bg); /* Black */
+    /* border: 2px solid var(--color-button-bg); */
+}
+
+/* Secondary button */
+.lp-btn-primary:hover {
+    background-color: var(--color-background); /* Darker Gray */
+    color: var(--color-text-primary); /* White */
+    border-color: var(--color-text-primary);
+}
+
+.lp-btn-secondary:hover {
+    /* background-color: #ffffff; White */
+    color: var(--color-text-primary); /* Black */
+    border: 2px solid var(--color-text-primary);
+}
+
+/* Button container spacing */
+.lp-cta-buttons {
+    display: flex;
+    gap: 1rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .lp-btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.95rem;
+    }
+    
+    /* .lp-cta-buttons {
+        flex-direction: column;
+        gap: 0.75rem;
+        width: 100%;
+    } */
+    
+    /* .lp-btn {
+        width: 100%;
+        text-align: center;
+    } */
+}
+
+.lp-hero-image img {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Features Section */
+.lp-features {
+    padding: 6rem 4rem;
+}
+
+.lp-features h1 {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.lp-feature-item {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    margin-bottom: 6rem;
+    padding: 2rem;
+}
+
+.lp-feature-item:last-child {
+    margin-bottom: 0;
+}
+
+.lp-feature-content {
+    flex: 1;
+}
+
+.lp-feature-image {
+    flex: 1;
+}
+
+.lp-feature-image img {
+    width: 100%;
+    max-width: 500px;
+    height: auto;
+    border-radius: 12px;
+    /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); */
+}
+
+.lp-feature-content h3 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.lp-feature-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* Benefits Section */
+.lp-benefits {
+    padding: 6rem 4rem;
+    background-color: var(--color-background-secondary);
+}
+
+.lp-benefits h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.lp-benefits-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.lp-benefit {
+    background-color: var(--color-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease;
+}
+
+
+
+.lp-benefit i {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+    color: var(--color-button-bg);
+}
+
+.lp-benefit h4 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.lp-benefit p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: var(--color-text-secondary);
+}
+
+/* Testimonials Section */
+.lp-testimonials {
+    padding: 6rem 4rem;
+}
+
+.lp-testimonials h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.lp-testimonials-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.lp-testimonial {
+    background-color: var(--color-background);
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.lp-testimonial p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.lp-testimonial h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+/* Call to Action Section */
+.lp-cta {
+    padding: 6rem 4rem;
+    background-color: var(--color-background-secondary);
+    text-align: center;
+}
+
+.lp-cta h2 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .lp-hero {
+        flex-direction: column;
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .lp-hero-content {
+        max-width: 100%;
+        margin-bottom: 3rem;
+    }
+
+    .lp-cta-buttons {
+        justify-content: center;
+    }
+
+    .lp-feature-item {
+        flex-direction: column !important;
+        text-align: center;
+        gap: 2rem;
+    }
+
+    .lp-feature-content {
+        order: 1;
+    }
+
+    .lp-feature-image {
+        order: 2;
+    }
+}
+
+@media (max-width: 768px) {
+    .lp-hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .lp-features,
+    .lp-benefits,
+    .lp-testimonials,
+    .lp-cta {
+        padding: 4rem 2rem;
+    }
+
+    .lp-features h2,
+    .lp-benefits h2,
+    .lp-testimonials h2,
+    .lp-cta h2 {
+        font-size: 2rem;
+    }
+}

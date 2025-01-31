@@ -24,7 +24,7 @@ const Login = ({ theme }) => {
       const { data } = await loginUser(email, password);
       const { token, userInfo } = data;
       login(token, userInfo);
-      navigate("/");
+      navigate("/tasks");
     } catch (err) {
       console.error(
         "Login failed:",
