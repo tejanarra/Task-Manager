@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { verifyRegistrationCode } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "../Styles/VerificationForm.css";
 
 const VerificationForm = ({
@@ -16,6 +17,7 @@ const VerificationForm = ({
 }) => {
   const [verificationCode, setVerificationCode] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleVerifyCode = async (e) => {
     e.preventDefault();
@@ -25,11 +27,14 @@ const VerificationForm = ({
 
     try {
       const response = await verifyRegistrationCode(email, verificationCode);
-      setMessage(response.data.message || "Verification successful!");
+      setMessage( "Verification successful! You are being redirected to home.");
+
+      const { token, userInfo } = response.data;
 
       setTimeout(() => {
         setIsVerificationStep(false);
-        navigate("/login");
+        login(token, userInfo);
+        navigate("/tasks");
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || "Verification failed.");

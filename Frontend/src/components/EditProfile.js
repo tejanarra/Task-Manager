@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../services/api";
 import AvatarEditor from "react-avatar-editor";
+import { useAuth } from "../context/AuthContext";
 import "../Styles/EditProfile.css";
 
 const EditProfile = () => {
@@ -14,6 +15,8 @@ const EditProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const editorRef = useRef(null);
+  const { logout } = useAuth();
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -25,11 +28,15 @@ const EditProfile = () => {
         setError(
           `Failed to fetch profile data: ${err.message || err.toString()}`
         );
+        if (err && err.status === 403) {
+          logout();
+          navigate("/login");
+        }
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [logout, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -108,6 +115,7 @@ const EditProfile = () => {
     return (
       <div className="profile-container">
         <div className="loading-spinner">Loading profile...</div>
+        {navigate("/login")}
       </div>
     );
   }
@@ -116,7 +124,7 @@ const EditProfile = () => {
     return (
       <div className="profile-container">
         <h2 className="profile-title">Edit Profile</h2>
-        <p className="text-danger text-center">{error}</p>
+        {error && <div className="alert alert-danger">{error}</div>}
       </div>
     );
   }
@@ -125,7 +133,7 @@ const EditProfile = () => {
     <div className="profile-container">
       <div className="profile-card shadow rounded">
         <h2 className="profile-title text-center mb-4">Edit Profile</h2>
-        {success && <p className="text-success text-center">{success}</p>}
+        {success && <div className="alert alert-success">{success}</div>}
         {isLoading && <div className="loading-overlay">Updating...</div>}
         <form onSubmit={handleSubmit}>
           <div className="text-center mb-4">

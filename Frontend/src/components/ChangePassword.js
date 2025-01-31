@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { changePassword } from "../services/api";
 import "../Styles/ProfileOverview.css";
 import "../Styles/EditProfile.css";
+import { useAuth } from "../context/AuthContext";
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({
@@ -13,6 +14,7 @@ const ChangePassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,6 +50,11 @@ const ChangePassword = () => {
           "Failed to change password. Please try again."
       );
       setSuccess("");
+
+      if (err && err.status === 403) {
+        logout();
+        navigate("/login");
+      }
     }
   };
 

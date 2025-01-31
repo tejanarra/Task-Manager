@@ -128,6 +128,7 @@ const verifyRegistrationCode = async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         email: user.email,
+        avatar: user.avatar,
       },
     });
   } catch (err) {

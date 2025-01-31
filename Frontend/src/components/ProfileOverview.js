@@ -41,12 +41,16 @@ const ProfileOverview = ({ theme }) => {
         setProfile(data);
       } catch (err) {
         setError("Failed to fetch profile data.");
+        if (err && err.status === 403) {
+          logout();
+          navigate("/login");
+        }
         console.log(err);
       }
     };
 
     fetchProfile();
-  }, []);
+  }, [logout, navigate]);
 
   const renderSkeletonLoader = () => (
     <div className="profile-container">
@@ -166,7 +170,8 @@ const ProfileOverview = ({ theme }) => {
           </div>
         </div>
       </div>
-      <ConfirmationModal theme={theme}
+      <ConfirmationModal
+        theme={theme}
         show={showLogoutModal}
         title="Logout"
         message="Are you sure you want to log out?"
