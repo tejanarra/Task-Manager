@@ -1,7 +1,8 @@
 import React, { useState, useEffect, lazy, Suspense } from "react";
 import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
-import PrivateRoute from "./components/PrivateRoute";
+import PrivateRoute from "./context/PrivateRoute";
+import PublicRoute from "./context/PublicRoute";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import "./App.css";
@@ -48,8 +49,22 @@ function App() {
           <Suspense fallback={<div className="loading">Loading...</div>}>
             <Routes>
               <Route path="/" element={<LandingPage theme={theme} />} />
-              <Route path="/login" element={<Login theme={theme} />} />
-              <Route path="/register" element={<Register theme={theme} />} />
+              <Route
+                path="/login"
+                element={
+                  <PublicRoute>
+                    <Login theme={theme} />
+                  </PublicRoute>
+                }
+              />
+              <Route
+                path="/register"
+                element={
+                  <PublicRoute>
+                    <Register theme={theme} />
+                  </PublicRoute>
+                }
+              />
               <Route
                 path="/forgot-password"
                 element={<ForgotPassword theme={theme} />}

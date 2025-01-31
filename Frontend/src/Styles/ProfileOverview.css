@@ -72,6 +72,20 @@
     font-size: 16px;
   }
 
+  .profile-container .sign-in-btn {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .profile-container .sign-in-btn:hover {
+    background-color: var(--color-button-hover-bg);
+    color: var(--color-button-hover-text);
+  
+  }
   
   @media (max-width: 768px) {
     .profile-container {

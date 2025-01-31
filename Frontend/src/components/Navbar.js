@@ -45,7 +45,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   return (
     <nav className={navbarClasses}>
-      <div className="container-fluid d-flex justify-content-between align-items-center">
+      <div className="container-fluid  justify-content-between align-items-center">
         <Link
           className="navbar-brand"
           to="/"

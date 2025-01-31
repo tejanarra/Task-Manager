@@ -449,7 +449,7 @@ const TaskItem = ({
           </div>
 
           {isEditing && (
-            <div className="mt-3 d-flex justify-content-end gap-3">
+            <div className="mt-2 d-flex flex-row justify-content-end align-items-center gap-2">
               {!isNewTask && (
                 <button
                   className={`btn btn-sm ${

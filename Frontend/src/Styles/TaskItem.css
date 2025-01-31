@@ -6,7 +6,7 @@
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   font-family: "Poppins", sans-serif;
   display: flex;
   position: relative;
@@ -82,8 +82,8 @@
 }
 
 .task-card.dark-mode .reminder-checkbox-label {
-  background-color: #444;
-  border-color: #666;
+  background-color: #000;
+  border-color: var(--form-border);
  
 }
 
@@ -95,3 +95,86 @@
   font-size: 0.85rem;
   opacity: 0.7;
 }
+
+/* Task Card Form Control */
+.task-card .form-control {
+  background-color: var(--color-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.task-card .form-control:focus {
+  border-color: var(--color-border-dark);
+  color: var(--form-text);
+  box-shadow: none;
+}
+
+.task-card .form-label {
+  color: var(--color-text-primary);
+}
+
+.task-card .form-select {
+  background-color: var(--color-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.task-card .form-select:focus {
+  border-color: var(--color-border-dark);
+}
+
+/* Placeholder Styling */
+.task-card .form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-control::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-control:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-control::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-select::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-select:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-select::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.task-card .form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
