@@ -1,7 +1,6 @@
 const bcrypt = require("bcryptjs");
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-import "pg";
 
 const User = sequelize.define(
   "User",

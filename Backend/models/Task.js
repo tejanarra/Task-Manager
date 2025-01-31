@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-import "pg";
 
 const Task = sequelize.define("Task", {
   title: {

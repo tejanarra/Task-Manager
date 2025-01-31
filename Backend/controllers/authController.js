@@ -4,30 +4,46 @@ const User = require("../models/User");
 const { Op } = require("sequelize");
 const errors = require("../utils/errors");
 const { sendEmail } = require("../utils/mailer");
-import "pg";
+const ejs = require("ejs");
+const path = require("path");
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
 
-const createVerificationEmail = (
+const createVerificationEmail = async (
   email,
   verificationCode,
-  type = "passwordReset"
+  type = "passwordReset",
+  userName = ""
 ) => {
-  let subject, text;
+  let subject, text, purpose;
   if (type === "passwordReset") {
     subject = "Password Reset Verification Code";
     text = `Your password reset verification code is: ${verificationCode}. This code will expire in 10 minutes.`;
+    purpose = "Password Reset";
   } else if (type === "registration") {
     subject = "Registration Verification Code";
     text = `Your registration verification code is: ${verificationCode}. This code will expire in 10 minutes.`;
+    purpose = "Registration";
   }
-  return {
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject,
-    text,
-  };
+
+    const htmlContent = await ejs.renderFile(
+      path.join(__dirname, "../templates/verificationEmail.ejs"),
+      {
+        userName,
+        verificationCode,
+        purpose,
+        theme: "dark",
+      }
+    );
+
+    return {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject,
+      text,
+      html: htmlContent,
+    };
 };
 
 const registerUser = async (req, res) => {
@@ -61,7 +77,7 @@ const registerUser = async (req, res) => {
       isVerified: false,
     });
 
-    const mailOptions = createVerificationEmail(
+    const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
       "registration"
@@ -187,7 +203,7 @@ const forgotPassword = async (req, res) => {
     user.verificationCodeExpiration = new Date(Date.now() + 600000);
     await user.save();
 
-    const mailOptions = createVerificationEmail(
+    const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
       "passwordReset"
@@ -273,7 +289,7 @@ const resendVerificationEmail = async (req, res) => {
     user.verificationCodeExpiration = new Date(Date.now() + 600000);
     await user.save();
 
-    const mailOptions = createVerificationEmail(
+    const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
       "registration"

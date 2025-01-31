@@ -56,10 +56,10 @@ export const convertDateToWords = (dateString) => {
     year: "numeric",
     month: "long",
     day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: true,
+    // hour: "numeric",
+    // minute: "numeric",
+    // second: "numeric",
+    // hour12: true,
   };
 
   return date.toLocaleString("en-US", options);
