@@ -1,6 +1,5 @@
 const Task = require("../models/Task");
 const { Sequelize } = require("sequelize");
-import "pg";
 
 const sequelize = require("../config/db");
 

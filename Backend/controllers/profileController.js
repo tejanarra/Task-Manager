@@ -2,7 +2,6 @@ const User = require("../models/User");
 const { validationResult } = require("express-validator");
 const sequelize = require("../config/db");
 const cloudinary = require("../config/cloudinary");
-import "pg";
 
 const fetchUser = async (userId) => {
   const user = await User.findByPk(userId, {
