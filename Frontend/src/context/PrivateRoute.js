@@ -2,11 +2,6 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
-/**
- * PrivateRoute component to protect routes
- * @param {object} props - Props containing children components
- * @returns {JSX.Element} - Rendered component or redirect
- */
 const PrivateRoute = ({ children }) => {
   const { user } = useAuth();
   const location = useLocation();

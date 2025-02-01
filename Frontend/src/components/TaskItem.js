@@ -237,7 +237,6 @@ const TaskItem = ({
     setCustomValue("");
   };
 
-  // Decide which custom units are possible based on the time left
   const getAllowedUnits = () => {
     if (!isDeadlineInFuture) return ["minutes"]; 
     const now = new Date();

@@ -16,7 +16,6 @@ const EditProfile = () => {
   const navigate = useNavigate();
   const editorRef = useRef(null);
   const { logout } = useAuth();
-  
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -104,8 +103,8 @@ const EditProfile = () => {
       setSuccess("Profile updated successfully!");
       setTimeout(() => navigate("/profile-overview"), 2000);
     } catch (err) {
-      setError("Failed to update profile.");
-      console.error(err);
+      setError(err.message);
+      setTimeout(() => navigate("/profile-overview"), 2000);
     } finally {
       setIsLoading(false);
     }
@@ -122,7 +121,7 @@ const EditProfile = () => {
 
   if (error) {
     return (
-      <div className="profile-container">
+      <div className="profile-container flex-column">
         <h2 className="profile-title">Edit Profile</h2>
         {error && <div className="alert alert-danger">{error}</div>}
       </div>
@@ -133,7 +132,6 @@ const EditProfile = () => {
     <div className="profile-container">
       <div className="profile-card shadow rounded">
         <h2 className="profile-title text-center mb-4">Edit Profile</h2>
-        {success && <div className="alert alert-success">{success}</div>}
         {isLoading && <div className="loading-overlay">Updating...</div>}
         <form onSubmit={handleSubmit}>
           <div className="text-center mb-4">
@@ -243,6 +241,8 @@ const EditProfile = () => {
               )}
             </div>
           ))}
+          {success && <div className="alert alert-success">{success}</div>}
+
           <div className="row mt-4">
             <div className="col-12 col-md-6 mb-2 mb-md-0">
               <button

@@ -120,7 +120,6 @@ const ProfileOverview = ({ theme }) => {
             {profile.bio || "No bio available"}
           </p>
         </div>
-        <hr />
         <div className="profile-details mt-4">
           <div className="detail-row">
             <strong className="detail-label">Email:</strong>
@@ -157,10 +156,10 @@ const ProfileOverview = ({ theme }) => {
             </button>
           </div>
         </div>
-        <div className="row mt-3">
+        <div className="row mt-2">
           <div className="col-12">
             <button
-              className="btn btn-danger w-100 btn-lg"
+              className="btn btn-danger w-100"
               onClick={() => {
                 logoutClicked();
               }}

@@ -70,16 +70,12 @@
   .profile-container .sign-in-btn {
     background-color: var(--color-button-bg);
     color: var(--color-button-text);
-    border: none;
-    font-weight: 500;
-    border-radius: 6px;
     transition: background-color 0.3s ease, color 0.3s ease;
   }
   
   .profile-container .sign-in-btn:hover {
     background-color: var(--color-button-hover-bg);
     color: var(--color-button-hover-text);
-  
   }
   
   @media (max-width: 768px) {
@@ -164,28 +160,4 @@
         background-position: 200% 0;
     }
 }
-
-
-.btn-black {
-    background-color: #000;
-    color: #fff;
-    font-weight: 500;
-    border: none;
-  }
-  
-.btn-black:hover {
-    background-color: #333;
-    color: #fff;
-  }
-
-
-  .btn-secondary {
-    background-color: #6c757d;
-    color: #fff;
-  }
-  
-  .custom-modal-footer .btn-secondary:hover {
-    background-color: #5a6268;
-    color: #fff;
-  }
   

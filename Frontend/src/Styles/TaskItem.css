@@ -13,7 +13,6 @@
   color: var(--color-text-primary);
 }
 
-
 .task-card:hover {
   transform: scale(1.01);
   box-shadow: 0 2px 4px rgba(13, 10, 10, 0.5);
@@ -31,7 +30,6 @@
   font-size: 1.5rem;
 }
 
-/* Alarm clock bottom-right - always absolute */
 .reminder-indicator {
   position: absolute;
   bottom: 10px;
@@ -44,15 +42,6 @@
 .task-card.dark-mode .reminder-indicator {
   color: #ccc;
 }
-
-/* Remove the media query that repositions the reminder icon */
-/* @media (max-width: 576px) {
-   .reminder-indicator {
-     position: static;
-     margin-top: 0.5rem;
-     margin-left: auto;
-   }
-} */
 
 .deadline-text {
   font-size: 0.9rem;
@@ -69,7 +58,6 @@
   margin-bottom: 0.5rem;
 }
 
-/* Reminders in Edit Mode => horizontal */
 .reminder-checkbox-label {
   cursor: pointer;
   border: 1px solid #ddd;
@@ -88,7 +76,7 @@
 }
 
 .form-check-input {
-  accent-color: #000; /* black accent if supported */
+  accent-color: #000;
 }
 
 .text-muted {
@@ -96,7 +84,6 @@
   opacity: 0.7;
 }
 
-/* Task Card Form Control */
 .task-card .form-control {
   background-color: var(--color-background);
   color: var(--form-text);
@@ -127,7 +114,6 @@
   border-color: var(--color-border-dark);
 }
 
-/* Placeholder Styling */
 .task-card .form-control::placeholder {
   color: var(--color-text-placeholder);
   opacity: 1;

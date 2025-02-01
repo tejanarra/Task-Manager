@@ -3,7 +3,6 @@ import feature2 from "../../assets/reminder3.jpeg";
 import feature3 from "../../assets/switch.jpg";
 import feature4 from "../../assets/priority.jpg";
 
-// featuresData.js
 export const featuresData = [
   {
     title: "Organize Your Tasks",
@@ -35,7 +34,6 @@ export const featuresData = [
   },
 ];
 
-// benefitsData.js
 export const benefitsData = [
   {
     icon: "bi bi-speedometer2",
@@ -75,7 +73,6 @@ export const benefitsData = [
   },
 ];
 
-// testimonialsData.js
 export const testimonialsData = [
   {
     quote:

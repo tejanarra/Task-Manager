@@ -67,7 +67,11 @@ function App() {
               />
               <Route
                 path="/forgot-password"
-                element={<ForgotPassword theme={theme} />}
+                element={
+                  <PublicRoute>
+                    <ForgotPassword theme={theme} />
+                  </PublicRoute>
+                }
               />
 
               <Route

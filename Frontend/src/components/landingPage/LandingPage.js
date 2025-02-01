@@ -19,7 +19,6 @@ const LandingPage = ({ theme }) => {
 
   return (
     <div className={`lp-container ${theme}`}>
-      {/* Hero Section */}
       <section className="lp-hero">
         <div className="lp-hero-content">
           <h1>Your Ultimate Task Manager</h1>
@@ -60,7 +59,6 @@ const LandingPage = ({ theme }) => {
       <BenefitsSection benefits={benefitsData} />
       <TestimonialsSection testimonials={testimonialsData} />
 
-      {/* Call to Action Section */}
       <section className="lp-cta">
         <h2>Ready to Boost Your Productivity?</h2>
         <Link to="/register" className="lp-btn-secondary lp-btn">

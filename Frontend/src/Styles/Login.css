@@ -28,9 +28,6 @@
 .login-form .sign-in-btn {
   background-color: var(--color-button-bg);
   color: var(--color-button-text);
-  border: none;
-  font-weight: 500;
-  border-radius: 6px;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 

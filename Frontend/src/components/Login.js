@@ -80,11 +80,10 @@ const Login = ({ theme }) => {
           <button
             type="submit"
             className={`btn sign-in-btn w-100 mb-3`}
-            disabled={isLoading}
           >
             {isLoading ? (
               <span
-                className="spinner-border spinner-border-sm text-light"
+                className="spinner-border spinner-border-sm"
                 role="status"
                 aria-hidden="true"
               ></span>

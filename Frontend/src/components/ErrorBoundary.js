@@ -1,5 +1,3 @@
-// src/components/ErrorBoundary.js
-
 import React from "react";
 
 class ErrorBoundary extends React.Component {
@@ -9,18 +7,15 @@ class ErrorBoundary extends React.Component {
   }
 
   static getDerivedStateFromError(error) {
-    // Update state to display fallback UI
     return { hasError: true };
   }
 
   componentDidCatch(error, errorInfo) {
-    // Log the error to an error reporting service
     console.error("ErrorBoundary caught an error", error, errorInfo);
   }
 
   render() {
     if (this.state.hasError) {
-      // Fallback UI
       return <h1>Something went wrong.</h1>;
     }
 
