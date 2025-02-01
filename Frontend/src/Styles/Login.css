@@ -61,12 +61,6 @@
 }
 
 @media (max-width: 720px) {
-  .d-flex.justify-content-between {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: center;
-  }
-
   .register-link,
   .forgot-password-link {
     flex-basis: 100%;

@@ -27,7 +27,7 @@ const VerificationForm = ({
 
     try {
       const response = await verifyRegistrationCode(email, verificationCode);
-      setMessage( "Verification successful! You are being redirected to home.");
+      setMessage("Verification successful! You are being redirected to home.");
 
       const { token, userInfo } = response.data;
 
@@ -69,7 +69,7 @@ const VerificationForm = ({
         />
       </div>
 
-      <div className="d-flex justify-content-between align-items-center mt-3">
+      <div className="d-flex flex-row flex-wrap justify-content-between align-items-center mt-3">
         <button type="submit" className="btn verify-btn" disabled={isLoading}>
           {isLoading ? (
             <span

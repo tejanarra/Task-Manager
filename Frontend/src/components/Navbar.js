@@ -45,7 +45,7 @@ const Navbar = ({ theme, toggleTheme }) => {
 
   return (
     <nav className={navbarClasses}>
-      <div className="container-fluid  justify-content-between align-items-center">
+      <div className="container-fluid flex-row justify-content-between align-items-center">
         <Link
           className="navbar-brand"
           to="/"
@@ -54,7 +54,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           Task Manager
         </Link>
 
-        <ul className="navbar-nav d-flex flex-row align-items-center justify-content-between">
+        <ul className="navbar-nav gap-1 d-flex flex-row align-items-center justify-content-between">
           <li className="nav-item">
             <button
               onClick={toggleTheme}
