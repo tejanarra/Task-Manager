@@ -169,7 +169,7 @@ const ForgotPassword = ({ theme }) => {
                   aria-hidden="true"
                 ></span>
               ) : hasCode || isEmailSent ? (
-                "Reset Password"
+                "Reset"
               ) : (
                 "Send Code"
               )}
