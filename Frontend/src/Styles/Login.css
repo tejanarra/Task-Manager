@@ -61,11 +61,6 @@
 }
 
 @media (max-width: 720px) {
-  .register-link,
-  .forgot-password-link {
-    flex-basis: 100%;
-    text-align: center;
-  }
 
   .login-form {
     max-width: clamp(280px, 100%, 100%);
