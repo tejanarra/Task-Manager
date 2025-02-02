@@ -6,16 +6,16 @@
   border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
   font-family: "Poppins", sans-serif;
-  display: flex;
   position: relative;
   color: var(--color-text-primary);
+  display: flex;
 }
 
 .task-card:hover {
   transform: scale(1.01);
-  box-shadow: 0 2px 4px rgba(13, 10, 10, 0.5);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .task-strip {
@@ -23,24 +23,19 @@
   flex-shrink: 0;
 }
 
+.task-card:not(.dark-mode) input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+}
+
+.task-card.dark-mode input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
 .status-icon {
   position: absolute;
   top: 10px;
   right: 10px;
   font-size: 1.5rem;
-}
-
-.reminder-indicator {
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  font-size: 0.9rem;
-  opacity: 0.9;
-  display: flex;
-  align-items: center;
-}
-.task-card.dark-mode .reminder-indicator {
-  color: #ccc;
 }
 
 .deadline-text {
@@ -56,27 +51,6 @@
 
 .task-description {
   margin-bottom: 0.5rem;
-}
-
-.reminder-checkbox-label {
-  cursor: pointer;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 4px 8px;
-  transition: background-color 0.2s ease;
-  font-size: 0.85rem;
-  color: var(--color-text-primary);
-  background-color: #fff;
-}
-
-.task-card.dark-mode .reminder-checkbox-label {
-  background-color: #000;
-  border-color: var(--form-border);
- 
-}
-
-.form-check-input {
-  accent-color: #000;
 }
 
 .text-muted {
@@ -114,53 +88,53 @@
   border-color: var(--color-border-dark);
 }
 
-.task-card .form-control::placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
+.task-card .form-control::placeholder,
 .task-card .form-select::placeholder {
   color: var(--color-text-placeholder);
   opacity: 1;
 }
 
-.task-card .form-control::-webkit-input-placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
-.task-card .form-control:-ms-input-placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
-.task-card .form-control::-ms-input-placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
-.task-card .form-control::placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
-.task-card .form-select::-webkit-input-placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
-.task-card .form-select:-ms-input-placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
-}
-
+.task-card .form-control::-webkit-input-placeholder,
+.task-card .form-control:-ms-input-placeholder,
+.task-card .form-control::-ms-input-placeholder,
+.task-card .form-select::-webkit-input-placeholder,
+.task-card .form-select:-ms-input-placeholder,
 .task-card .form-select::-ms-input-placeholder {
   color: var(--color-text-placeholder);
   opacity: 1;
 }
 
-.task-card .form-select::placeholder {
-  color: var(--color-text-placeholder);
-  opacity: 1;
+.reminder-indicator {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
 }
 
+/* If you want dark mode support for the icon as well */
+.dark-mode .reminder-indicator {
+  color: #ccc;
+}
+
+.reminder-checkbox-label {
+  cursor: pointer;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 8px;
+  transition: background-color 0.2s ease;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  background-color: #fff;
+}
+
+.task-card.dark-mode .reminder-checkbox-label {
+  background-color: #000;
+  border-color: var(--form-border);
+ 
+}
+
+.form-check-input {
+  accent-color: #000;
+}

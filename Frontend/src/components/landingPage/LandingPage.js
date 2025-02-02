@@ -1,6 +1,6 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
-import "../../Styles/LandingPage.css";
+import "./Styles/LandingPage.css";
 import heroImage from "../../assets/hero1.jpg";
 import { featuresData } from "./data";
 import { benefitsData } from "./data";

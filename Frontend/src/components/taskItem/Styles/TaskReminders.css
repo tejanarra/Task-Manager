@@ -1,0 +1,81 @@
+/* Container */
+.task-reminders-container {
+  border: 1px solid var(--color-border-light);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  font-family: "Poppins", sans-serif;
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+}
+
+/* Dropdown Header Bar */
+.reminders-dropdown {
+  background-color: var(--color-background-secondary);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.reminders-dropdown-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reminders-dropdown-header h6 {
+  margin: 0;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+/* Dropdown Content */
+.reminders-dropdown-content {
+  padding: 1rem;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Dark Mode Support using .dark class */
+.dark .task-reminders-container {
+  border-color: var(--color-border);
+}
+.dark .reminders-dropdown {
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border);
+}
+.dark .reminders-dropdown-header h6 {
+  color: var(--color-text-primary);
+}
+.dark .reminders-dropdown-content {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+/* Dark Mode Support using prefers-color-scheme */
+@media (prefers-color-scheme: dark) {
+  .task-reminders-container {
+    border-color: var(--color-border);
+  }
+  .reminders-dropdown {
+    background-color: var(--color-background-secondary);
+    color: var(--color-text-primary);
+    border-color: var(--color-border);
+  }
+  .reminders-dropdown-header h6 {
+    color: var(--color-text-primary);
+  }
+  .reminders-dropdown-content {
+    background-color: var(--color-background);
+    color: var(--color-text-primary);
+  }
+}
+
+/* Override reminder-checkbox label if needed */
+.reminder-checkbox-label {
+  background-color: var(--color-background);
+  border-color: var(--color-border-light);
+  color: var(--color-text-primary);
+}

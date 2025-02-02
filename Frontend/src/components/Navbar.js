@@ -11,6 +11,7 @@ const Navbar = ({ theme, toggleTheme }) => {
     location.pathname === "/edit-profile";
 
   const avatarLink = isOnProfile ? "/tasks" : "/profile-overview";
+  const isHome = location.pathname === "/tasks";
 
   const avatarBorderStyle = isOnProfile
     ? theme === "dark"
@@ -96,7 +97,7 @@ const Navbar = ({ theme, toggleTheme }) => {
               <li className="nav-item">
                 <Link to="/tasks" className="btn" aria-label="Home">
                   <i
-                    className={`bi bi-house ${
+                    className={`bi ${isHome ? "bi-house-fill" : "bi-house"} ${
                       theme === "dark" ? "text-light" : "text-dark"
                     }`}
                     style={{ fontSize: "1.5rem" }}
