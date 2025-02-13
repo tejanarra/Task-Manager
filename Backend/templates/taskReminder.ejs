@@ -158,8 +158,14 @@
         <p>Hello <%= userName %>,</p>
         <p>
           This is a reminder that your task "<strong><%= task.title %></strong>"
-          is due soon in <strong><%= deadlineIn %></strong>.
-        </p>
+          <% if (deadlineIn === '1 day') { %>
+            is due in <strong>1 day</strong>.
+          <% } else if (deadlineIn.includes('minute') || deadlineIn.includes('hour')) { %>
+            is due soon in <strong><%= deadlineIn %></strong>.
+          <% } else { %>
+            is due at <strong><%= deadlineIn %></strong>.
+          <% } %>
+        </p>        
         <p>Please take action as needed to complete the task.</p>
         <a href="<%= actionLink %>" class="cta-button">View Task</a>
       </div>

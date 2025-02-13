@@ -92,16 +92,27 @@ const formatRelativeTime = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((date - now) / 1000);
-
+  
   if (diffInSeconds > 0) {
-    if (diffInSeconds < 60) return `${diffInSeconds} seconds`;
-    if (diffInSeconds < 3600)
-      return `${Math.ceil(diffInSeconds / 60)} minutes`;
-    if (diffInSeconds < 86400)
-      return `${Math.ceil(diffInSeconds / 3600)} hours`;
+    if (diffInSeconds < 60) {
+      return `${diffInSeconds} seconds`;
+    }
+    if (diffInSeconds < 3600) {
+      const minutes = Math.ceil(diffInSeconds / 60);
+      return minutes === 1 ? `1 minute` : `${minutes} minutes`;
+    }
+    if (diffInSeconds < 86400) {
+      const hours = Math.ceil(diffInSeconds / 3600);
+      return hours === 1 ? `1 hour` : `${hours} hours`;
+    }
+    if (diffInSeconds < 172800) {
+      return `1 day`;
+    }
     return format(date, "MMM dd, yyyy hh:mm a");
   }
+  
   return format(date, "MMM dd, yyyy hh:mm a");
 };
+
 
 module.exports = { executeCron };
