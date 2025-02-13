@@ -127,7 +127,7 @@ const TaskReminders = ({
               <label className="small fw-semibold d-block">
                 Add Custom Reminder:
               </label>
-              <div className="d-flex align-items-center gap-2">
+              <div className="d-flex align-items-center gap-1 flex-wrap">
                 <input
                   type="datetime-local"
                   className="form-control form-control-sm"
