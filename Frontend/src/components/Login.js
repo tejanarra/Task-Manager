@@ -125,7 +125,7 @@ const Login = ({ theme }) => {
             <img
               src={googlelogo}
               alt="Google logo"
-              style={{ width: "30px", height: "30px" }}
+              style={{ width: "24px", height: "24px" }}
             />
             <span>Sign in with Google</span>
           </button>
