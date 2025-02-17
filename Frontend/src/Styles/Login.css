@@ -158,3 +158,32 @@
   color: var(--color-text-placeholder);
   opacity: 1;
 }
+
+.login-form .google-signin-btn {
+  background-color: var(--form-background);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.login-form .google-signin-btn:hover {
+  background-color: var(--color-background-placeholder);
+  border-color: var(--color-border-dark);
+}
+
+.login-form .google-signin-btn:active {
+  background-color: var(--color-shimmer-dark);
+}
+
+.login-form .google-signin-btn img {
+  filter: var(--google-icon-filter, none);
+}
+
+.dark .login-form .google-signin-btn {
+  border-color: var(--color-border);
+}
+
+.dark .login-form .google-signin-btn img {
+  filter: invert(1) brightness(var(--icon-brightness, 1));
+}

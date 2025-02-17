@@ -3,7 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { loginUser, loginWithGoogle } from "../services/api";
 import "../Styles/Login.css";
-import { GoogleLogin } from "@react-oauth/google";
+import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import googlelogo from "../assets/google_logo.png";
 
 const Login = ({ theme }) => {
   const { login } = useAuth();
@@ -37,27 +38,27 @@ const Login = ({ theme }) => {
     }
   };
 
-  const handleGoogleLogin = async (response) => {
-    setError("");
-    setIsLoading(true);
-
-    try {
-      const { data } = await loginWithGoogle(response.credential);
-      const { token, userInfo } = data;
-      login(token, userInfo);
-      navigate("/tasks");
-    } catch (err) {
-      console.error(
-        "Google login failed:",
-        err.response?.data?.message || err.message
-      );
-      setError(
-        err.response?.data?.message || "Google login failed. Please try again."
-      );
-    } finally {
+  const handleGoogleLoginFlow = useGoogleLogin({
+    flow: "auth-code",
+    onSuccess: async (response) => {
+      setIsLoading(true);
+      try {
+        const { data } = await loginWithGoogle(response.code);
+        login(data.token, data.userInfo);
+        navigate("/tasks");
+      } catch (err) {
+        setError(err.response?.data?.message || "Google login failed");
+        googleLogout();
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    onError: () => {
+      setError("Google login failed");
       setIsLoading(false);
-    }
-  };
+    },
+    scope: "openid email profile",
+  });
 
   const handleForgotPassword = () => {
     navigate("/forgot-password");
@@ -112,11 +113,22 @@ const Login = ({ theme }) => {
         </form>
 
         <div className="oauth-container mb-3">
-          <GoogleLogin
-            onSuccess={handleGoogleLogin}
-            onError={(error) => console.error("Google login failed:", error)}
+          <button
+            className={`btn google-signin-btn w-100 mb-3 d-flex align-items-center justify-content-center gap-2 ${
+              theme === "dark" ? "dark-theme" : ""
+            }`}
+            onClick={handleGoogleLoginFlow}
+            disabled={isLoading}
+            type="button"
             useOneTap
-          />
+          >
+            <img
+              src={googlelogo}
+              alt="Google logo"
+              style={{ width: "30px", height: "30px" }}
+            />
+            <span>Sign in with Google</span>
+          </button>
         </div>
 
         <div className="d-flex justify-content-between mt-3">

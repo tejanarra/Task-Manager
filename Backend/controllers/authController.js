@@ -7,26 +7,33 @@ const { sendEmail } = require("../utils/mailer");
 const ejs = require("ejs");
 const path = require("path");
 const { OAuth2Client } = require("google-auth-library");
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
 
 const googleLogin = async (req, res) => {
-  const { token } = req.body;
+  const { code } = req.body;
 
-  if (!token) {
+  if (!code) {
     return res.status(400).json({
       code: "AUTH009",
-      message: "Google token is required.",
+      message: "Authorization code is required.",
     });
   }
 
   try {
+    const { tokens } = await client.getToken({
+      code,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    });
     const ticket = await client.verifyIdToken({
-      idToken: token,
+      idToken: tokens.id_token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
 
     const payload = ticket.getPayload();
-    console.log(payload);
     const { email, given_name, family_name, picture, email_verified } = payload;
 
     let user = await User.findOne({ where: { email } });
