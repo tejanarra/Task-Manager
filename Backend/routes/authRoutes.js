@@ -8,6 +8,7 @@ const {
   resendVerificationEmail,
   sendContactFormEmail,
   changePassword,
+  googleLogin,
 } = require("../controllers/authController");
 const { executeCron } = require("../utils/cronJobs");
 const router = express.Router();
@@ -33,5 +34,7 @@ router.get("/cronrun", async (req, res) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 });
+router.post("/google", googleLogin);
+
 
 module.exports = router;

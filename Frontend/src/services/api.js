@@ -33,6 +33,10 @@ export const loginUser = (email, password) => {
   return api.post("/auth/login", { email, password });
 };
 
+export const loginWithGoogle = async (googleToken) => {
+  return api.post(`/auth/google`, { token: googleToken });
+};
+
 export const registerUser = (firstName, lastName, email, password) => {
   return api.post("/auth/register", { firstName, lastName, email, password });
 };

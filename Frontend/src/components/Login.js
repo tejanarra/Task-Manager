@@ -1,10 +1,9 @@
-// Login.js
-
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { loginUser } from "../services/api";
+import { loginUser, loginWithGoogle } from "../services/api";
 import "../Styles/Login.css";
+import { GoogleLogin } from "@react-oauth/google";
 
 const Login = ({ theme }) => {
   const { login } = useAuth();
@@ -32,6 +31,28 @@ const Login = ({ theme }) => {
       );
       setError(
         err.response?.data?.message || "Login failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async (response) => {
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const { data } = await loginWithGoogle(response.credential);
+      const { token, userInfo } = data;
+      login(token, userInfo);
+      navigate("/tasks");
+    } catch (err) {
+      console.error(
+        "Google login failed:",
+        err.response?.data?.message || err.message
+      );
+      setError(
+        err.response?.data?.message || "Google login failed. Please try again."
       );
     } finally {
       setIsLoading(false);
@@ -77,10 +98,7 @@ const Login = ({ theme }) => {
             />
           </div>
 
-          <button
-            type="submit"
-            className={`btn sign-in-btn w-100 mb-3`}
-          >
+          <button type="submit" className={`btn sign-in-btn w-100 mb-3`}>
             {isLoading ? (
               <span
                 className="spinner-border spinner-border-sm"
@@ -92,6 +110,14 @@ const Login = ({ theme }) => {
             )}
           </button>
         </form>
+
+        <div className="oauth-container mb-3">
+          <GoogleLogin
+            onSuccess={handleGoogleLogin}
+            onError={(error) => console.error("Google login failed:", error)}
+            useOneTap
+          />
+        </div>
 
         <div className="d-flex justify-content-between mt-3">
           <Link to="/register" className="register-link">

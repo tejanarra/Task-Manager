@@ -6,6 +6,62 @@ const errors = require("../utils/errors");
 const { sendEmail } = require("../utils/mailer");
 const ejs = require("ejs");
 const path = require("path");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const googleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({
+      code: "AUTH009",
+      message: "Google token is required.",
+    });
+  }
+
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    console.log(payload);
+    const { email, given_name, family_name, picture, email_verified } = payload;
+
+    let user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      user = await User.create({
+        firstName: given_name,
+        lastName: family_name,
+        email,
+        password: "",
+        avatar: picture,
+        isVerified: email_verified,
+      });
+    }
+
+    const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRATION,
+    });
+
+    return res.status(200).json({
+      code: "AUTH010",
+      message: "Google login successful.",
+      token: jwtToken,
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatar: user.avatar,
+      },
+    });
+  } catch (err) {
+    console.error("Google login error:", err.message);
+    return res.status(500).json(errors.SERVER.ERROR);
+  }
+};
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
@@ -27,23 +83,23 @@ const createVerificationEmail = async (
     purpose = "Registration";
   }
 
-    const htmlContent = await ejs.renderFile(
-      path.join(__dirname, "../templates/verificationEmail.ejs"),
-      {
-        userName,
-        verificationCode,
-        purpose,
-        theme: "dark",
-      }
-    );
+  const htmlContent = await ejs.renderFile(
+    path.join(__dirname, "../templates/verificationEmail.ejs"),
+    {
+      userName,
+      verificationCode,
+      purpose,
+      theme: "dark",
+    }
+  );
 
-    return {
-      from: process.env.EMAIL_USER,
-      to: email,
-      subject,
-      text,
-      html: htmlContent,
-    };
+  return {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject,
+    text,
+    html: htmlContent,
+  };
 };
 
 const registerUser = async (req, res) => {
@@ -318,19 +374,23 @@ const sendContactFormEmail = async (req, res) => {
     from: yourEmail,
     to: "narrateja9699@gmail.com",
     subject: `New Contact Form Submission: ${subject}`,
-    html: await ejs.renderFile(path.join(__dirname, "../templates/contactFormEmail.ejs"), {
-      yourName,
-      yourEmail,
-      subject,
-      message,
-    }),
+    html: await ejs.renderFile(
+      path.join(__dirname, "../templates/contactFormEmail.ejs"),
+      {
+        yourName,
+        yourEmail,
+        subject,
+        message,
+      }
+    ),
   };
 
   try {
     await sendEmail(mailOptions);
     return res.status(200).json({
       code: "CNT004",
-      message: "Your message has been sent successfully. We will get back to you soon.",
+      message:
+        "Your message has been sent successfully. We will get back to you soon.",
     });
   } catch (error) {
     console.error("Contact Form Email error:", error.message);
@@ -398,4 +458,5 @@ module.exports = {
   resendVerificationEmail,
   sendContactFormEmail,
   changePassword,
+  googleLogin,
 };
