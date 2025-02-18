@@ -101,6 +101,9 @@ const EditProfile = () => {
       const response = await updateProfile(formData);
       setProfile(response.user);
       setSuccess("Profile updated successfully!");
+      const userInfo = JSON.parse(localStorage.getItem("userInfo"));
+      userInfo.avatar = response.user.avatar;
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
       setTimeout(() => navigate("/profile-overview"), 2000);
     } catch (err) {
       setError(err.message);
