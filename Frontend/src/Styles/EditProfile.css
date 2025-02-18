@@ -82,12 +82,6 @@
     width: 150px;
   }
   
-  .btn-outline-success,
-  .btn-outline-danger {
-    padding: 10px;
-    font-size: 1rem;
-  }
-  
   .loading-spinner,
   .loading-overlay {
     position: absolute;
