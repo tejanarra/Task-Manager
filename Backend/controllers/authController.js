@@ -38,6 +38,11 @@ const googleLogin = async (req, res) => {
 
     let user = await User.findOne({ where: { email } });
 
+    if (user && !user.avatar) {
+      user.avatar = picture;
+      await user.save();
+    }
+
     if (!user) {
       user = await User.create({
         firstName: given_name,

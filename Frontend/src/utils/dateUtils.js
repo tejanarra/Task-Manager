@@ -27,7 +27,8 @@ export const formatRelativeTime = (dateString) => {
 };
 
 export const convertDateToWords = (dateString) => {
-  const date = new Date(dateString);
+  const [year, month, day] = dateString.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
   if (isNaN(date)) return "Invalid Date";
   const options = { year: "numeric", month: "long", day: "numeric" };
   return date.toLocaleString("en-US", options);
