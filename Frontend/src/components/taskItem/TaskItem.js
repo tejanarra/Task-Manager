@@ -86,10 +86,56 @@ const TaskItem = ({
         ? (deadlineDate - now) / (1000 * 60 * 60)
         : 0;
 
-    // Remove any reminders that exceed the remaining time (i.e. above the new deadline)
-    const finalReminders = tempReminders.filter(
-      (r) => r.remindBefore <= diffInHours
-    );
+    // Helper function to regenerate recurring reminders when deadline changes
+    const regenerateRecurringReminders = (reminders) => {
+      const hasDaily = reminders.some(r => r.type === 'daily');
+      const hasWeekly = reminders.some(r => r.type === 'weekly');
+      
+      // Keep non-recurring reminders that are still valid
+      let filteredReminders = reminders.filter(r => 
+        !r.type && r.remindBefore <= diffInHours
+      );
+
+      // Regenerate daily reminders if they were enabled
+      if (hasDaily && diffInHours > 0) {
+        const maxDays = Math.floor(diffInHours / 24);
+        for (let day = 1; day <= maxDays; day++) {
+          const hoursBeforeDeadline = day * 24;
+          filteredReminders.push({
+            remindBefore: hoursBeforeDeadline,
+            sent: false,
+            type: 'daily',
+            dayNumber: day
+          });
+        }
+      }
+
+      // Regenerate weekly reminders if they were enabled
+      if (hasWeekly && diffInHours > 0) {
+        const maxWeeks = Math.floor(diffInHours / (24 * 7));
+        for (let week = 1; week <= maxWeeks; week++) {
+          const hoursBeforeDeadline = week * 24 * 7;
+          filteredReminders.push({
+            remindBefore: hoursBeforeDeadline,
+            sent: false,
+            type: 'weekly',
+            weekNumber: week
+          });
+        }
+      }
+
+      return filteredReminders;
+    };
+
+    // Process reminders based on new deadline
+    let finalReminders;
+    if (diffInHours > 0) {
+      // If there's a valid deadline, regenerate recurring reminders
+      finalReminders = regenerateRecurringReminders(tempReminders);
+    } else {
+      // If no deadline or deadline is in the past, remove all reminders
+      finalReminders = [];
+    }
 
     const updatedTaskData = {
       title: tempTitle.trim(),
@@ -140,6 +186,24 @@ const TaskItem = ({
   const stripColor = getStripColor(task.status);
   const isDeadlineInFuture =
     tempDeadline && new Date(tempDeadline) > new Date();
+
+  // Helper function to get reminder summary for display
+  const getReminderSummary = () => {
+    if (!tempReminders || tempReminders.length === 0) return null;
+    
+    const dailyCount = tempReminders.filter(r => r.type === 'daily').length;
+    const weeklyCount = tempReminders.filter(r => r.type === 'weekly').length;
+    const oneTimeCount = tempReminders.filter(r => !r.type).length;
+    
+    const parts = [];
+    if (dailyCount > 0) parts.push(`Daily (${dailyCount})`);
+    if (weeklyCount > 0) parts.push(`Weekly (${weeklyCount})`);
+    if (oneTimeCount > 0) parts.push(`One-time (${oneTimeCount})`);
+    
+    return parts.length > 0 ? parts.join(', ') : null;
+  };
+
+  const reminderSummary = getReminderSummary();
 
   return (
     <>
@@ -284,9 +348,10 @@ const TaskItem = ({
               </button>
             </div>
           )}
-          {!isEditing && tempReminders && tempReminders.length > 0 && (
-            <div className="reminder-indicator" title="Reminders set">
+          {!isEditing && reminderSummary && (
+            <div className="reminder-indicator" title={`Reminders: ${reminderSummary}`}>
               <i className="bi bi-clock"></i>
+              <small className="ms-1">{reminderSummary}</small>
             </div>
           )}
         </div>
