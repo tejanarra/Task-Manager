@@ -1,6 +1,6 @@
 {
   "files": {
-    "main.css": "/Task-Manager/static/css/main.55bbc18b.css",
+    "main.css": "/Task-Manager/static/css/main.3a1c1b6f.css",
     "main.js": "/Task-Manager/static/js/main.f49634ce.js",
     "static/css/25.b9be2266.chunk.css": "/Task-Manager/static/css/25.b9be2266.chunk.css",
     "static/js/25.571372a3.chunk.js": "/Task-Manager/static/js/25.571372a3.chunk.js",
@@ -28,7 +28,7 @@
     "static/media/switch.jpg": "/Task-Manager/static/media/switch.44fe5de403735accfde2.jpg",
     "static/media/reminder3.jpeg": "/Task-Manager/static/media/reminder3.1094678e47198a1729b7.jpeg",
     "index.html": "/Task-Manager/index.html",
-    "main.55bbc18b.css.map": "/Task-Manager/static/css/main.55bbc18b.css.map",
+    "main.3a1c1b6f.css.map": "/Task-Manager/static/css/main.3a1c1b6f.css.map",
     "main.f49634ce.js.map": "/Task-Manager/static/js/main.f49634ce.js.map",
     "25.b9be2266.chunk.css.map": "/Task-Manager/static/css/25.b9be2266.chunk.css.map",
     "25.571372a3.chunk.js.map": "/Task-Manager/static/js/25.571372a3.chunk.js.map",
@@ -52,7 +52,7 @@
     "150.e36f8e5e.chunk.js.map": "/Task-Manager/static/js/150.e36f8e5e.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.55bbc18b.css",
+    "static/css/main.3a1c1b6f.css",
     "static/js/main.f49634ce.js"
   ]
 }
