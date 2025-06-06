@@ -1,81 +1,449 @@
 /* Container */
 .task-reminders-container {
-  border: 1px solid var(--color-border-light);
-  border-radius: 4px;
+  border: 2px solid var(--form-border);
+  border-radius: 8px;
   overflow: hidden;
   margin-bottom: 1rem;
   font-family: "Poppins", sans-serif;
-  border: 2px solid var(--form-border);
-  border-radius: 6px;
+  background-color: var(--color-background);
+  transition: all 0.3s ease;
 }
 
 /* Dropdown Header Bar */
 .reminders-dropdown {
-  background-color: var(--color-background-secondary);
-  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background) 100%);
+  padding: 0.75rem 1rem;
   cursor: pointer;
   user-select: none;
   border-bottom: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+}
+
+.reminders-dropdown:hover {
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-secondary) 100%);
 }
 
 .reminders-dropdown-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
 }
 
 .reminders-dropdown-header h6 {
   margin: 0;
   font-weight: 600;
   color: var(--color-text-primary);
+  font-size: 1rem;
+}
+
+.reminders-dropdown-header i {
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+  transition: transform 0.3s ease;
 }
 
 /* Dropdown Content */
 .reminders-dropdown-content {
-  padding: 1rem;
+  padding: 1.25rem;
   background-color: var(--color-background);
   color: var(--color-text-primary);
 }
 
-/* Dark Mode Support using .dark class */
+/* Custom Reminder Input Section */
+.custom-reminder-section {
+  margin-bottom: 1.5rem;
+}
+
+.custom-reminder-section label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.custom-reminder-input-group {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: stretch;
+}
+
+.custom-reminder-input-group input[type="datetime-local"] {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.5rem;
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  color: var(--form-text);
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.custom-reminder-input-group input[type="datetime-local"]:focus {
+  border-color: var(--color-border-dark);
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.custom-reminder-input-group button {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.custom-reminder-input-group button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Recurring Reminders Section */
+.recurring-reminders-section {
+  margin-bottom: 1.5rem;
+}
+
+.recurring-reminders-section label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.recurring-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.recurring-option {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-width: fit-content;
+}
+
+.recurring-option:hover {
+  border-color: var(--color-border-dark);
+  background-color: var(--color-background-secondary);
+  transform: translateY(-1px);
+}
+
+.recurring-option input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--color-text-primary);
+}
+
+.recurring-option label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+/* Reminder Sections */
+.reminder-section {
+  margin-bottom: 1.25rem;
+}
+
+.reminder-section:last-child {
+  margin-bottom: 0;
+}
+
+.reminder-section-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.reminder-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.5rem;
+}
+
+/* Reminder Checkbox Styling */
+.reminder-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.85rem;
+  font-weight: 500;
+  min-height: 2.5rem;
+  text-align: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+}
+
+.reminder-checkbox-label:hover {
+  border-color: var(--color-border-dark);
+  background-color: var(--color-background-secondary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reminder-checkbox-label input[type="checkbox"] {
+  margin-right: 0.5rem;
+  accent-color: var(--color-text-primary);
+}
+
+.reminder-checkbox-label input[type="checkbox"]:checked + span {
+  font-weight: 600;
+}
+
+.reminder-checkbox-label input[type="checkbox"]:checked {
+  transform: scale(1.1);
+}
+
+/* Active Reminders Summary */
+.active-reminders-summary {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, rgba(13, 202, 240, 0.1) 0%, rgba(13, 202, 240, 0.05) 100%);
+  border: 1px solid rgba(13, 202, 240, 0.2);
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.active-reminders-summary small {
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.active-reminders-summary strong {
+  font-weight: 600;
+}
+
+/* Dark Mode Support */
 .dark .task-reminders-container {
   border-color: var(--color-border);
+  background-color: var(--color-background);
 }
+
 .dark .reminders-dropdown {
-  background-color: var(--color-background-secondary);
-  color: var(--color-text-primary);
+  background: linear-gradient(135deg, var(--color-background-secondary) 0%, var(--color-background) 100%);
   border-color: var(--color-border);
 }
-.dark .reminders-dropdown-header h6 {
+
+.dark .reminders-dropdown:hover {
+  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-secondary) 100%);
+}
+
+.dark .reminders-dropdown-header h6,
+.dark .reminders-dropdown-header i {
   color: var(--color-text-primary);
 }
+
 .dark .reminders-dropdown-content {
   background-color: var(--color-background);
   color: var(--color-text-primary);
 }
 
-/* Dark Mode Support using prefers-color-scheme */
-@media (prefers-color-scheme: dark) {
-  .task-reminders-container {
-    border-color: var(--color-border);
-  }
+.dark .reminder-checkbox-label {
+  background-color: var(--color-background);
+  border-color: var(--form-border);
+  color: var(--color-text-primary);
+}
+
+.dark .reminder-checkbox-label:hover {
+  background-color: var(--color-background-secondary);
+  border-color: var(--color-border-dark);
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.dark .recurring-option {
+  background-color: var(--color-background);
+  border-color: var(--form-border);
+}
+
+.dark .recurring-option:hover {
+  background-color: var(--color-background-secondary);
+  border-color: var(--color-border-dark);
+}
+
+.dark .custom-reminder-input-group input[type="datetime-local"] {
+  background-color: var(--color-background);
+  border-color: var(--form-border);
+  color: var(--form-text);
+}
+
+.dark .custom-reminder-input-group button:hover {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.15);
+}
+
+.dark .active-reminders-summary {
+  background: linear-gradient(135deg, rgba(13, 202, 240, 0.15) 0%, rgba(13, 202, 240, 0.08) 100%);
+  border-color: rgba(13, 202, 240, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
   .reminders-dropdown {
-    background-color: var(--color-background-secondary);
-    color: var(--color-text-primary);
-    border-color: var(--color-border);
+    padding: 0.6rem 0.8rem;
   }
+  
   .reminders-dropdown-header h6 {
-    color: var(--color-text-primary);
+    font-size: 0.9rem;
   }
+  
   .reminders-dropdown-content {
-    background-color: var(--color-background);
-    color: var(--color-text-primary);
+    padding: 1rem;
+  }
+  
+  .custom-reminder-input-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .custom-reminder-input-group input[type="datetime-local"] {
+    min-width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  
+  .custom-reminder-input-group button {
+    width: 100%;
+  }
+  
+  .recurring-options {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .recurring-option {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  
+  .reminder-grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.4rem;
+  }
+  
+  .reminder-checkbox-label {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    min-height: 2.2rem;
+  }
+  
+  .custom-reminder-section,
+  .recurring-reminders-section,
+  .reminder-section {
+    margin-bottom: 1.25rem;
   }
 }
 
-/* Override reminder-checkbox label if needed */
-.reminder-checkbox-label {
-  background-color: var(--color-background);
-  border-color: var(--color-border-light);
-  color: var(--color-text-primary);
+@media (max-width: 480px) {
+  .reminders-dropdown {
+    padding: 0.5rem;
+  }
+  
+  .reminders-dropdown-header {
+    gap: 0.5rem;
+  }
+  
+  .reminders-dropdown-header h6 {
+    font-size: 0.85rem;
+  }
+  
+  .reminders-dropdown-content {
+    padding: 0.8rem;
+  }
+  
+  .reminder-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+  }
+  
+  .reminder-checkbox-label {
+    padding: 0.4rem;
+    font-size: 0.75rem;
+    min-height: 2rem;
+  }
+  
+  .custom-reminder-section,
+  .recurring-reminders-section,
+  .reminder-section {
+    margin-bottom: 1rem;
+  }
+  
+  .custom-reminder-section label,
+  .recurring-reminders-section label,
+  .reminder-section-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .recurring-option {
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .recurring-option label {
+    font-size: 0.8rem;
+  }
+  
+  .active-reminders-summary {
+    padding: 0.5rem;
+  }
+  
+  .active-reminders-summary small {
+    font-size: 0.75rem;
+  }
+}
+
+/* Animation for dropdown content */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.reminders-dropdown-content {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Focus states for accessibility */
+.reminders-dropdown:focus,
+.recurring-option:focus,
+.reminder-checkbox-label:focus {
+  outline: 2px solid var(--color-border-dark);
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .task-reminders-container,
+  .reminder-checkbox-label,
+  .recurring-option {
+    border-width: 3px;
+  }
+  
+  .reminder-checkbox-label:hover,
+  .recurring-option:hover {
+    border-width: 3px;
+  }
 }

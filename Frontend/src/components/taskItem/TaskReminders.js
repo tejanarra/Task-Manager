@@ -37,14 +37,14 @@ const TaskReminders = ({
   const generateDailyReminders = () => {
     const reminders = [];
     const maxDays = Math.floor(diffInHours / 24);
-    
+
     for (let day = 1; day <= maxDays; day++) {
       const hoursBeforeDeadline = day * 24;
       reminders.push({
         remindBefore: hoursBeforeDeadline,
         sent: false,
-        type: 'daily',
-        dayNumber: day
+        type: "daily",
+        dayNumber: day,
       });
     }
     return reminders;
@@ -54,51 +54,51 @@ const TaskReminders = ({
   const generateWeeklyReminders = () => {
     const reminders = [];
     const maxWeeks = Math.floor(diffInHours / (24 * 7));
-    
+
     for (let week = 1; week <= maxWeeks; week++) {
       const hoursBeforeDeadline = week * 24 * 7;
       reminders.push({
         remindBefore: hoursBeforeDeadline,
         sent: false,
-        type: 'weekly',
-        weekNumber: week
+        type: "weekly",
+        weekNumber: week,
       });
     }
     return reminders;
   };
 
   // Check if daily reminders are active
-  const hasDailyReminders = tempReminders.some(r => r.type === 'daily');
-  
+  const hasDailyReminders = tempReminders.some((r) => r.type === "daily");
+
   // Check if weekly reminders are active
-  const hasWeeklyReminders = tempReminders.some(r => r.type === 'weekly');
+  const hasWeeklyReminders = tempReminders.some((r) => r.type === "weekly");
 
   // Toggle daily reminders
   const toggleDailyReminders = (checked) => {
-    setTempReminders(prev => {
+    setTempReminders((prev) => {
       if (checked) {
         // Remove any existing daily reminders and add new ones
-        const withoutDaily = prev.filter(r => r.type !== 'daily');
+        const withoutDaily = prev.filter((r) => r.type !== "daily");
         const dailyReminders = generateDailyReminders();
         return [...withoutDaily, ...dailyReminders];
       } else {
         // Remove all daily reminders
-        return prev.filter(r => r.type !== 'daily');
+        return prev.filter((r) => r.type !== "daily");
       }
     });
   };
 
   // Toggle weekly reminders
   const toggleWeeklyReminders = (checked) => {
-    setTempReminders(prev => {
+    setTempReminders((prev) => {
       if (checked) {
         // Remove any existing weekly reminders and add new ones
-        const withoutWeekly = prev.filter(r => r.type !== 'weekly');
+        const withoutWeekly = prev.filter((r) => r.type !== "weekly");
         const weeklyReminders = generateWeeklyReminders();
         return [...withoutWeekly, ...weeklyReminders];
       } else {
         // Remove all weekly reminders
-        return prev.filter(r => r.type !== 'weekly');
+        return prev.filter((r) => r.type !== "weekly");
       }
     });
   };
@@ -114,7 +114,8 @@ const TaskReminders = ({
         !r.type && // Only non-recurring reminders
         !ALL_INTERVALS.some(
           (ai) => Math.abs(ai.value - r.remindBefore) < 0.01
-        ) && r.remindBefore <= diffInHours
+        ) &&
+        r.remindBefore <= diffInHours
     )
     .map((r) => {
       if (r.customDate) {
@@ -139,10 +140,14 @@ const TaskReminders = ({
       if (checked) {
         if (!existing) return [...prev, { remindBefore: value, sent: false }];
         return prev.map((r) =>
-          !r.type && Math.abs(r.remindBefore - value) < 0.01 ? { ...r, sent: false } : r
+          !r.type && Math.abs(r.remindBefore - value) < 0.01
+            ? { ...r, sent: false }
+            : r
         );
       }
-      return prev.filter((r) => r.type || Math.abs(r.remindBefore - value) >= 0.01);
+      return prev.filter(
+        (r) => r.type || Math.abs(r.remindBefore - value) >= 0.01
+      );
     });
   };
 
@@ -155,7 +160,9 @@ const TaskReminders = ({
     const hours = (deadlineDate - selectedDate) / (1000 * 60 * 60);
     if (hours > 0 && hours <= diffInHours) {
       setTempReminders((prev) => {
-        if (!prev.some((r) => !r.type && Math.abs(r.remindBefore - hours) < 0.01)) {
+        if (
+          !prev.some((r) => !r.type && Math.abs(r.remindBefore - hours) < 0.01)
+        ) {
           return [
             ...prev,
             {
@@ -194,81 +201,82 @@ const TaskReminders = ({
 
       {/* Collapsible Content */}
       {isOpen && (
-        <div className="p-3">
+        <div className="reminders-dropdown-content">
+          {/* Custom Reminder Section */}
+          <div className="custom-reminder-section">
+            <label className="reminder-section-label">
+              Add Custom Reminder:
+            </label>
+            <div className="custom-reminder-input-group">
+              <input
+                type="datetime-local"
+                value={customReminder}
+                onChange={(e) => setCustomReminder(e.target.value)}
+                min={formatDateTimeLocal(new Date().toISOString())}
+                max={
+                  tempDeadline ? formatDateTimeLocal(tempDeadline) : undefined
+                }
+              />
+              <button
+                className={`btn btn-sm ${
+                  theme === "dark" ? "btn-outline-light" : "btn-outline-dark"
+                }`}
+                onClick={handleAddCustomReminder}
+              >
+                Add
+              </button>
+            </div>
+          </div>
+
           {/* Recurring Reminders Section */}
           {(maxDays > 0 || maxWeeks > 0) && (
-            <div className="row mb-3">
-              <div className="col-12">
-                <label className="small fw-semibold d-block mb-2">
-                  Recurring Reminders:
-                </label>
-                <div className="d-flex flex-wrap gap-3">
-                  {maxDays > 0 && (
-                    <div className="d-inline-block">
-                      <label className="reminder-checkbox-label d-inline-flex align-items-center">
-                        <input
-                          type="checkbox"
-                          className="form-check-input me-2"
-                          checked={hasDailyReminders}
-                          onChange={(e) => toggleDailyReminders(e.target.checked)}
-                        />
-                        Every Day ({maxDays} reminder{maxDays !== 1 ? 's' : ''})
-                      </label>
-                    </div>
-                  )}
-                  {maxWeeks > 0 && (
-                    <div className="d-inline-block">
-                      <label className="reminder-checkbox-label d-inline-flex align-items-center">
-                        <input
-                          type="checkbox"
-                          className="form-check-input me-2"
-                          checked={hasWeeklyReminders}
-                          onChange={(e) => toggleWeeklyReminders(e.target.checked)}
-                        />
-                        Every Week ({maxWeeks} reminder{maxWeeks !== 1 ? 's' : ''})
-                      </label>
-                    </div>
-                  )}
-                </div>
+            <div className="recurring-reminders-section">
+              <label className="reminder-section-label">
+                Recurring Reminders:
+              </label>
+              <div className="recurring-options">
+                {maxDays > 0 && (
+                  <div className="recurring-option">
+                    <input
+                      type="checkbox"
+                      checked={hasDailyReminders}
+                      onChange={(e) => toggleDailyReminders(e.target.checked)}
+                      id="daily-reminders"
+                    />
+                    <label htmlFor="daily-reminders">
+                      Every Day ({maxDays} reminder{maxDays !== 1 ? "s" : ""})
+                    </label>
+                  </div>
+                )}
+                {maxWeeks > 0 && (
+                  <div className="recurring-option">
+                    <input
+                      type="checkbox"
+                      checked={hasWeeklyReminders}
+                      onChange={(e) => toggleWeeklyReminders(e.target.checked)}
+                      id="weekly-reminders"
+                    />
+                    <label htmlFor="weekly-reminders">
+                      Every Week ({maxWeeks} reminder{maxWeeks !== 1 ? "s" : ""}
+                      )
+                    </label>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          <div className="row">
-            <div className="col-12 col-md-6 mb-3">
-              <label className="small fw-semibold d-block">
-                Add Custom Reminder:
-              </label>
-              <div className="d-flex align-items-center gap-1 flex-wrap">
-                <input
-                  type="datetime-local"
-                  className="form-control form-control-sm"
-                  style={{ width: "220px" }}
-                  value={customReminder}
-                  onChange={(e) => setCustomReminder(e.target.value)}
-                  min={formatDateTimeLocal(new Date().toISOString())}
-                  max={
-                    tempDeadline ? formatDateTimeLocal(tempDeadline) : undefined
-                  }
-                />
-                <button
-                  className={`btn btn-sm ${
-                    theme === "dark" ? "btn-outline-light" : "btn-outline-dark"
-                  }`}
-                  onClick={handleAddCustomReminder}
-                >
-                  Add
-                </button>
-              </div>
-            </div>
-            <div className="col-12 col-md-6 mb-3">
-              <label className="small fw-semibold d-block">
+          {/* One-time Reminders Section */}
+          {defaultIntervals.length > 0 && (
+            <div className="reminder-section">
+              <label className="reminder-section-label">
                 One-time Reminders:
               </label>
-              <div className="d-flex flex-wrap gap-2">
+              <div className="reminder-grid">
                 {defaultIntervals.map((item) => {
                   const existing = tempReminders.find(
-                    (r) => !r.type && Math.abs(r.remindBefore - item.value) < 0.01
+                    (r) =>
+                      !r.type && Math.abs(r.remindBefore - item.value) < 0.01
                   );
                   const checked = existing ? !existing.sent : false;
                   return (
@@ -285,49 +293,52 @@ const TaskReminders = ({
                 })}
               </div>
             </div>
-          </div>
+          )}
+
+          {/* Custom One-time Reminders Section */}
           {customIntervals.length > 0 && (
-            <div className="row">
-              <div className="col-12 mb-3">
-                <label className="small fw-semibold d-block">
-                  Custom One-time Reminders:
-                </label>
-                <div className="d-flex flex-wrap gap-2">
-                  {customIntervals.map((item) => {
-                    const existing = tempReminders.find(
-                      (r) => !r.type && Math.abs(r.remindBefore - item.value) < 0.01
-                    );
-                    const checked = existing ? !existing.sent : false;
-                    return (
-                      <ReminderCheckbox
-                        key={item.value}
-                        value={item.value}
-                        label={item.label}
-                        checked={checked}
-                        onChange={(checked) =>
-                          toggleReminder(item.value, checked)
-                        }
-                      />
-                    );
-                  })}
-                </div>
+            <div className="reminder-section">
+              <label className="reminder-section-label">
+                Custom One-time Reminders:
+              </label>
+              <div className="reminder-grid">
+                {customIntervals.map((item) => {
+                  const existing = tempReminders.find(
+                    (r) =>
+                      !r.type && Math.abs(r.remindBefore - item.value) < 0.01
+                  );
+                  const checked = existing ? !existing.sent : false;
+                  return (
+                    <ReminderCheckbox
+                      key={item.value}
+                      value={item.value}
+                      label={item.label}
+                      checked={checked}
+                      onChange={(checked) =>
+                        toggleReminder(item.value, checked)
+                      }
+                    />
+                  );
+                })}
               </div>
             </div>
           )}
-          
+
           {/* Show active recurring reminders summary */}
           {(hasDailyReminders || hasWeeklyReminders) && (
-            <div className="row">
-              <div className="col-12">
-                <div className="alert alert-info py-2 px-3">
-                  <small>
-                    <strong>Active recurring reminders:</strong>
-                    {hasDailyReminders && ` Daily reminders (${tempReminders.filter(r => r.type === 'daily').length} total)`}
-                    {hasDailyReminders && hasWeeklyReminders && ', '}
-                    {hasWeeklyReminders && ` Weekly reminders (${tempReminders.filter(r => r.type === 'weekly').length} total)`}
-                  </small>
-                </div>
-              </div>
+            <div className="active-reminders-summary">
+              <small>
+                <strong>Active recurring reminders:</strong>
+                {hasDailyReminders &&
+                  ` Daily reminders (${
+                    tempReminders.filter((r) => r.type === "daily").length
+                  } total)`}
+                {hasDailyReminders && hasWeeklyReminders && ", "}
+                {hasWeeklyReminders &&
+                  ` Weekly reminders (${
+                    tempReminders.filter((r) => r.type === "weekly").length
+                  } total)`}
+              </small>
             </div>
           )}
         </div>

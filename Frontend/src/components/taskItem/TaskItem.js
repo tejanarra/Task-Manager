@@ -35,6 +35,7 @@ const TaskItem = ({
     Array.isArray(task.reminders) ? task.reminders : []
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const cardRef = useRef(null);
 
   const handleCancel = useCallback(() => {
@@ -67,6 +68,9 @@ const TaskItem = ({
 
   const handleSave = async () => {
     if (!tempTitle.trim() || !tempDescription.trim()) return;
+
+    setIsLoading(true);
+
     const changed =
       tempTitle !== task.title ||
       tempDescription !== task.description ||
@@ -76,6 +80,7 @@ const TaskItem = ({
 
     if (!changed && !isNewTask) {
       setIsEditing(false);
+      setIsLoading(false);
       return;
     }
 
@@ -88,12 +93,12 @@ const TaskItem = ({
 
     // Helper function to regenerate recurring reminders when deadline changes
     const regenerateRecurringReminders = (reminders) => {
-      const hasDaily = reminders.some(r => r.type === 'daily');
-      const hasWeekly = reminders.some(r => r.type === 'weekly');
-      
+      const hasDaily = reminders.some((r) => r.type === "daily");
+      const hasWeekly = reminders.some((r) => r.type === "weekly");
+
       // Keep non-recurring reminders that are still valid
-      let filteredReminders = reminders.filter(r => 
-        !r.type && r.remindBefore <= diffInHours
+      let filteredReminders = reminders.filter(
+        (r) => !r.type && r.remindBefore <= diffInHours
       );
 
       // Regenerate daily reminders if they were enabled
@@ -104,8 +109,8 @@ const TaskItem = ({
           filteredReminders.push({
             remindBefore: hoursBeforeDeadline,
             sent: false,
-            type: 'daily',
-            dayNumber: day
+            type: "daily",
+            dayNumber: day,
           });
         }
       }
@@ -118,8 +123,8 @@ const TaskItem = ({
           filteredReminders.push({
             remindBefore: hoursBeforeDeadline,
             sent: false,
-            type: 'weekly',
-            weekNumber: week
+            type: "weekly",
+            weekNumber: week,
           });
         }
       }
@@ -145,29 +150,34 @@ const TaskItem = ({
       reminders: finalReminders,
     };
 
-    if (isNewTask) {
-      onSave({ ...task, ...updatedTaskData });
-    } else {
-      try {
+    try {
+      if (isNewTask) {
+        onSave({ ...task, ...updatedTaskData });
+      } else {
         const response = await updateTask(task.id, updatedTaskData);
         setTasks((prev) =>
           prev.map((t) => (t.id === response.data.id ? response.data : t))
         );
         setIsEditing(false);
-      } catch (error) {
-        console.error("Error updating task:", error);
       }
+    } catch (error) {
+      console.error("Error updating task:", error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleDelete = () => setShowDeleteModal(true);
   const confirmDelete = async () => {
+    setIsLoading(true);
     try {
       await deleteTask(task.id);
       setTasks((prev) => prev.filter((t) => t.id !== task.id));
       setShowDeleteModal(false);
     } catch (error) {
       console.error("Error deleting task:", error);
+    } finally {
+      setIsLoading(false);
       setShowDeleteModal(false);
     }
   };
@@ -190,17 +200,17 @@ const TaskItem = ({
   // Helper function to get reminder summary for display
   const getReminderSummary = () => {
     if (!tempReminders || tempReminders.length === 0) return null;
-    
-    const dailyCount = tempReminders.filter(r => r.type === 'daily').length;
-    const weeklyCount = tempReminders.filter(r => r.type === 'weekly').length;
-    const oneTimeCount = tempReminders.filter(r => !r.type).length;
-    
+
+    const dailyCount = tempReminders.filter((r) => r.type === "daily").length;
+    const weeklyCount = tempReminders.filter((r) => r.type === "weekly").length;
+    const oneTimeCount = tempReminders.filter((r) => !r.type).length;
+
     const parts = [];
     if (dailyCount > 0) parts.push(`Daily (${dailyCount})`);
     if (weeklyCount > 0) parts.push(`Weekly (${weeklyCount})`);
     if (oneTimeCount > 0) parts.push(`One-time (${oneTimeCount})`);
-    
-    return parts.length > 0 ? parts.join(', ') : null;
+
+    return parts.length > 0 ? parts.join(", ") : null;
   };
 
   const reminderSummary = getReminderSummary();
@@ -209,16 +219,17 @@ const TaskItem = ({
     <>
       <div
         ref={cardRef}
-        className={`task-card mb-4 position-relative ${
-          theme === "dark" ? "dark-mode" : ""
-        }`}
-        onClick={() => setIsEditing(true)}
+        className={`task-card ${theme === "dark" ? "dark-mode" : ""} ${
+          isLoading ? "loading" : ""
+        } ${isNewTask ? "new-task" : ""}`}
+        onClick={() => !isEditing && setIsEditing(true)}
       >
         <div
           className="task-strip"
           style={{ backgroundColor: stripColor }}
         ></div>
-        <div className="flex-grow-1 p-3 position-relative">
+
+        <div className="task-card-content">
           {!isEditing && (
             <i
               className={`bi ${
@@ -231,131 +242,136 @@ const TaskItem = ({
               style={{ color: stripColor }}
             />
           )}
+
           {isEditing ? (
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Title</label>
-              <input
-                type="text"
-                className="form-control"
-                style={{ borderRadius: "6px" }}
-                value={tempTitle}
-                onChange={(e) => setTempTitle(e.target.value)}
-              />
+            <div className="task-form-grid">
+              <div className="task-form-group full-width">
+                <label className="form-label">Title</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  value={tempTitle}
+                  onChange={(e) => setTempTitle(e.target.value)}
+                  placeholder="Enter task title..."
+                />
+              </div>
+
+              <div className="task-form-group full-width">
+                <label className="form-label">Description</label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  value={tempDescription}
+                  onChange={(e) => setTempDescription(e.target.value)}
+                  placeholder="Enter task description..."
+                />
+              </div>
+
+              <div className="task-form-group">
+                <label className="form-label">Status</label>
+                <select
+                  className="form-select"
+                  value={tempStatus}
+                  onChange={(e) => setTempStatus(e.target.value)}
+                >
+                  <option value="not-started">Not Started</option>
+                  <option value="in-progress">In Progress</option>
+                  <option value="completed">Completed</option>
+                </select>
+              </div>
+
+              <div className="task-form-group">
+                <label className="form-label">Deadline</label>
+                <input
+                  type="datetime-local"
+                  className="form-control"
+                  value={tempDeadline ? formatDateTimeLocal(tempDeadline) : ""}
+                  onChange={(e) => setTempDeadline(e.target.value)}
+                />
+              </div>
+
+              {isDeadlineInFuture && (
+                <div className="task-form-group full-width">
+                  <TaskReminders
+                    tempDeadline={tempDeadline}
+                    tempReminders={tempReminders}
+                    setTempReminders={setTempReminders}
+                    theme={theme}
+                    ALL_INTERVALS={ALL_INTERVALS}
+                    formatHoursLabel={formatHoursLabel}
+                  />
+                </div>
+              )}
             </div>
           ) : (
-            <h5
-              className="fw-bold mb-2 task-title"
-              style={{ color: stripColor }}
-            >
-              {tempTitle}
-            </h5>
+            <>
+              <h5 className="task-title" style={{ color: stripColor }}>
+                {tempTitle}
+              </h5>
+              <p className="task-description">{tempDescription}</p>
+            </>
           )}
-          {isEditing && (
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Deadline</label>
-              <input
-                type="datetime-local"
-                className="form-control"
-                style={{ borderRadius: "6px" }}
-                value={tempDeadline ? formatDateTimeLocal(tempDeadline) : ""}
-                onChange={(e) => setTempDeadline(e.target.value)}
-              />
+
+          <div className="task-metadata">
+            <div className="task-metadata-item">
+              <strong>Created</strong>
+              <span>{formatRelativeTime(task.createdAt)}</span>
             </div>
-          )}
-          {isEditing ? (
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Description</label>
-              <textarea
-                className="form-control"
-                rows={3}
-                style={{ borderRadius: "6px" }}
-                value={tempDescription}
-                onChange={(e) => setTempDescription(e.target.value)}
-              />
-            </div>
-          ) : (
-            <p
-              className="task-description"
-              style={{ whiteSpace: "pre-wrap", fontSize: "1.15rem" }}
-            >
-              {tempDescription}
-            </p>
-          )}
-          {isEditing && (
-            <div className="mb-3">
-              <label className="form-label fw-semibold">Status</label>
-              <select
-                className="form-select"
-                style={{ borderRadius: "6px" }}
-                value={tempStatus}
-                onChange={(e) => setTempStatus(e.target.value)}
-              >
-                <option value="not-started">Not Started</option>
-                <option value="in-progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-          )}
-          {isEditing && isDeadlineInFuture && (
-            <TaskReminders
-              tempDeadline={tempDeadline}
-              tempReminders={tempReminders}
-              setTempReminders={setTempReminders}
-              theme={theme}
-              ALL_INTERVALS={ALL_INTERVALS}
-              formatHoursLabel={formatHoursLabel}
-            />
-          )}
-          <div className="d-flex flex-column flex-md-row small mt-3">
-            <div>
-              <strong>Created:</strong> {formatRelativeTime(task.createdAt)}
-            </div>
-            <div className="mt-1 mt-md-0 ms-md-3">
-              <strong>Deadline:</strong>{" "}
-              {task.deadline
-                ? formatRelativeTime(task.deadline)
-                : "No deadline set"}
+            <div className="task-metadata-item">
+              <strong>Deadline</strong>
+              <span>
+                {task.deadline
+                  ? formatRelativeTime(task.deadline)
+                  : "No deadline set"}
+              </span>
             </div>
           </div>
+
           {isEditing && (
-            <div className="mt-2 d-flex flex-row justify-content-end align-items-center gap-2">
+            <div className="task-actions">
               {!isNewTask && (
                 <button
-                  className={`btn btn-sm ${
+                  className={`btn ${
                     theme === "dark" ? "btn-outline-danger" : "btn-secondary"
                   }`}
-                  style={{ borderRadius: "6px" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDelete();
                   }}
+                  disabled={isLoading}
                 >
-                  Delete
+                  {isLoading ? "Deleting..." : "Delete"}
                 </button>
               )}
               <button
-                className={`btn btn-sm ${
+                className={`btn ${
                   theme === "dark" ? "btn-outline-light" : "btn-dark"
                 }`}
-                style={{ borderRadius: "6px" }}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleSave();
                 }}
-                disabled={!tempTitle.trim() || !tempDescription.trim()}
+                disabled={
+                  !tempTitle.trim() || !tempDescription.trim() || isLoading
+                }
               >
-                Save
+                {isLoading ? "Saving..." : "Save"}
               </button>
             </div>
           )}
+
           {!isEditing && reminderSummary && (
-            <div className="reminder-indicator" title={`Reminders: ${reminderSummary}`}>
+            <div
+              className="reminder-indicator"
+              title={`Reminders: ${reminderSummary}`}
+            >
               <i className="bi bi-clock"></i>
-              <small className="ms-1">{reminderSummary}</small>
+              <small>{reminderSummary}</small>
             </div>
           )}
         </div>
       </div>
+
       <ConfirmationModal
         theme={theme}
         show={showDeleteModal}
