@@ -1,3 +1,6 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /static/js/
+Disallow: /static/css/
+
+Sitemap: https://tejanarra.github.io/Task-Manager/sitemap.xml
