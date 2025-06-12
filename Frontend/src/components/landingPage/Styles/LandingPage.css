@@ -9,7 +9,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6rem 4rem;
+    padding: 0rem 4rem;
     background-color: var(--color-background-secondary);
     min-height: 80vh;
 }
