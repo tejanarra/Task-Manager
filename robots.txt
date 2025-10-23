@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /static/js/
+Disallow: /static/css/
+
+Sitemap: https://tejanarra.github.io/Task-Manager/sitemap.xml
