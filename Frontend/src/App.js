@@ -4,7 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./context/PrivateRoute";
 import PublicRoute from "./context/PublicRoute";
 import Navbar from "./components/Navbar";
-import Footer from "./components/Footer";
+import Footer from "./components/footer";
 import "./App.css";
 
 const LandingPage = lazy(() => import("./components/landingPage/LandingPage"));

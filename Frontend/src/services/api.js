@@ -1,11 +1,11 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
-  // baseURL: "http://localhost:5001/api", // Localhost for local development
+  baseURL: "http://localhost:5001/api",
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
+  timeout: 30000, // 30 second timeout
 });
 
 api.interceptors.request.use(
@@ -18,6 +18,29 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error)
 );
+
+// Enhanced error handler
+const handleApiError = (error) => {
+  if (error.response) {
+    // Server responded with error
+    return {
+      message: error.response.data?.error || "An error occurred",
+      status: error.response.status,
+    };
+  } else if (error.request) {
+    // Request made but no response
+    return {
+      message: "No response from server. Please check your connection.",
+      status: 0,
+    };
+  } else {
+    // Error setting up request
+    return {
+      message: error.message || "An unexpected error occurred",
+      status: -1,
+    };
+  }
+};
 
 // Task-related endpoints
 export const fetchTasks = () => api.get("/tasks");
@@ -91,3 +114,41 @@ export const updateProfile = async (formData) => {
     throw err;
   }
 };
+
+// AI-related endpoints
+export const generateAITask = async (prompt) => {
+  try {
+    const response = await api.post("/ai/chat", { prompt });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    const errorInfo = handleApiError(error);
+    return {
+      success: false,
+      error: errorInfo.message,
+    };
+  }
+};
+
+export const sendAIChatMessage = async (message, conversationHistory = []) => {
+  try {
+    const response = await api.post("/ai/chat-conversation", {
+      message,
+      conversationHistory,
+    });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    const errorInfo = handleApiError(error);
+    return {
+      success: false,
+      error: errorInfo.message,
+    };
+  }
+};
+
+export default api;

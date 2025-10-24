@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./taskItem/TaskItem";
+import AIChatModal from "./AIChatModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
@@ -10,6 +11,7 @@ const TaskList = ({ theme }) => {
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
   const [newTaskId, setNewTaskId] = useState(null);
+  const [showAIModal, setShowAIModal] = useState(false);
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -101,13 +103,40 @@ const TaskList = ({ theme }) => {
     setNewTaskId(null);
   };
 
+  const handleAITaskGenerated = (aiGeneratedTask) => {
+    setNewTaskId(aiGeneratedTask.id);
+    setTasks((prev) => [aiGeneratedTask, ...prev]);
+  };
+
   const renderShimmerLoader = () => (
     <div className="container mt-5">
       <div className="task-container">
         <div className="card-body p-3">
-          <div className="d-flex justify-content-between align-items-center mb-3 header-container">
+          <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
             <h2 className="card-title mb-0">Your Tasks</h2>
+            <div className="d-flex gap-2">
+              <button
+                className={`btn btn-outline-${
+                  theme === "dark" ? "light" : "dark"
+                } ai-button`}
+                disabled
+              >
+                <i className="bi bi-robot me-2"></i>
+                AI Assistant
+              </button>
+
+              <button
+                className={`btn btn-outline-${
+                  theme === "dark" ? "light" : "dark"
+                } d-flex align-items-center gap-2`}
+                disabled
+              >
+                <i className="bi bi-plus-circle"></i>
+                New Task
+              </button>
+            </div>
           </div>
+
           <div className="shimmer-list">
             {Array.from({ length: 5 }).map((_, index) => (
               <div key={index} className="shimmer-task-item">
@@ -126,81 +155,105 @@ const TaskList = ({ theme }) => {
   }
 
   return (
-    <div className="container mt-5">
-      <div className="task-container">
-        <div className="card-body p-3">
-          <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
-            <h2 className="card-title mb-0">Your Tasks</h2>
-            {theme === "dark" ? (
-              <button
-                className="btn btn-outline-light d-flex align-items-center gap-2 add-task-button"
-                onClick={handleAddTask}
-                aria-label="Add a new task"
-              >
-                New Task
-              </button>
+    <>
+      <div className="container mt-5">
+        <div className="task-container">
+          <div className="card-body p-3">
+            <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
+              <h2 className="card-title mb-0">Your Tasks</h2>
+              <div className="d-flex gap-2">
+                <button
+                  className={`btn btn-outline-${
+                    theme === "dark" ? "light" : "dark"
+                  } ai-button`}
+                  onClick={() => setShowAIModal(true)}
+                >
+                  <i className="bi bi-robot me-2"></i>
+                  AI Assistant
+                </button>
+
+                <button
+                  className={`btn btn-outline-${
+                    theme === "dark" ? "light" : "dark"
+                  } d-flex align-items-center gap-2`}
+                  onClick={handleAddTask}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  New Task
+                </button>
+              </div>
+            </div>
+
+            {tasks.length === 0 ? (
+              <div className="empty-state">
+                <i className="bi bi-clipboard-check empty-state-icon"></i>
+                <p
+                  className={`text-${
+                    theme === "dark" ? "light" : "muted"
+                  } mb-2`}
+                >
+                  No tasks yet
+                </p>
+                <small className="text-muted">
+                  Create your first task or use AI Assistant to get started
+                </small>
+              </div>
             ) : (
-              <button
-                className="btn btn-outline-dark d-flex align-items-center gap-2 add-task-button"
-                onClick={handleAddTask}
-                aria-label="Add a new task"
-              >
-                New Task
-              </button>
+              <DragDropContext onDragEnd={handleDragEnd}>
+                <Droppable droppableId="taskList">
+                  {(provided) => (
+                    <div
+                      {...provided.droppableProps}
+                      ref={provided.innerRef}
+                      className="task-list"
+                    >
+                      {tasks
+                        .sort((a, b) => a.priority - b.priority)
+                        .map((task, index) => (
+                          <Draggable
+                            key={task.id}
+                            draggableId={task.id.toString()}
+                            index={index}
+                          >
+                            {(provided) => (
+                              <div
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                className="mb-3"
+                                style={{
+                                  ...provided.draggableProps.style,
+                                }}
+                              >
+                                <TaskItem
+                                  theme={theme}
+                                  task={task}
+                                  setTasks={setTasks}
+                                  isNewTask={task.id === newTaskId}
+                                  onSave={handleSaveNewTask}
+                                  onCancel={handleCancelNewTask}
+                                />
+                              </div>
+                            )}
+                          </Draggable>
+                        ))}
+                      {provided.placeholder}
+                    </div>
+                  )}
+                </Droppable>
+              </DragDropContext>
             )}
           </div>
-          {tasks.length === 0 ? (
-            <p className={`text-${theme === "dark" ? "light" : "muted"} mb-4`}>
-              No tasks available
-            </p>
-          ) : (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="taskList">
-                {(provided) => (
-                  <div
-                    {...provided.droppableProps}
-                    ref={provided.innerRef}
-                    className="task-list"
-                  >
-                    {tasks
-                      .sort((a, b) => a.priority - b.priority)
-                      .map((task, index) => (
-                        <Draggable
-                          key={task.id}
-                          draggableId={task.id.toString()}
-                          index={index}
-                        >
-                          {(provided) => (
-                            <div
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              className="mb-3"
-                              style={{
-                                ...provided.draggableProps.style,
-                              }}
-                            >
-                              <TaskItem
-                                theme={theme}
-                                task={task}
-                                setTasks={setTasks}
-                                isNewTask={task.id === newTaskId}
-                                onSave={handleSaveNewTask}
-                                onCancel={handleCancelNewTask}
-                              />
-                            </div>
-                          )}
-                        </Draggable>
-                      ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
         </div>
       </div>
-    </div>
+
+      <AIChatModal
+        show={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        onTaskGenerated={handleAITaskGenerated}
+        theme={theme}
+      />
+    </>
   );
 };
 
