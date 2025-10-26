@@ -26,8 +26,54 @@ const upload = multer({
   limits: { fileSize: 1024 * 1024 * 5 },
 });
 
+/**
+ * @openapi
+ * /api/profile:
+ *   get:
+ *     tags: [Profile]
+ *     summary: Get logged-in user's profile
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden }
+ */
 router.get("/", authenticateToken, getProfile);
 
+/**
+ * @openapi
+ * /api/profile:
+ *   put:
+ *     tags: [Profile]
+ *     summary: Update profile details and optional avatar
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateProfileRequest'
+ *     responses:
+ *       200:
+ *         description: Profile updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message: { type: string, example: 'Profile updated successfully' }
+ *                 user: { $ref: '#/components/schemas/User' }
+ *       400: { description: Validation error }
+ *       401: { description: Unauthorized }
+ *       403: { description: Forbidden }
+ */
 router.put(
   "/",
   authenticateToken,

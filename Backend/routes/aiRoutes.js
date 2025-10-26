@@ -282,6 +282,39 @@ const parseNaturalDate = (dateStr, conversationContext = "") => {
   return null;
 };
 
+/**
+ * @openapi
+ * /api/ai/chat:
+ *   post:
+ *     tags: [AI]
+ *     summary: Generate a structured task (title, description, deadline, reminders) from a natural-language prompt
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AiGenerateTaskRequest'
+ *     responses:
+ *       200:
+ *         description: Generated task object (sanitized)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 title: { type: string }
+ *                 description: { type: string }
+ *                 status: { type: string, example: 'not-started' }
+ *                 deadline: { type: ["string", "null"], format: "date-time", nullable: true }
+ *                 reminders:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       remindBefore: { type: number }
+ *                       type: { type: string, enum: ['one-time','daily','weekly'] }
+ *                       customDate: { type: ["string", "null"], format: "date-time", nullable: true }
+ */
 router.post("/chat", async (req, res) => {
   const { prompt } = req.body;
 
@@ -515,7 +548,28 @@ Now create a task based on the user's request above. Return ONLY the JSON.`,
   }
 });
 
-// Conversational AI endpoint
+/**
+ * @openapi
+ * /api/ai/chat-conversation:
+ *   post:
+ *     tags: [AI]
+ *     summary: Conversational assistant for planning tasks
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AiConversationRequest'
+ *     responses:
+ *       200:
+ *         description: Assistant reply
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 reply: { type: string, example: "Got it—when is the deadline?" }
+ */
 router.post("/chat-conversation", async (req, res) => {
   const { message, conversationHistory = [] } = req.body;
 

@@ -8,6 +8,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import sequelize from "./config/db.js";
 import "pg";
 dotenv.config();
+import { swaggerUi, swaggerSpec } from "./config/swagger.js";
 
 const app = express();
 app.use(
@@ -42,6 +43,17 @@ sequelize
   .catch((err) => {
     console.error("Error syncing database:", err.message || err);
   });
+
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    explorer: true,
+  })
+);
+
+// Optional: raw JSON spec endpoint
+app.get("/openapi.json", (req, res) => res.json(swaggerSpec));
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
