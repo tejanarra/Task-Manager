@@ -44,16 +44,27 @@ model Task {
 }
 
 model TaskReminder {
-  id           Int               @id @default(autoincrement())
+  id           Int            @id @default(autoincrement())
   taskId       Int
   type         ReminderTypeEnum
-  triggerAtUTC DateTime?         @db.Timestamptz(6) // for ONE_TIME
-  hourOfDayUTC Int?              // 0-23 : Daily & Weekly
-  dayOfWeek    Int?              // 0=Sun-6=Sat : Weekly only
 
-  task         Task              @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  triggerAtUTC DateTime?      @db.Timestamptz(6) // ONLY for ONE_TIME
+  hourOfDayUTC Int?           // DAILY/WEEKLY
+  dayOfWeek    Int?           // WEEKLY (0-6)
+
+  completed    Boolean        @default(false)
+
+  task         Task           @relation(fields: [taskId], references: [id], onDelete: Cascade)
   sends        ReminderSend[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([taskId])
+  @@index([completed])
 }
+
+
 
 model ReminderSend {
   id         Int       @id @default(autoincrement())

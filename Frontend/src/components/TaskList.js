@@ -1,11 +1,60 @@
 import React, { useState, useEffect } from "react";
-import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
+import {
+  fetchTasks,
+  updateTaskPriority,
+  createTask,
+  updateTaskReminders,
+} from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./taskItem/TaskItem";
 import AIChatModal from "./AIChatModal";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
+
+// Convert backend enums to UI values
+const normalizeStatusUI = (backendStatus) => {
+  switch (backendStatus) {
+    case "IN_PROGRESS":
+      return "in-progress";
+    case "COMPLETED":
+      return "completed";
+    default:
+      return "not-started";
+  }
+};
+
+// Convert backend reminders → UI reminder format
+const convertBackendRemindersToUI = (task) => {
+  if (!task.reminders?.length || !task.deadlineUTC) return task;
+
+  const deadline = new Date(task.deadlineUTC);
+
+  const converted = task.reminders.map((r) => {
+    if (r.type === "ONE_TIME") {
+      return {
+        remindBefore: (deadline - new Date(r.triggerAtUTC)) / (1000 * 60 * 60),
+        sent: false,
+        customDate: r.triggerAtUTC,
+      };
+    }
+    if (r.type === "DAILY") {
+      return {
+        type: "daily",
+        hourOfDayUTC: r.hourOfDayUTC,
+      };
+    }
+    if (r.type === "WEEKLY") {
+      return {
+        type: "weekly",
+        hourOfDayUTC: r.hourOfDayUTC,
+        dayOfWeek: r.dayOfWeek,
+      };
+    }
+    return null;
+  });
+
+  return { ...task, reminders: converted.filter(Boolean) };
+};
 
 const TaskList = ({ theme }) => {
   const { user, logout } = useAuth();
@@ -14,47 +63,36 @@ const TaskList = ({ theme }) => {
   const [showAIModal, setShowAIModal] = useState(false);
 
   useEffect(() => {
-    const loadTasks = async () => {
-      if (user) {
-        try {
-          const response = await fetchTasks();
-          setTasks(response.data);
-        } catch (error) {
-          console.error("Error loading tasks:", error);
-          if (error.response && error.response.status === 403) {
-            logout();
-          }
-        }
-      }
-    };
+    if (!user) return;
 
-    loadTasks();
+    fetchTasks()
+      .then((res) => {
+        const mapped = res.data.map((t) => ({
+          ...convertBackendRemindersToUI(t),
+          status: normalizeStatusUI(t.status),
+        }));
+        setTasks(mapped);
+      })
+      .catch((err) => {
+        console.error("Load tasks error:", err);
+        if (err.response?.status === 403) logout();
+      });
   }, [user, logout]);
 
-  const handleDragEnd = async (result) => {
-    const { destination, source } = result;
+  const handleDragEnd = async ({ destination, source }) => {
     if (!destination || destination.index === source.index) return;
 
-    const reorderedTasks = Array.from(tasks);
-    const [movedTask] = reorderedTasks.splice(source.index, 1);
-    reorderedTasks.splice(destination.index, 0, movedTask);
+    const reordered = Array.from(tasks);
+    const [moved] = reordered.splice(source.index, 1);
+    reordered.splice(destination.index, 0, moved);
 
-    const updatedTasksWithPriority = reorderedTasks.map((task, index) => ({
-      ...task,
-      priority: index + 1,
-    }));
-
-    setTasks(updatedTasksWithPriority);
+    reordered.forEach((t, i) => (t.priority = i + 1));
+    setTasks(reordered);
 
     try {
-      const movedTaskId = movedTask.id;
-      const newPriority = destination.index + 1;
-      await updateTaskPriority(movedTaskId, newPriority);
-    } catch (error) {
-      console.error("Error updating task priority:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
-      }
+      await updateTaskPriority(moved.id, destination.index + 1);
+    } catch (err) {
+      console.error("Priority update failed:", err);
     }
   };
 
@@ -64,186 +102,116 @@ const TaskList = ({ theme }) => {
       title: "",
       description: "",
       status: "not-started",
-      deadline: null,
+      deadlineUTC: null,
       reminders: [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      priority: 1,
+      priority: tasks?.length + 1 || 1,
     };
 
     setNewTaskId(newTask.id);
-    setTasks((prev) => [newTask, ...prev]);
+    setTasks((prev) => [newTask, ...(prev || [])]);
   };
 
-  const handleSaveNewTask = async (task) => {
+  const handleSaveNewTask = async (t) => {
     try {
-      const response = await createTask({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        deadline: task.deadline,
-        priority: tasks.length + 1,
-        reminders: task.reminders,
-      });
+      const res = await createTask(t);
+      const saved = {
+        ...convertBackendRemindersToUI(res.data),
+        status: normalizeStatusUI(res.data.status),
+      };
 
-      setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? response.data : t))
-      );
-      setNewTaskId(null);
-    } catch (error) {
-      console.error("Error saving new task:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
+      if (t.reminders?.length) {
+        await updateTaskReminders(saved.id, t.reminders);
+        saved.reminders = t.reminders;
       }
+
+      setTasks((prev) => prev.map((x) => (x.id === t.id ? saved : x)));
+      setNewTaskId(null);
+    } catch (err) {
+      console.error("Create failed:", err);
     }
   };
 
-  const handleCancelNewTask = (taskId) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+  const handleCancelNewTask = (tempId) => {
+    setTasks((p) => p.filter((t) => t.id !== tempId));
     setNewTaskId(null);
   };
 
-  const handleAITaskGenerated = (aiGeneratedTask) => {
-    setNewTaskId(aiGeneratedTask.id);
-    setTasks((prev) => [aiGeneratedTask, ...prev]);
+  const handleAITaskGenerated = (task) => {
+    setNewTaskId(task.id);
+    setTasks((prev) => [task, ...prev]);
   };
 
-  const renderShimmerLoader = () => (
-    <div className="container mt-5">
-      <div className="task-container">
-        <div className="card-body p-3">
-          <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
-            <h2 className="card-title mb-0">Your Tasks</h2>
-            <div className="d-flex gap-2">
-              <button
-                className={`btn btn-outline-${
-                  theme === "dark" ? "light" : "dark"
-                } ai-button`}
-                disabled
-              >
-                <i className="bi bi-robot me-2"></i>
-                AI Assistant
-              </button>
-
-              <button
-                className={`btn btn-outline-${
-                  theme === "dark" ? "light" : "dark"
-                } d-flex align-items-center gap-2`}
-                disabled
-              >
-                <i className="bi bi-plus-circle"></i>
-                New Task
-              </button>
-            </div>
-          </div>
-
-          <div className="shimmer-list">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="shimmer-task-item">
-                <div className="shimmer-task-header"></div>
-                <div className="shimmer-task-body"></div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  if (!tasks) {
-    return renderShimmerLoader();
-  }
+  if (!tasks) return <p className="text-center mt-5">Loading...</p>;
 
   return (
     <>
       <div className="container mt-5">
-        <div className="task-container">
-          <div className="card-body p-3">
-            <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
-              <h2 className="card-title mb-0">Your Tasks</h2>
-              <div className="d-flex gap-2">
-                <button
-                  className={`btn btn-outline-${
-                    theme === "dark" ? "light" : "dark"
-                  } ai-button`}
-                  onClick={() => setShowAIModal(true)}
-                >
-                  <i className="bi bi-robot me-2"></i>
-                  AI Assistant
-                </button>
+        <div className="task-container card-body p-3">
+          <div className="d-flex justify-content-between mb-3">
+            <h2>Your Tasks</h2>
+            <div className="d-flex gap-2">
+              <button
+                className={`btn btn-outline-${
+                  theme === "dark" ? "light" : "dark"
+                }`}
+                onClick={() => setShowAIModal(true)}
+              >
+                <i className="bi bi-robot me-2" /> AI Assistant
+              </button>
 
-                <button
-                  className={`btn btn-outline-${
-                    theme === "dark" ? "light" : "dark"
-                  } d-flex align-items-center gap-2`}
-                  onClick={handleAddTask}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  New Task
-                </button>
-              </div>
+              <button
+                className={`btn btn-outline-${
+                  theme === "dark" ? "light" : "dark"
+                }`}
+                onClick={handleAddTask}
+              >
+                <i className="bi bi-plus-circle" /> New Task
+              </button>
             </div>
-
-            {tasks.length === 0 ? (
-              <div className="empty-state">
-                <i className="bi bi-clipboard-check empty-state-icon"></i>
-                <p
-                  className={`text-${
-                    theme === "dark" ? "light" : "muted"
-                  } mb-2`}
-                >
-                  No tasks yet
-                </p>
-                <small className="text-muted">
-                  Create your first task or use AI Assistant to get started
-                </small>
-              </div>
-            ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="taskList">
-                  {(provided) => (
-                    <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="task-list"
-                    >
-                      {tasks
-                        .sort((a, b) => a.priority - b.priority)
-                        .map((task, index) => (
-                          <Draggable
-                            key={task.id}
-                            draggableId={task.id.toString()}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="mb-3"
-                                style={{
-                                  ...provided.draggableProps.style,
-                                }}
-                              >
-                                <TaskItem
-                                  theme={theme}
-                                  task={task}
-                                  setTasks={setTasks}
-                                  isNewTask={task.id === newTaskId}
-                                  onSave={handleSaveNewTask}
-                                  onCancel={handleCancelNewTask}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            )}
           </div>
+
+          {tasks.length === 0 ? (
+            <p>No tasks yet</p>
+          ) : (
+            <DragDropContext onDragEnd={handleDragEnd}>
+              <Droppable droppableId="taskList">
+                {(provided) => (
+                  <div ref={provided.innerRef} {...provided.droppableProps}>
+                    {tasks
+                      .sort((a, b) => a.priority - b.priority)
+                      .map((task, index) => (
+                        <Draggable
+                          key={task.id}
+                          draggableId={String(task.id)}
+                          index={index}
+                        >
+                          {(provided) => (
+                            <div
+                              className="mb-3"
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              <TaskItem
+                                theme={theme}
+                                task={task}
+                                setTasks={setTasks}
+                                isNewTask={task.id === newTaskId}
+                                onSave={handleSaveNewTask}
+                                onCancel={handleCancelNewTask}
+                              />
+                            </div>
+                          )}
+                        </Draggable>
+                      ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
         </div>
       </div>
 

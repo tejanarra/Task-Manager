@@ -26,17 +26,12 @@ const allowedOrigins = [
   "https://tejanarra.github.io",
   "https://task-manager-sigma-ashen.vercel.app",
   "http://localhost:3000",
+  "http://localhost:5173",
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"), false);
-      }
-    },
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -46,9 +41,6 @@ app.use(
     credentials: true,
   })
 );
-
-// Preflight support for Google OAuth
-app.options("/api/auth/google", cors());
 
 // JSON Body Parser
 app.use(express.json({ limit: "1mb" }));

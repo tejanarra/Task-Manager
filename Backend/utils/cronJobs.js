@@ -14,31 +14,28 @@ export const executeCron = async () => {
 
     const dueReminders = await prisma.taskReminder.findMany({
       where: {
+        completed: false,
         triggerAtUTC: { lte: now },
       },
       include: {
-        task: {
-          include: {
-            user: true,
-          },
-        },
-        sends: true,
+        task: { include: { user: true } },
       },
     });
 
     for (const reminder of dueReminders) {
-      const { task, sends } = reminder;
-      if (!task || sends.length > 0) continue;
-
-      await sendReminder(task);
+      await sendReminder(reminder.task);
 
       await prisma.reminderSend.create({
-        data: {
-          reminderId: reminder.id,
-          sentAtUTC: new Date(),
-        },
+        data: { reminderId: reminder.id },
+      });
+
+      await prisma.taskReminder.update({
+        where: { id: reminder.id },
+        data: { completed: true },
       });
     }
+
+    console.log(`✅ Sent ${dueReminders.length} reminders`);
   } catch (err) {
     console.error("Cron job error:", err);
   }
@@ -52,23 +49,16 @@ const sendReminder = async (task) => {
         task,
         deadline: task.deadlineUTC,
         userName: `${task.user.firstName} ${task.user.lastName}`,
-        actionLink:
-          process.env.CLIENT_APP_URL ||
-          "https://tejanarra.github.io/Task-Manager/login",
+        actionLink: `${process.env.CLIENT_APP_URL}/tasks/${task.id}`,
       }
     );
 
     await sendEmail({
       to: task.user.email,
-      from: process.env.EMAIL_USER,
       subject: `Reminder: ${task.title}`,
       html,
     });
-
-    console.log("Reminder sent:", task.title);
   } catch (err) {
-    console.error("Reminder sending failed:", err);
+    console.error("Send Reminder failed:", err);
   }
 };
-
-export default { executeCron };
