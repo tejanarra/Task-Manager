@@ -51,7 +51,15 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/ai", aiRoutes);
 
-// Swagger documentation route
+sequelize
+  .sync({ alter: true })
+  .then(() => {
+    console.log("Database synced successfully.");
+  })
+  .catch((err) => {
+    console.error("Error syncing database:", err.message || err);
+  });
+
 app.use(
   "/api-docs",
   swaggerUi.serve,
