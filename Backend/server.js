@@ -36,7 +36,7 @@ app.use("/api/profile", profileRoutes);
 app.use("/api/ai", aiRoutes);
 
 sequelize
-  .sync()
+  .sync({ alter: true })
   .then(() => {
     console.log("Database synced successfully.");
   })
