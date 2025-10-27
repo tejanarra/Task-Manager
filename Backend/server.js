@@ -30,7 +30,13 @@ const allowedOrigins = [
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("CORS not allowed"), false);
+      }
+    },
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
@@ -40,6 +46,9 @@ app.use(
     credentials: true,
   })
 );
+
+// Preflight support for Google OAuth
+app.options("/api/auth/google", cors());
 
 // JSON Body Parser
 app.use(express.json({ limit: "1mb" }));
