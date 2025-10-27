@@ -1,92 +1,121 @@
-const User = require("../models/User");
-const { validationResult } = require("express-validator");
-const sequelize = require("../config/db");
-const cloudinary = require("../config/cloudinary");
+import { validationResult } from "express-validator";
+import prisma from "../utils/prismaClient.js";
+import cloudinary from "../config/cloudinary.js";
 
 const fetchUser = async (userId) => {
-  const user = await User.findByPk(userId, {
-    attributes: {
-      exclude: ["password", "verificationCode", "verificationCodeExpiration"],
+  return await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      email: true,
+      avatar: true,
+      phoneNumber: true,
+      dob: true,
+      bio: true,
+      isVerified: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
-  return user;
 };
 
-const getProfile = async (req, res) => {
-  const userId = req.userId;
-
+export const getProfile = async (req, res) => {
   try {
-    const user = await fetchUser(userId);
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    const user = await fetchUser(req.userId);
+    if (!user) return res.status(404).json({ error: "User not found" });
 
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (err) {
-    console.error("Error fetching profile:", err.message || err);
-    res.status(500).json({ message: "Server error fetching profile" });
+    console.error("Fetch Profile Error:", err);
+    return res.status(500).json({ error: "Server error fetching profile" });
   }
 };
 
-const updateProfile = async (req, res) => {
-  const userId = req.userId;
-
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({ errors: errors.array() });
+export const updateProfile = async (req, res) => {
+  const errorsFound = validationResult(req);
+  if (!errorsFound.isEmpty()) {
+    return res.status(400).json({
+      error: "Validation failed",
+      details: errorsFound.array(),
+    });
   }
 
   const { firstName, lastName, phoneNumber, dob, bio } = req.body;
+  const userId = req.userId;
 
-  const transaction = await sequelize.transaction();
+  const normalizedDob = dob ? dob.split("T")[0] : undefined;
 
   try {
-    const user = await User.findByPk(userId, { transaction });
+    const existingUser = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
-    if (!user) {
-      await transaction.rollback();
-      return res.status(404).json({ message: "User not found" });
+    if (!existingUser) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    if (firstName) user.firstName = firstName;
-    if (lastName) user.lastName = lastName;
-    if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
-    if (dob) user.dob = dob;
-    if (bio !== undefined) user.bio = bio;
+    const hasUpdates =
+      firstName ||
+      lastName ||
+      phoneNumber !== undefined ||
+      dob ||
+      bio !== undefined ||
+      req.file;
+
+    if (!hasUpdates) {
+      return res.status(400).json({ error: "No fields provided to update" });
+    }
+
+    const updateData = {};
+
+    if (firstName) updateData.firstName = firstName.trim();
+    if (lastName) updateData.lastName = lastName.trim();
+    if (phoneNumber !== undefined) updateData.phoneNumber = phoneNumber;
+    if (dob) updateData.dob = normalizedDob;
+    if (bio !== undefined) updateData.bio = bio.trim();
 
     if (req.file) {
-      const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
-      
+      const dataUri = `data:${
+        req.file.mimetype
+      };base64,${req.file.buffer.toString("base64")}`;
+
+      if (existingUser.avatar?.includes("cloudinary")) {
+        const publicId = existingUser.avatar.split("/").pop().split(".")[0];
+        await cloudinary.uploader.destroy(`avatars/${publicId}`);
+      }
+
       const result = await cloudinary.uploader.upload(dataUri, {
-        folder: 'avatars',
+        folder: "avatars",
         width: 500,
         height: 500,
-        crop: 'fill',
-        quality: 'auto',
-        fetch_format: 'auto',
+        crop: "fill",
+        quality: "auto",
+        fetch_format: "auto",
       });
 
-      user.avatar = result.secure_url;
+      updateData.avatar = result.secure_url;
     }
 
-    await user.save({ transaction });
-
-    await transaction.commit();
+    await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+    });
 
     const updatedUser = await fetchUser(userId);
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Profile updated successfully",
       user: updatedUser,
     });
   } catch (err) {
-    await transaction.rollback();
-    console.error("Error updating profile:", err.message || err);
-    res.status(500).json({ message: "Server error updating profile" });
+    console.error("Profile Update Error:", err);
+    return res.status(500).json({ error: "Server error updating profile" });
   }
 };
 
-module.exports = {
+export default {
   getProfile,
   updateProfile,
 };

@@ -1,26 +1,25 @@
-const dotenv = require("dotenv");
+// import dotenv from "dotenv";
+// dotenv.config();
 
-dotenv.config();
+// const config = {
+//   server: {
+//     port: process.env.PORT || 5001,
+//   },
+//   database: {
+//     name: process.env.DB_NAME,
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     host: process.env.DB_HOST || "localhost",
+//     port: Number(process.env.DB_PORT) || 5432,
+//     dialect: process.env.DB_DIALECT || "postgres",
+//   },
+//   jwt: {
+//     secret: process.env.JWT_SECRET,
+//     expiration: process.env.JWT_EXPIRATION || "1h",
+//   },
+//   app: {
+//     name: process.env.APP_NAME || "Task Manager",
+//   },
+// };
 
-const config = {
-  server: {
-    port: process.env.PORT || 5001,
-  },
-  database: {
-    dbName: process.env.DB_NAME,
-    dbUser: process.env.DB_USER,
-    dbPassword: process.env.DB_PASSWORD,
-    dbHost: process.env.DB_HOST || "localhost",
-    dbPort: process.env.DB_PORT || 5432,
-    dialect: process.env.DB_DIALECT || "postgres",
-  },
-  jwt: {
-    secret: process.env.JWT_SECRET || "your_secret_key",
-    expiration: process.env.JWT_EXPIRATION || "1h",
-  },
-  other: {
-    appName: process.env.APP_NAME || "Task Manager App",
-  },
-};
-
-module.exports = config;
+// export default config;

@@ -30,7 +30,7 @@ const TaskItem = ({
   const [tempTitle, setTempTitle] = useState(task.title);
   const [tempDescription, setTempDescription] = useState(task.description);
   const [tempStatus, setTempStatus] = useState(task.status);
-  const [tempDeadline, setTempDeadline] = useState(task.deadline || null);
+  const [tempDeadline, setTempDeadline] = useState(task.deadlineUTC || null);
   const [tempReminders, setTempReminders] = useState(
     Array.isArray(task.reminders) ? task.reminders : []
   );
@@ -42,14 +42,14 @@ const TaskItem = ({
     setTempTitle(task.title);
     setTempDescription(task.description);
     setTempStatus(task.status);
-    setTempDeadline(task.deadline || null);
+    setTempDeadline(task.deadlineUTC || null);
     setTempReminders(Array.isArray(task.reminders) ? task.reminders : []);
     isNewTask ? onCancel(task.id) : setIsEditing(false);
   }, [
     task.title,
     task.description,
     task.status,
-    task.deadline,
+    task.deadlineUTC,
     task.reminders,
     isNewTask,
     onCancel,
@@ -75,7 +75,7 @@ const TaskItem = ({
       tempTitle !== task.title ||
       tempDescription !== task.description ||
       tempStatus !== task.status ||
-      tempDeadline !== task.deadline ||
+      tempDeadline !== task.deadlineUTC ||
       JSON.stringify(tempReminders) !== JSON.stringify(task.reminders);
 
     if (!changed && !isNewTask) {
@@ -146,7 +146,7 @@ const TaskItem = ({
       title: tempTitle.trim(),
       description: tempDescription.trim(),
       status: tempStatus,
-      deadline: tempDeadline ? deadlineDate.toISOString() : null,
+      deadlineUTC: tempDeadline ? deadlineDate.toISOString() : null,
       reminders: finalReminders,
     };
 
@@ -320,8 +320,8 @@ const TaskItem = ({
             <div className="task-metadata-item">
               <strong>Deadline</strong>
               <span>
-                {task.deadline
-                  ? formatRelativeTime(task.deadline)
+                {task.deadlineUTC
+                  ? formatRelativeTime(task.deadlineUTC)
                   : "No deadline set"}
               </span>
             </div>
