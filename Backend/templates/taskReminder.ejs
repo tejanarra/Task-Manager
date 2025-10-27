@@ -148,7 +148,7 @@
       }
     </style>
   </head>
-  <body class="dark-mode">
+  <body class="<%= theme === 'dark' ? 'dark-mode' : '' %>">
     <div class="email-container">
       <div class="email-header">
         <div class="logo">Task Manager</div>
@@ -158,8 +158,14 @@
         <p>Hello <%= userName %>,</p>
         <p>
           This is a reminder that your task "<strong><%= task.title %></strong>"
-          is due soon <%= deadline %>.
-        </p>
+          <% if (deadlineIn === '1 day') { %>
+            is due in <strong>1 day</strong>.
+          <% } else if (deadlineIn.includes('minute') || deadlineIn.includes('hour')) { %>
+            is due soon in <strong><%= deadlineIn %></strong>.
+          <% } else { %>
+            is due on <strong><%= deadlineIn %></strong>.
+          <% } %>
+        </p>        
         <p>Please take action as needed to complete the task.</p>
         <a href="<%= actionLink %>" class="cta-button">View Task</a>
       </div>

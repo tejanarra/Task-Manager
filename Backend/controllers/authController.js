@@ -1,27 +1,79 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import crypto from "crypto";
-import ejs from "ejs";
-import path from "path";
-import { fileURLToPath } from "url";
-import { OAuth2Client } from "google-auth-library";
-import prisma from "../utils/prismaClient.js";
-import errors from "../utils/errors.js";
-import { sendEmail } from "../utils/mailer.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const oauthClient = new OAuth2Client(
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
+const { Op } = require("sequelize");
+const errors = require("../utils/errors");
+const { sendEmail } = require("../utils/mailer");
+const ejs = require("ejs");
+const path = require("path");
+const { OAuth2Client } = require("google-auth-library");
+const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
   process.env.GOOGLE_REDIRECT_URI
 );
 
-const signJwt = (userId) =>
-  jwt.sign({ userId }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRATION || "1h",
-  });
+const googleLogin = async (req, res) => {
+  const { code } = req.body;
+
+  if (!code) {
+    return res.status(400).json({
+      code: "AUTH009",
+      message: "Authorization code is required.",
+    });
+  }
+
+  try {
+    const { tokens } = await client.getToken({
+      code,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    });
+    const ticket = await client.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, given_name, family_name, picture, email_verified } = payload;
+
+    let user = await User.findOne({ where: { email } });
+
+    if (user && !user.avatar) {
+      user.avatar = picture;
+      await user.save();
+    }
+
+    if (!user) {
+      user = await User.create({
+        firstName: given_name,
+        lastName: family_name,
+        email,
+        password: "",
+        avatar: picture,
+        isVerified: email_verified,
+      });
+    }
+
+    const jwtToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRATION,
+    });
+
+    return res.status(200).json({
+      code: "AUTH010",
+      message: "Google login successful.",
+      token: jwtToken,
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        avatar: user.avatar,
+      },
+    });
+  } catch (err) {
+    console.error("Google login error:", err.message);
+    return res.status(500).json(errors.SERVER.ERROR);
+  }
+};
 
 const generateVerificationCode = () =>
   Math.floor(100000 + Math.random() * 900000).toString();
@@ -37,7 +89,7 @@ const createVerificationEmail = async (
     subject = "Password Reset Verification Code";
     text = `Your password reset verification code is: ${verificationCode}. This code will expire in 10 minutes.`;
     purpose = "Password Reset";
-  } else {
+  } else if (type === "registration") {
     subject = "Registration Verification Code";
     text = `Your registration verification code is: ${verificationCode}. This code will expire in 10 minutes.`;
     purpose = "Registration";
@@ -45,7 +97,12 @@ const createVerificationEmail = async (
 
   const htmlContent = await ejs.renderFile(
     path.join(__dirname, "../templates/verificationEmail.ejs"),
-    { userName, verificationCode, purpose, theme: "dark" }
+    {
+      userName,
+      verificationCode,
+      purpose,
+      theme: "dark",
+    }
   );
 
   return {
@@ -57,70 +114,7 @@ const createVerificationEmail = async (
   };
 };
 
-export const googleLogin = async (req, res) => {
-  const { code } = req.body;
-  if (!code) {
-    return res
-      .status(400)
-      .json({ code: "AUTH009", message: "Authorization code is required." });
-  }
-
-  try {
-    const { tokens } = await oauthClient.getToken({
-      code,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-    });
-
-    const ticket = await oauthClient.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload = ticket.getPayload();
-    const { email, given_name, family_name, picture, email_verified } = payload;
-
-    let user = await prisma.user.findUnique({ where: { email } });
-
-    if (!user) {
-      const randomPassword = crypto.randomBytes(32).toString("hex");
-
-      user = await prisma.user.create({
-        data: {
-          firstName: given_name || "User",
-          lastName: family_name || "Google",
-          email,
-          password: await bcrypt.hash(randomPassword, 10),
-          avatar: picture || null,
-          isVerified: Boolean(email_verified),
-        },
-      });
-    } else if (!user.avatar && picture) {
-      await prisma.user.update({
-        where: { id: user.id },
-        data: { avatar: picture },
-      });
-    }
-
-    const token = signJwt(user.id);
-
-    return res.status(200).json({
-      code: "AUTH010",
-      message: "Google login successful.",
-      token,
-      userInfo: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        avatar: user.avatar,
-      },
-    });
-  } catch (err) {
-    console.error("Google login error:", err);
-    return res.status(500).json(errors.SERVER.ERROR);
-  }
-};
-
-export const registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
 
   if (!firstName || !lastName || !email || !password) {
@@ -128,42 +122,44 @@ export const registerUser = async (req, res) => {
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser)
-      return res.status(400).json(errors.AUTH.USER_ALREADY_EXISTS);
+    const existingUser = await User.findOne({
+      where: { [Op.or]: [{ email }] },
+    });
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (existingUser) {
+      return res.status(400).json(errors.AUTH.USER_ALREADY_EXISTS);
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     const verificationCode = generateVerificationCode();
 
-    await prisma.user.create({
-      data: {
-        firstName,
-        lastName,
-        email,
-        password: hashedPassword,
-        isVerified: false,
-        verificationCode,
-        verificationCodeExpiration: new Date(Date.now() + 10 * 60 * 1000),
-      },
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password: password,
+      verificationCode,
+      verificationCodeExpiration: new Date(Date.now() + 600000),
+      isVerified: false,
     });
 
     const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
-      "registration",
-      firstName
+      "registration"
     );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.REGISTRATION.VERIFICATION_SENT);
   } catch (err) {
-    console.error("Registration error:", err);
+    console.error("Registration error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const verifyRegistrationCode = async (req, res) => {
+const verifyRegistrationCode = async (req, res) => {
   const { email, verificationCode } = req.body;
 
   if (!email || !verificationCode) {
@@ -171,27 +167,26 @@ export const verifyRegistrationCode = async (req, res) => {
   }
 
   try {
-    const user = await prisma.user.findFirst({
+    const user = await User.findOne({
       where: {
         email,
         verificationCode,
-        verificationCodeExpiration: { gte: new Date() },
+        verificationCodeExpiration: { [Op.gte]: Date.now() },
       },
     });
 
-    if (!user)
+    if (!user) {
       return res.status(400).json(errors.AUTH.INVALID_VERIFICATION_CODE);
+    }
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        isVerified: true,
-        verificationCode: null,
-        verificationCodeExpiration: null,
-      },
+    user.verificationCode = null;
+    user.verificationCodeExpiration = null;
+    user.isVerified = true;
+    await user.save();
+
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRATION,
     });
-
-    const token = signJwt(user.id);
 
     return res.status(200).json({
       code: "REG006",
@@ -205,28 +200,40 @@ export const verifyRegistrationCode = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Verification error:", err);
+    console.error("Verification error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password)
-    return res
-      .status(400)
-      .json({ code: "AUTH007", message: "Email and password are required." });
+
+  if (!email || !password) {
+    return res.status(400).json({
+      code: "AUTH007",
+      message: "Email and password are required.",
+    });
+  }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) return res.status(400).json(errors.AUTH.INVALID_CREDENTIALS);
-    if (!user.isVerified)
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(400).json(errors.AUTH.INVALID_CREDENTIALS);
+    }
+
+    if (!user.isVerified) {
       return res.status(400).json(errors.AUTH.USER_NOT_VERIFIED);
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json(errors.AUTH.INVALID_CREDENTIALS);
+    if (!isMatch) {
+      return res.status(400).json(errors.AUTH.INVALID_CREDENTIALS);
+    }
 
-    const token = signJwt(user.id);
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRATION,
+    });
 
     return res.status(200).json({
       code: "AUTH008",
@@ -240,47 +247,46 @@ export const loginUser = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login error:", err);
+    console.error("Login error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res) => {
   const { email } = req.body;
-  if (!email) return res.status(400).json(errors.PASSWORD.MISSING_EMAIL);
+
+  if (!email) {
+    return res.status(400).json(errors.PASSWORD.MISSING_EMAIL);
+  }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await User.findOne({ where: { email } });
 
-    // Always respond success to avoid enumeration
-    if (!user) return res.status(200).json(errors.PASSWORD.VERIFICATION_SENT);
+    if (!user) {
+      return res.status(200).json(errors.PASSWORD.VERIFICATION_SENT);
+    }
 
     const verificationCode = generateVerificationCode();
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        verificationCode,
-        verificationCodeExpiration: new Date(Date.now() + 10 * 60 * 1000),
-      },
-    });
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpiration = new Date(Date.now() + 600000);
+    await user.save();
 
     const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
-      "passwordReset",
-      user.firstName
+      "passwordReset"
     );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.PASSWORD.VERIFICATION_SENT);
   } catch (err) {
-    console.error("Forgot Password error:", err);
+    console.error("Forgot Password error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const verifyVerificationCode = async (req, res) => {
+const verifyVerificationCode = async (req, res) => {
   const { email, verificationCode, newPassword } = req.body;
 
   if (!email || !verificationCode || !newPassword) {
@@ -291,27 +297,25 @@ export const verifyVerificationCode = async (req, res) => {
   }
 
   try {
-    const user = await prisma.user.findFirst({
+    const user = await User.findOne({
       where: {
         email,
         verificationCode,
-        verificationCodeExpiration: { gte: new Date() },
+        verificationCodeExpiration: { [Op.gte]: Date.now() },
       },
     });
 
-    if (!user)
+    if (!user) {
       return res.status(400).json(errors.AUTH.INVALID_VERIFICATION_CODE);
+    }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        password: hashedPassword,
-        verificationCode: null,
-        verificationCodeExpiration: null,
-      },
-    });
+    user.password = hashedPassword;
+    user.verificationCode = null;
+    user.verificationCodeExpiration = null;
+    await user.save();
 
     return res.status(200).json({
       code: "PWD005",
@@ -319,59 +323,57 @@ export const verifyVerificationCode = async (req, res) => {
         "Password successfully reset. You can now log in with your new password.",
     });
   } catch (err) {
-    console.error("Verification Code error:", err);
+    console.error("Verification Code error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const resendVerificationEmail = async (req, res) => {
+const resendVerificationEmail = async (req, res) => {
   const { email } = req.body;
-  if (!email)
+
+  if (!email) {
     return res.status(400).json({
       code: "REG005",
       message: "Email is required to resend verification code.",
     });
+  }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await User.findOne({ where: { email } });
 
-    if (!user)
+    if (!user) {
       return res.status(200).json(errors.REGISTRATION.VERIFICATION_RESENT);
+    }
 
     if (user.isVerified) {
-      return res
-        .status(400)
-        .json({ code: "REG006", message: "User is already verified." });
+      return res.status(400).json({
+        code: "REG006",
+        message: "User is already verified.",
+      });
     }
 
     const verificationCode = generateVerificationCode();
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: {
-        verificationCode,
-        verificationCodeExpiration: new Date(Date.now() + 10 * 60 * 1000),
-      },
-    });
+    user.verificationCode = verificationCode;
+    user.verificationCodeExpiration = new Date(Date.now() + 600000);
+    await user.save();
 
     const mailOptions = await createVerificationEmail(
       email,
       verificationCode,
-      "registration",
-      user.firstName
+      "registration"
     );
     await sendEmail(mailOptions);
 
     return res.status(200).json(errors.REGISTRATION.VERIFICATION_RESENT);
   } catch (err) {
-    console.error("Resend Verification Email error:", err);
+    console.error("Resend Verification Email error:", err.message);
     return res.status(500).json(errors.SERVER.ERROR);
   }
 };
 
-export const sendContactFormEmail = async (req, res) => {
-  const payload = req.body?.data || req.body;
-  const { yourName, yourEmail, subject, message } = payload || {};
+const sendContactFormEmail = async (req, res) => {
+  const { yourName, yourEmail, subject, message } = req.body.data;
 
   if (!yourName || !yourEmail || !subject || !message) {
     return res.status(400).json({
@@ -380,28 +382,30 @@ export const sendContactFormEmail = async (req, res) => {
     });
   }
 
-  try {
-    const html = await ejs.renderFile(
+  const mailOptions = {
+    from: yourEmail,
+    to: "narrateja9699@gmail.com",
+    subject: `New Contact Form Submission: ${subject}`,
+    html: await ejs.renderFile(
       path.join(__dirname, "../templates/contactFormEmail.ejs"),
-      { yourName, yourEmail, subject, message }
-    );
+      {
+        yourName,
+        yourEmail,
+        subject,
+        message,
+      }
+    ),
+  };
 
-    const mailOptions = {
-      from: yourEmail,
-      to: process.env.CONTACT_TO_EMAIL || "narrateja9699@gmail.com",
-      subject: `New Contact Form Submission: ${subject}`,
-      html,
-    };
-
+  try {
     await sendEmail(mailOptions);
-
     return res.status(200).json({
       code: "CNT004",
       message:
         "Your message has been sent successfully. We will get back to you soon.",
     });
   } catch (error) {
-    console.error("Contact Form Email error:", error);
+    console.error("Contact Form Email error:", error.message);
     return res.status(500).json({
       code: "CNT005",
       message: "Failed to send your message. Please try again later.",
@@ -409,7 +413,7 @@ export const sendContactFormEmail = async (req, res) => {
   }
 };
 
-export const changePassword = async (req, res) => {
+const changePassword = async (req, res) => {
   const { currentPassword, newPassword } = req.body;
   const userId = req.userId;
 
@@ -421,35 +425,35 @@ export const changePassword = async (req, res) => {
   }
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: Number(userId) },
-    });
+    const user = await User.findByPk(userId);
 
-    if (!user)
+    if (!user) {
       return res.status(404).json({
         code: "PWD002",
         message: "User not found.",
       });
+    }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
-    if (!isMatch)
+    if (!isMatch) {
       return res.status(400).json({
         code: "PWD003",
         message: "Current password is incorrect.",
       });
+    }
 
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
 
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { password: hashedPassword },
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      code: "PWD004",
+      message: "Password updated successfully.",
     });
-
-    return res
-      .status(200)
-      .json({ code: "PWD004", message: "Password updated successfully." });
   } catch (err) {
-    console.error("Change Password error:", err);
+    console.error("Change Password error:", err.message);
     return res.status(500).json({
       code: "PWD005",
       message: "An error occurred while updating the password.",
@@ -457,7 +461,7 @@ export const changePassword = async (req, res) => {
   }
 };
 
-export default {
+module.exports = {
   registerUser,
   verifyRegistrationCode,
   loginUser,

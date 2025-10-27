@@ -1,247 +1,236 @@
-import prisma from "../utils/prismaClient.js";
+const Task = require("../models/Task");
+const { Sequelize } = require("sequelize");
 
-// Helper: fetch a task that belongs to the user
-const fetchTask = async (taskId, userId) =>
-  prisma.task.findFirst({
-    where: { id: Number(taskId), userId: Number(userId) },
-    include: { reminders: true },
-  });
+const sequelize = require("../config/db");
 
-// ✅ Create Task WITHOUT Smart Generator
-export const createTask = async (req, res) => {
-  const { title, description, status = "NOT_STARTED", deadlineUTC } = req.body;
+const fetchTask = async (taskId, userId) => {
+  const task = await Task.findOne({ where: { id: taskId, userId } });
+  return task;
+};
+
+const createTask = async (req, res) => {
+  const { title, description, status, deadline, reminders } = req.body;
   const userId = req.userId;
 
-  if (!title || !description) {
-    return res
-      .status(400)
-      .json({ error: "Title and description are required" });
-  }
-
-  try {
-    const newTask = await prisma.$transaction(async (tx) => {
-      await tx.task.updateMany({
-        where: { userId },
-        data: { priority: { increment: 1 } },
-      });
-
-      return tx.task.create({
-        data: {
-          title,
-          description,
-          status,
-          deadlineUTC: deadlineUTC ? new Date(deadlineUTC) : null,
-          priority: 1,
-          userId,
-        },
-        include: { reminders: true },
-      });
+  if (!title || !description || !status) {
+    return res.status(400).json({
+      message: "Missing required fields (title, description, status)",
     });
-
-    return res.status(201).json(newTask);
-  } catch (err) {
-    console.error("Create Task Error:", err);
-    return res.status(500).json({ error: "Failed to create task" });
   }
-};
 
-// ✅ Get all tasks ordered by priority ASC
-export const getTasks = async (req, res) => {
-  const userId = req.userId;
+  const transaction = await sequelize.transaction();
 
   try {
-    const tasks = await prisma.task.findMany({
-      where: { userId },
-      include: { reminders: true },
-      orderBy: { priority: "asc" },
-    });
+    await Task.update(
+      { priority: Sequelize.literal('"priority" + 1') },
+      { where: { userId }, transaction }
+    );
 
-    return res.json(tasks);
-  } catch (err) {
-    console.error("Get Tasks Error:", err);
-    return res.status(500).json({ error: "Failed to fetch tasks" });
-  }
-};
-
-// ✅ Get single task
-export const getTaskById = async (req, res) => {
-  const userId = req.userId;
-
-  try {
-    const task = await fetchTask(req.params.taskId, userId);
-    if (!task) return res.status(404).json({ error: "Task not found" });
-    return res.json(task);
-  } catch (err) {
-    console.error("Get Task Error:", err);
-    return res.status(500).json({ error: "Failed to fetch task" });
-  }
-};
-
-// ✅ Update task – NO reminder regeneration
-export const updateTask = async (req, res) => {
-  const userId = req.userId;
-  const { taskId } = req.params;
-  const { title, description, status, deadlineUTC } = req.body;
-
-  try {
-    const existing = await fetchTask(taskId, userId);
-    if (!existing) return res.status(404).json({ error: "Task not found" });
-
-    const updated = await prisma.task.update({
-      where: { id: existing.id },
-      data: {
+    const task = await Task.create(
+      {
         title,
         description,
         status,
-        deadlineUTC: deadlineUTC ? new Date(deadlineUTC) : existing.deadlineUTC,
+        userId,
+        deadline,
+        priority: 1,
+        reminders: reminders || [],
       },
-      include: { reminders: true },
-    });
+      { transaction }
+    );
 
-    return res.json(updated);
+    await transaction.commit();
+    res.status(201).json(task);
   } catch (err) {
-    console.error("Update Task Error:", err);
-    return res.status(500).json({ error: "Failed to update task" });
+    await transaction.rollback();
+    console.error("Error creating task:", err.message || err);
+    res.status(500).json({ message: "Server error during task creation" });
   }
 };
 
-// ✅ Delete + reorder priorities
-export const deleteTask = async (req, res) => {
-  const { taskId } = req.params;
+const getTasks = async (req, res) => {
   const userId = req.userId;
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const task = await tx.task.findFirst({
-        where: { id: Number(taskId), userId },
-      });
-      if (!task) throw new Error("TaskNotFound");
-
-      const removedPriority = task.priority;
-      await tx.task.delete({ where: { id: task.id } });
-
-      await tx.task.updateMany({
-        where: { userId, priority: { gt: removedPriority } },
-        data: { priority: { decrement: 1 } },
-      });
+    const tasks = await Task.findAll({
+      where: { userId },
+      order: [["priority", "ASC"]],
     });
-
-    return res.json({ message: "Task deleted and priorities updated" });
+    res.status(200).json(tasks);
   } catch (err) {
-    if (err.message === "TaskNotFound")
-      return res.status(404).json({ error: "Task not found" });
-
-    console.error("Delete Task Error:", err);
-    return res.status(500).json({ error: "Failed to delete task" });
+    console.error("Error fetching tasks:", err.message || err);
+    res.status(500).json({ message: "Server error fetching tasks" });
   }
 };
 
-// ✅ Update priority
-export const updateTaskPriority = async (req, res) => {
+const getTaskById = async (req, res) => {
   const { taskId } = req.params;
   const userId = req.userId;
-  const { priority } = req.body;
-
-  if (!Number.isInteger(priority) || priority <= 0)
-    return res
-      .status(400)
-      .json({ error: "Priority must be a positive integer" });
-
-  try {
-    const updated = await prisma.$transaction(async (tx) => {
-      const task = await tx.task.findFirst({
-        where: { id: Number(taskId), userId },
-      });
-      if (!task) throw new Error("TaskNotFound");
-
-      const total = await tx.task.count({ where: { userId } });
-      const newPriority = Math.min(priority, total);
-
-      if (task.priority !== newPriority) {
-        await tx.task.updateMany({
-          where: {
-            userId,
-            priority: {
-              between: [
-                Math.min(task.priority, newPriority),
-                Math.max(task.priority, newPriority),
-              ],
-            },
-          },
-          data: {
-            priority: { increment: task.priority < newPriority ? -1 : 1 },
-          },
-        });
-      }
-
-      return tx.task.update({
-        where: { id: task.id },
-        data: { priority: newPriority },
-        include: { reminders: true },
-      });
-    });
-
-    return res.json(updated);
-  } catch (err) {
-    if (err.message === "TaskNotFound")
-      return res.status(404).json({ error: "Task not found" });
-
-    console.error("Priority update error:", err);
-    return res.status(500).json({ error: "Failed to update priority" });
-  }
-};
-
-// ✅ Update reminders (ONLY overwrite ✅)
-export const updateTaskReminders = async (req, res) => {
-  const { taskId } = req.params;
-  const userId = req.userId;
-  const { reminders } = req.body;
-
-  if (!Array.isArray(reminders))
-    return res.status(400).json({ error: "Reminders must be an array" });
 
   try {
     const task = await fetchTask(taskId, userId);
-    if (!task) return res.status(404).json({ error: "Task not found" });
-
-    // ✅ DELETE all → CREATE new (no duplicates, no merges)
-    await prisma.taskReminder.deleteMany({ where: { taskId: task.id } });
-
-    if (reminders.length) {
-      const clean = reminders
-        .filter(
-          (r) => r.type && r.triggerAtUTC && !isNaN(new Date(r.triggerAtUTC))
-        )
-        // ✅ Dedupe same datetime + type combinations
-        .filter(
-          (r, i, arr) =>
-            arr.findIndex(
-              (x) => x.type === r.type && x.triggerAtUTC === r.triggerAtUTC
-            ) === i
-        )
-        .map((r) => ({
-          taskId: task.id,
-          type: r.type,
-          triggerAtUTC: new Date(r.triggerAtUTC),
-        }));
-
-      await prisma.taskReminder.createMany({ data: clean });
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
     }
-
-    const refreshed = await fetchTask(taskId, userId);
-    return res.json(refreshed);
+    res.status(200).json(task);
   } catch (err) {
-    console.error("Reminder update error:", err);
-    return res.status(500).json({ error: "Failed to update reminders" });
+    console.error(`Error fetching task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error fetching task" });
   }
 };
 
-export default {
+const updateTask = async (req, res) => {
+  const { taskId } = req.params;
+  const { title, description, status, deadline, reminders } = req.body;
+  const userId = req.userId;
+
+  try {
+    const task = await fetchTask(taskId, userId);
+    if (!task) {
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const updatedFields = {};
+    if (title) updatedFields.title = title;
+    if (description) updatedFields.description = description;
+    if (status) updatedFields.status = status;
+    if (deadline) updatedFields.deadline = deadline;
+    if (deadline) updatedFields.reminderSent = false;
+    if(reminders) updatedFields.reminders = reminders;
+
+    if (Object.keys(updatedFields).length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    await task.update(updatedFields);
+    res.status(200).json(task);
+  } catch (err) {
+    console.error(`Error updating task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error updating task" });
+  }
+};
+
+const deleteTask = async (req, res) => {
+  const { taskId } = req.params;
+  const userId = req.userId;
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const task = await fetchTask(taskId, userId);
+    if (!task) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const deletedPriority = task.priority;
+
+    await task.destroy({ transaction });
+
+    await Task.update(
+      { priority: Sequelize.literal('"priority" - 1') },
+      {
+        where: {
+          userId,
+          priority: { [Sequelize.Op.gt]: deletedPriority },
+        },
+        transaction,
+      }
+    );
+
+    await transaction.commit();
+    res
+      .status(200)
+      .json({ message: "Task deleted successfully and priorities updated." });
+  } catch (err) {
+    await transaction.rollback();
+    console.error(`Error deleting task with ID ${taskId}:`, err.message || err);
+    res.status(500).json({ message: "Server error deleting task" });
+  }
+};
+
+const updateTaskPriority = async (req, res) => {
+  const { taskId } = req.params;
+  const { priority } = req.body;
+  const userId = req.userId;
+
+  if (priority === undefined || !Number.isInteger(priority) || priority <= 0) {
+    return res
+      .status(400)
+      .json({ message: "Priority must be a positive integer" });
+  }
+
+  const transaction = await sequelize.transaction();
+
+  try {
+    const task = await fetchTask(taskId, userId);
+    if (!task) {
+      await transaction.rollback();
+      return res.status(404).json({ message: "Task not found" });
+    }
+
+    const oldPriority = task.priority;
+    const newPriority = priority;
+
+    if (oldPriority === newPriority) {
+      await transaction.rollback();
+      return res.status(200).json(task);
+    }
+
+    const maxPriority = await Task.count({ where: { userId }, transaction });
+
+    const adjustedPriority = Math.min(newPriority, maxPriority);
+
+    if (adjustedPriority < oldPriority) {
+      await Task.update(
+        { priority: Sequelize.literal('"priority" + 1') },
+        {
+          where: {
+            userId,
+            priority: {
+              [Sequelize.Op.gte]: adjustedPriority,
+              [Sequelize.Op.lt]: oldPriority,
+            },
+          },
+          transaction,
+        }
+      );
+    } else {
+      await Task.update(
+        { priority: Sequelize.literal('"priority" - 1') },
+        {
+          where: {
+            userId,
+            priority: {
+              [Sequelize.Op.gt]: oldPriority,
+              [Sequelize.Op.lte]: adjustedPriority,
+            },
+          },
+          transaction,
+        }
+      );
+    }
+
+    task.priority = adjustedPriority;
+    await task.save({ transaction });
+
+    await transaction.commit();
+    res.status(200).json(task);
+  } catch (err) {
+    await transaction.rollback();
+    console.error(
+      `Error updating priority for task with ID ${taskId}:`,
+      err.message || err
+    );
+    res.status(500).json({ message: "Server error updating task priority" });
+  }
+};
+
+module.exports = {
   createTask,
   getTasks,
-  getTaskById,
   updateTask,
   deleteTask,
+  getTaskById,
   updateTaskPriority,
-  updateTaskReminders,
 };

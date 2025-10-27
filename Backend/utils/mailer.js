@@ -1,23 +1,34 @@
-import nodemailer from "nodemailer";
-import dotenv from "dotenv";
-import errors from "./errors.js";
+const nodemailer = require("nodemailer");
+const dotenv = require("dotenv");
+const errors = require("./errors");
 
 dotenv.config();
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
+  tls: {
+    rejectUnauthorized: false,
+  },
+  debug: false,
+  logger: false,
 });
 
-export const sendEmail = async (mailOptions) => {
+const sendEmail = async (mailOptions) => {
   try {
     await transporter.sendMail(mailOptions);
-    console.log("✅ Email sent:", mailOptions.to);
+    console.log(`Email sent to ${mailOptions.to} successfully`);
   } catch (error) {
-    console.error("Email failure:", error);
-    throw new Error(errors.SERVER.ERROR.message);
+    console.error("Email sending error:", error);
+    throw new Error(errors.SERVER.EMAIL_SEND_FAILURE.message);
   }
+};
+
+module.exports = {
+  sendEmail,
 };

@@ -1,15 +1,13 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
   getTaskById,
-  updateTaskPriority,
-  updateTaskReminders,
-} from "../controllers/taskController.js";
-import authenticateToken from "../middleware/authMiddleware.js";
-
+  updateTaskPriority
+} = require("../controllers/taskController");
+const authenticateToken = require("../middleware/authMiddleware");
 const router = express.Router();
 
 /**
@@ -18,18 +16,21 @@ const router = express.Router();
  *   post:
  *     tags: [Tasks]
  *     summary: Create a new task (bumps other tasks' priority)
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/CreateTaskRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/CreateTaskRequest'
  *     responses:
  *       201:
  *         description: Task created
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/Task' }
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
  *       400: { description: Missing required fields }
  */
 router.post("/", authenticateToken, createTask);
@@ -40,7 +41,8 @@ router.post("/", authenticateToken, createTask);
  *   get:
  *     tags: [Tasks]
  *     summary: Get tasks for the logged-in user (ordered by priority ASC)
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of tasks
@@ -58,18 +60,20 @@ router.get("/", authenticateToken, getTasks);
  *   get:
  *     tags: [Tasks]
  *     summary: Get a single task by ID
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: taskId
- *         required: true
  *         schema: { type: integer }
+ *         required: true
  *     responses:
  *       200:
  *         description: Task found
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/Task' }
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
  *       404: { description: Task not found }
  */
 router.get("/:taskId", authenticateToken, getTaskById);
@@ -80,7 +84,8 @@ router.get("/:taskId", authenticateToken, getTaskById);
  *   put:
  *     tags: [Tasks]
  *     summary: Update a task by ID
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: taskId
@@ -90,13 +95,15 @@ router.get("/:taskId", authenticateToken, getTaskById);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/UpdateTaskRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateTaskRequest'
  *     responses:
  *       200:
  *         description: Task updated
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/Task' }
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
  *       404: { description: Task not found }
  */
 router.put("/:taskId", authenticateToken, updateTask);
@@ -107,7 +114,8 @@ router.put("/:taskId", authenticateToken, updateTask);
  *   delete:
  *     tags: [Tasks]
  *     summary: Delete a task and reorder priorities
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: taskId
@@ -118,7 +126,8 @@ router.put("/:taskId", authenticateToken, updateTask);
  *         description: Task deleted and priorities updated
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/MessageResponse' }
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  *       404: { description: Task not found }
  */
 router.delete("/:taskId", authenticateToken, deleteTask);
@@ -129,7 +138,8 @@ router.delete("/:taskId", authenticateToken, deleteTask);
  *   put:
  *     tags: [Tasks]
  *     summary: Update a task's priority with reindexing
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: taskId
@@ -139,18 +149,18 @@ router.delete("/:taskId", authenticateToken, deleteTask);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/UpdatePriorityRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/UpdatePriorityRequest'
  *     responses:
  *       200:
  *         description: Task with updated priority
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/Task' }
+ *             schema:
+ *               $ref: '#/components/schemas/Task'
  *       400: { description: Invalid priority }
  *       404: { description: Task not found }
  */
 router.put("/:taskId/priority", authenticateToken, updateTaskPriority);
 
-router.patch("/:taskId/reminders", authenticateToken, updateTaskReminders);
-
-export default router;
+module.exports = router;

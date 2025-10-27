@@ -1,117 +1,155 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5001/api",
-  headers: { "ngrok-skip-browser-warning": "true" },
-  timeout: 30000,
+  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
+  // baseURL: "http://localhost:5001/api", // Localhost for local development
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },
+  timeout: 30000, // 30 second timeout
 });
 
-// ✅ Attach JWT token automatically
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
-    if (token) config.headers.Authorization = `Bearer ${token}`;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Standard error formatting
-const formatError = (error) => {
-  if (error.response)
+// Enhanced error handler
+const handleApiError = (error) => {
+  if (error.response) {
+    // Server responded with error
     return {
+      message: error.response.data?.error || "An error occurred",
       status: error.response.status,
-      message: error.response.data.error,
     };
-  if (error.request) return { status: 0, message: "No response from server" };
-  return { status: -1, message: error.message };
+  } else if (error.request) {
+    // Request made but no response
+    return {
+      message: "No response from server. Please check your connection.",
+      status: 0,
+    };
+  } else {
+    // Error setting up request
+    return {
+      message: error.message || "An unexpected error occurred",
+      status: -1,
+    };
+  }
 };
 
-/* ======================
-   TASK ENDPOINTS
-====================== */
-
+// Task-related endpoints
 export const fetchTasks = () => api.get("/tasks");
-
-export const createTask = (task) =>
-  api.post("/tasks", {
-    ...task,
-    deadlineUTC: task.deadlineUTC || null,
-  });
-
-export const updateTask = (id, updated) =>
-  api.put(`/tasks/${id}`, {
-    ...updated,
-    deadlineUTC: updated.deadlineUTC ?? null,
-  });
-
+export const createTask = (newTask) => api.post("/tasks", newTask);
+export const updateTask = (taskId, updatedTask) =>
+  api.put(`/tasks/${taskId}`, updatedTask);
 export const deleteTask = (taskId) => api.delete(`/tasks/${taskId}`);
-
 export const updateTaskPriority = (taskId, priority) =>
   api.put(`/tasks/${taskId}/priority`, { priority });
 
-// ✅ Fully overwrite reminder set
-export const updateTaskReminders = (taskId, reminders) =>
-  api.patch(`/tasks/${taskId}/reminders`, {
-    action: "overwrite",
-    reminders,
+// Authentication-related endpoints
+export const loginUser = (email, password) => {
+  return api.post("/auth/login", { email, password });
+};
+
+export const loginWithGoogle = async (authorizationCode) => {
+  return api.post(`/auth/google`, { code: authorizationCode });
+};
+
+export const registerUser = (firstName, lastName, email, password) => {
+  return api.post("/auth/register", { firstName, lastName, email, password });
+};
+
+export const verifyRegistrationCode = (email, verificationCode) => {
+  return api.post("/auth/verify-registration", { email, verificationCode });
+};
+
+export const sendVerificationCode = (email) => {
+  return api.post("/auth/resend-verification", { email });
+};
+
+export const sendForgotPasswordRequest = (email) => {
+  return api.post("/auth/forgot-password", { email });
+};
+
+export const resetPassword = (email, verificationCode, newPassword) => {
+  return api.post("/auth/verify-code", {
+    email,
+    verificationCode,
+    newPassword,
   });
+};
 
-/* ======================
-   AUTH ENDPOINTS
-====================== */
-
-export const loginUser = (email, password) =>
-  api.post("/auth/login", { email, password });
-
-export const loginWithGoogle = (authorizationCode) =>
-  api.post(`/auth/google`, { code: authorizationCode });
-
-export const registerUser = (firstName, lastName, email, password) =>
-  api.post("/auth/register", { firstName, lastName, email, password });
-
-export const verifyRegistrationCode = (email, verificationCode) =>
-  api.post("/auth/verify-registration", { email, verificationCode });
-
-export const sendVerificationCode = (email) =>
-  api.post("/auth/resend-verification", { email });
-
-export const sendForgotPasswordRequest = (email) =>
-  api.post("/auth/forgot-password", { email });
-
-export const resetPassword = (email, verificationCode, newPassword) =>
-  api.post("/auth/verify-code", { email, verificationCode, newPassword });
-
-export const changePassword = (currentPassword, newPassword) =>
-  api.post("/auth/change-password", { currentPassword, newPassword });
+export const changePassword = (currentPassword, newPassword) => {
+  return api.post("/auth/change-password", { currentPassword, newPassword });
+};
 
 export const verifyToken = () => api.get("/verify-token");
 
-/* ======================
- PROFILE ENDPOINTS
-====================== */
+// Profile-related endpoints
+export const getProfile = async () => {
+  try {
+    const response = await api.get("/profile");
+    return response.data;
+  } catch (err) {
+    console.error("Error fetching profile:", err);
+    throw err;
+  }
+};
 
-export const getProfile = () => api.get("/profile").then((res) => res.data);
+export const updateProfile = async (formData) => {
+  try {
+    const response = await api.put("/profile", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (err) {
+    console.error("Error updating profile:", err);
+    throw err;
+  }
+};
 
-export const updateProfile = (formData) =>
-  api
-    .put("/profile", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    })
-    .then((res) => res.data);
+// AI-related endpoints
+export const generateAITask = async (prompt) => {
+  try {
+    const response = await api.post("/ai/chat", { prompt });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    const errorInfo = handleApiError(error);
+    return {
+      success: false,
+      error: errorInfo.message,
+    };
+  }
+};
 
-/* ======================
- AI ENDPOINTS
-====================== */
+export const sendAIChatMessage = async (message, conversationHistory = []) => {
+  try {
+    const response = await api.post("/ai/chat-conversation", {
+      message,
+      conversationHistory,
+    });
+    return {
+      success: true,
+      data: response.data,
+    };
+  } catch (error) {
+    const errorInfo = handleApiError(error);
+    return {
+      success: false,
+      error: errorInfo.message,
+    };
+  }
+};
 
-export const generateAITask = (prompt) =>
-  api.post("/ai/chat", { prompt }).then((r) => ({
-    success: true,
-    data: r.data,
-  }));
-
-export const sendAIChatMessage = (message, conversationHistory = []) =>
-  api.post("/ai/chat-conversation", {
-    message,
-    conversationHistory,
-  });
+export default api;

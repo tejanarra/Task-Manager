@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   registerUser,
   loginUser,
   forgotPassword,
@@ -9,11 +9,10 @@ import {
   sendContactFormEmail,
   changePassword,
   googleLogin,
-} from "../controllers/authController.js";
-import { executeCron } from "../utils/cronJobs.js";
-import authenticateToken from "../middleware/authMiddleware.js";
-
+} = require("../controllers/authController");
+const { executeCron } = require("../utils/cronJobs");
 const router = express.Router();
+const authenticateToken = require("../middleware/authMiddleware");
 
 /**
  * @openapi
@@ -25,15 +24,21 @@ const router = express.Router();
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/RegisterRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/RegisterRequest'
  *     responses:
  *       200:
  *         description: Verification code sent
  *         content:
  *           application/json:
- *             schema: { $ref: '#/components/schemas/MessageResponse' }
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  *       400:
  *         description: Missing or invalid fields
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/register", registerUser);
 
@@ -47,10 +52,15 @@ router.post("/register", registerUser);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/ResendVerificationRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/ResendVerificationRequest'
  *     responses:
  *       200:
  *         description: Verification resent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  */
 router.post("/resend-verification", resendVerificationEmail);
 
@@ -64,12 +74,21 @@ router.post("/resend-verification", resendVerificationEmail);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/VerifyRegistrationRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyRegistrationRequest'
  *     responses:
  *       200:
  *         description: Registration verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
  *         description: Invalid or expired code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/verify-registration", verifyRegistrationCode);
 
@@ -83,12 +102,21 @@ router.post("/verify-registration", verifyRegistrationCode);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/LoginRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/LoginRequest'
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  *       400:
  *         description: Invalid credentials or unverified user
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
  */
 router.post("/login", loginUser);
 
@@ -102,10 +130,15 @@ router.post("/login", loginUser);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/ForgotPasswordRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/ForgotPasswordRequest'
  *     responses:
  *       200:
  *         description: Verification code sent
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/VerificationSentResponse'
  */
 router.post("/forgot-password", forgotPassword);
 
@@ -119,10 +152,15 @@ router.post("/forgot-password", forgotPassword);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/VerifyCodeResetRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/VerifyCodeResetRequest'
  *     responses:
  *       200:
  *         description: Password successfully reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  */
 router.post("/verify-code", verifyVerificationCode);
 
@@ -136,11 +174,17 @@ router.post("/verify-code", verifyVerificationCode);
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/ContactRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/ContactRequest'
  *     responses:
  *       200:
  *         description: Message sent successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  */
+
 router.post("/contact", sendContactFormEmail);
 
 /**
@@ -149,15 +193,21 @@ router.post("/contact", sendContactFormEmail);
  *   post:
  *     tags: [Auth]
  *     summary: Change password for the logged-in user
- *     security: [{ bearerAuth: [] }]
+ *     security:
+ *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/ChangePasswordRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/ChangePasswordRequest'
  *     responses:
  *       200:
  *         description: Password updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  *       401:
  *         description: No token provided / unauthorized
  *       403:
@@ -174,15 +224,19 @@ router.post("/change-password", authenticateToken, changePassword);
  *     responses:
  *       200:
  *         description: Cron executed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/MessageResponse'
  */
 router.get("/cronrun", async (req, res) => {
   try {
-    console.log("running cron...");
+    console.log("🔄 Manually triggering cron job via API...");
     await executeCron();
-    res.status(200).json({ message: "Cron job executed successfully!" });
+    return res.status(200).json({ message: "Cron job executed successfully!" });
   } catch (error) {
-    console.error("Cron error:", error);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("🚨 Error triggering cron job:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
@@ -196,11 +250,17 @@ router.get("/cronrun", async (req, res) => {
  *       required: true
  *       content:
  *         application/json:
- *           schema: { $ref: '#/components/schemas/GoogleLoginRequest' }
+ *           schema:
+ *             $ref: '#/components/schemas/GoogleLoginRequest'
  *     responses:
  *       200:
  *         description: Google login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/AuthResponse'
  */
 router.post("/google", googleLogin);
 
-export default router;
+
+module.exports = router;
