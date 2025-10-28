@@ -1,21 +1,33 @@
 import React, { useState, useRef, useEffect } from "react";
 import { generateAITask, sendAIChatMessage } from "../services/api";
+import TaskItem from "./taskItem/TaskItem";
 import "../Styles/AIChatModal.css";
+import { useAuth } from "../context/AuthContext";
 
-const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
+const AIChatModal = ({ show, onClose, onTaskGenerated, theme, setTasks }) => {
   const [mode, setMode] = useState("quick"); // 'quick' or 'chat'
   const [quickPrompt, setQuickPrompt] = useState("");
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [previewTask, setPreviewTask] = useState(null);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
+  // 🧠 User info from localStorage
+  const { user } = useAuth();
+  const userAvatar = user.avatar;
+  const userFirstName = user.firstName;
+  const userLastName = user.lastName;
+
+  const userInitials =
+    (userFirstName?.[0]?.toUpperCase() || "") +
+    (userLastName?.[0]?.toUpperCase() || "");
+  const displayInitials = userInitials || "?";
+
   useEffect(() => {
-    if (show && inputRef.current) {
-      inputRef.current.focus();
-    }
+    if (show && inputRef.current) inputRef.current.focus();
   }, [show, mode]);
 
   useEffect(() => {
@@ -24,36 +36,28 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
 
   const handleQuickGenerate = async () => {
     if (!quickPrompt.trim()) return;
-
     setIsLoading(true);
     setError(null);
 
     const result = await generateAITask(quickPrompt);
-
-    if (result.success) {
-      const aiTask = result.data;
-
-      // Create task object
-      const newTask = {
-        id: `temp-${Date.now()}`,
-        title: aiTask.title,
-        description: aiTask.description,
-        status: aiTask.status || "not-started",
-        deadline: aiTask.deadline,
-        reminders: aiTask.reminders || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        priority: 1,
-      };
-
-      onTaskGenerated(newTask);
-      setQuickPrompt("");
-      onClose();
-    } else {
-      setError(result.error);
-    }
-
     setIsLoading(false);
+
+    if (!result.success) return setError(result.error);
+
+    const aiTask = result.data;
+    const newTask = {
+      id: `temp-${Date.now()}`,
+      title: aiTask.title,
+      description: aiTask.description,
+      status: aiTask.status || "not-started",
+      deadline: aiTask.deadline,
+      reminders: aiTask.reminders || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      priority: 1,
+    };
+
+    setPreviewTask(newTask);
   };
 
   const handleChatSend = async () => {
@@ -80,31 +84,28 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
       conversationHistory
     );
 
-    if (result.success) {
-      const aiMessage = {
+    setIsLoading(false);
+    if (!result.success) return setError(result.error);
+
+    setChatMessages((prev) => [
+      ...prev,
+      {
         role: "assistant",
         content: result.data.reply,
         timestamp: new Date().toISOString(),
-      };
-      setChatMessages((prev) => [...prev, aiMessage]);
-    } else {
-      setError(result.error);
-    }
-
-    setIsLoading(false);
+      },
+    ]);
   };
 
   const handleGenerateFromChat = async () => {
-    setIsLoading(true);
-    setError(null);
-
     if (chatMessages.length === 0) {
       setError("No conversation found to generate task from");
-      setIsLoading(false);
       return;
     }
 
-    // Create a comprehensive prompt from the entire conversation
+    setIsLoading(true);
+    setError(null);
+
     const conversationSummary = chatMessages
       .map(
         (msg) => `${msg.role === "user" ? "User" : "Assistant"}: ${msg.content}`
@@ -114,30 +115,24 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
     const contextualPrompt = `Based on this conversation, create a task:\n\n${conversationSummary}\n\nCreate a detailed task with appropriate deadline and reminders based on the user's requirements discussed above.`;
 
     const result = await generateAITask(contextualPrompt);
-
-    if (result.success) {
-      const aiTask = result.data;
-
-      const newTask = {
-        id: `temp-${Date.now()}`,
-        title: aiTask.title,
-        description: aiTask.description,
-        status: aiTask.status || "not-started",
-        deadline: aiTask.deadline,
-        reminders: aiTask.reminders || [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        priority: 1,
-      };
-
-      onTaskGenerated(newTask);
-      setChatMessages([]);
-      onClose();
-    } else {
-      setError(result.error);
-    }
-
     setIsLoading(false);
+
+    if (!result.success) return setError(result.error);
+
+    const aiTask = result.data;
+    const newTask = {
+      id: `temp-${Date.now()}`,
+      title: aiTask.title,
+      description: aiTask.description,
+      status: aiTask.status || "not-started",
+      deadline: aiTask.deadline,
+      reminders: aiTask.reminders || [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      priority: 1,
+    };
+
+    setPreviewTask(newTask);
   };
 
   const handleKeyPress = (e, handler) => {
@@ -169,30 +164,29 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
           </button>
         </div>
 
+        {/* Mode Selector */}
         <div className="ai-mode-selector">
           <button
             className={`mode-button ${mode === "quick" ? "active" : ""}`}
             onClick={() => setMode("quick")}
           >
-            <i className="bi bi-lightning-charge"></i>
-            Quick Generate
+            <i className="bi bi-lightning-charge"></i> Quick Generate
           </button>
           <button
             className={`mode-button ${mode === "chat" ? "active" : ""}`}
             onClick={() => setMode("chat")}
           >
-            <i className="bi bi-chat-dots"></i>
-            Chat Mode
+            <i className="bi bi-chat-dots"></i> Chat Mode
           </button>
         </div>
 
         {error && (
           <div className="error-banner">
-            <i className="bi bi-exclamation-triangle"></i>
-            {error}
+            <i className="bi bi-exclamation-triangle"></i> {error}
           </div>
         )}
 
+        {/* Quick Mode */}
         {mode === "quick" ? (
           <div className="quick-mode">
             <div className="quick-mode-content">
@@ -204,40 +198,25 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
                 value={quickPrompt}
                 onChange={(e) => setQuickPrompt(e.target.value)}
                 onKeyDown={(e) => handleKeyPress(e, handleQuickGenerate)}
-                placeholder="E.g., 'Create a task to prepare for my presentation next Friday' or 'Remind me to buy groceries tomorrow at 5pm'"
+                placeholder="E.g., 'Prepare project report by Friday 5PM'"
                 disabled={isLoading}
               />
               <div className="quick-mode-suggestions">
-                <small>Try these examples:</small>
-                <button
-                  className="suggestion-chip"
-                  onClick={() =>
-                    setQuickPrompt(
-                      "Schedule a dentist appointment for next week"
-                    )
-                  }
-                  disabled={isLoading}
-                >
-                  Schedule appointment
-                </button>
-                <button
-                  className="suggestion-chip"
-                  onClick={() =>
-                    setQuickPrompt("Plan weekend grocery shopping")
-                  }
-                  disabled={isLoading}
-                >
-                  Plan shopping
-                </button>
-                <button
-                  className="suggestion-chip"
-                  onClick={() =>
-                    setQuickPrompt("Prepare project report due in 3 days")
-                  }
-                  disabled={isLoading}
-                >
-                  Project deadline
-                </button>
+                <small>Try these:</small>
+                {[
+                  "Schedule dentist appointment",
+                  "Plan weekend shopping",
+                  "Prepare presentation",
+                ].map((text) => (
+                  <button
+                    key={text}
+                    className="suggestion-chip"
+                    onClick={() => setQuickPrompt(text)}
+                    disabled={isLoading}
+                  >
+                    {text}
+                  </button>
+                ))}
               </div>
             </div>
             <div className="modal-actions">
@@ -255,27 +234,27 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
               >
                 {isLoading ? (
                   <>
-                    <span className="spinner-border spinner-border-sm me-2"></span>
+                    <span className="spinner-border spinner-border-sm me-2"></span>{" "}
                     Generating...
                   </>
                 ) : (
                   <>
-                    <i className="bi bi-magic me-2"></i>
-                    Generate Task
+                    <i className="bi bi-magic me-2"></i> Generate Task
                   </>
                 )}
               </button>
             </div>
           </div>
         ) : (
+          // Chat Mode
           <div className="chat-mode">
             <div className="chat-messages">
               {chatMessages.length === 0 ? (
                 <div className="chat-empty-state">
                   <i className="bi bi-chat-heart"></i>
-                  <p>Start a conversation with AI to create your task</p>
+                  <p>Start a conversation with AI</p>
                   <small>
-                    Ask questions, get suggestions, and refine your task details
+                    Ask questions or describe your task step by step
                   </small>
                 </div>
               ) : (
@@ -288,7 +267,43 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
                   >
                     <div className="message-avatar">
                       {msg.role === "user" ? (
-                        <i className="bi bi-person-circle"></i>
+                        userAvatar ? (
+                          <img
+                            src={userAvatar}
+                            alt="User"
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "50%",
+                              objectFit: "cover",
+                              border:
+                                theme === "dark"
+                                  ? "1px solid #fff"
+                                  : "1px solid #000",
+                            }}
+                          />
+                        ) : (
+                          <div
+                            style={{
+                              width: "32px",
+                              height: "32px",
+                              borderRadius: "50%",
+                              backgroundColor: "#6c757d",
+                              color: "#fff",
+                              fontWeight: "bold",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              fontSize: "0.9rem",
+                              border:
+                                theme === "dark"
+                                  ? "1px solid #fff"
+                                  : "1px solid #000",
+                            }}
+                          >
+                            {displayInitials}
+                          </div>
+                        )
                       ) : (
                         <i className="bi bi-robot"></i>
                       )}
@@ -321,6 +336,7 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
               )}
               <div ref={chatEndRef} />
             </div>
+
             <div className="chat-input-container">
               <input
                 ref={inputRef}
@@ -340,27 +356,64 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme }) => {
                 <i className="bi bi-send-fill"></i>
               </button>
             </div>
+
             <div className="chat-actions">
               <button
                 className="btn btn-sm btn-outline-secondary"
                 onClick={resetChat}
                 disabled={isLoading || chatMessages.length === 0}
               >
-                <i className="bi bi-arrow-clockwise me-1"></i>
-                Reset
+                <i className="bi bi-arrow-clockwise me-1"></i> Reset
               </button>
               <button
                 className="btn btn-sm btn-primary"
                 onClick={handleGenerateFromChat}
                 disabled={isLoading || chatMessages.length === 0}
               >
-                <i className="bi bi-check2-circle me-1"></i>
-                Create Task
+                <i className="bi bi-check2-circle me-1"></i> Create Task
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* ✅ Preview Modal using TaskItem */}
+      {previewTask && (
+        <div
+          className="ai-preview-overlay"
+          onClick={() => setPreviewTask(null)}
+        >
+          <div
+            className="ai-preview-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h5 className="mb-3">
+              <i className="bi bi-eye"></i> Task Preview
+            </h5>
+
+            <TaskItem
+              theme={theme}
+              task={previewTask}
+              isNewTask={true}
+              onSave={(task) => {
+                onTaskGenerated(task);
+                setPreviewTask(null);
+                onClose();
+              }}
+              onCancel={() => setPreviewTask(null)}
+            />
+
+            <div className="text-end mt-2">
+              <button
+                className="btn btn-secondary"
+                onClick={() => setPreviewTask(null)}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

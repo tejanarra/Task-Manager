@@ -38,6 +38,13 @@ const TaskItem = ({
   const [isLoading, setIsLoading] = useState(false);
   const cardRef = useRef(null);
 
+  // ✅ Ensure reminders update when the AI-created task is previewed
+  useEffect(() => {
+    if (Array.isArray(task.reminders) && task.reminders.length > 0) {
+      setTempReminders(task.reminders);
+    }
+  }, [task.reminders]);
+
   const handleCancel = useCallback(() => {
     setTempTitle(task.title);
     setTempDescription(task.description);
@@ -91,23 +98,20 @@ const TaskItem = ({
         ? (deadlineDate - now) / (1000 * 60 * 60)
         : 0;
 
-    // Helper function to regenerate recurring reminders when deadline changes
     const regenerateRecurringReminders = (reminders) => {
       const hasDaily = reminders.some((r) => r.type === "daily");
       const hasWeekly = reminders.some((r) => r.type === "weekly");
 
-      // Keep non-recurring reminders that are still valid
       let filteredReminders = reminders.filter(
-        (r) => !r.type && r.remindBefore <= diffInHours
+        (r) =>
+          (r.type === "one-time" || !r.type) && r.remindBefore <= diffInHours
       );
 
-      // Regenerate daily reminders if they were enabled
       if (hasDaily && diffInHours > 0) {
         const maxDays = Math.floor(diffInHours / 24);
         for (let day = 1; day <= maxDays; day++) {
-          const hoursBeforeDeadline = day * 24;
           filteredReminders.push({
-            remindBefore: hoursBeforeDeadline,
+            remindBefore: day * 24,
             sent: false,
             type: "daily",
             dayNumber: day,
@@ -115,13 +119,11 @@ const TaskItem = ({
         }
       }
 
-      // Regenerate weekly reminders if they were enabled
       if (hasWeekly && diffInHours > 0) {
         const maxWeeks = Math.floor(diffInHours / (24 * 7));
         for (let week = 1; week <= maxWeeks; week++) {
-          const hoursBeforeDeadline = week * 24 * 7;
           filteredReminders.push({
-            remindBefore: hoursBeforeDeadline,
+            remindBefore: week * 24 * 7,
             sent: false,
             type: "weekly",
             weekNumber: week,
@@ -132,15 +134,8 @@ const TaskItem = ({
       return filteredReminders;
     };
 
-    // Process reminders based on new deadline
-    let finalReminders;
-    if (diffInHours > 0) {
-      // If there's a valid deadline, regenerate recurring reminders
-      finalReminders = regenerateRecurringReminders(tempReminders);
-    } else {
-      // If no deadline or deadline is in the past, remove all reminders
-      finalReminders = [];
-    }
+    const finalReminders =
+      diffInHours > 0 ? regenerateRecurringReminders(tempReminders) : [];
 
     const updatedTaskData = {
       title: tempTitle.trim(),
@@ -197,13 +192,15 @@ const TaskItem = ({
   const isDeadlineInFuture =
     tempDeadline && new Date(tempDeadline) > new Date();
 
-  // Helper function to get reminder summary for display
+  // ✅ Fixed — correctly include "one-time" reminders
   const getReminderSummary = () => {
     if (!tempReminders || tempReminders.length === 0) return null;
 
     const dailyCount = tempReminders.filter((r) => r.type === "daily").length;
     const weeklyCount = tempReminders.filter((r) => r.type === "weekly").length;
-    const oneTimeCount = tempReminders.filter((r) => !r.type).length;
+    const oneTimeCount = tempReminders.filter(
+      (r) => r.type === "one-time" || !r.type
+    ).length;
 
     const parts = [];
     if (dailyCount > 0) parts.push(`Daily (${dailyCount})`);
@@ -360,6 +357,7 @@ const TaskItem = ({
             </div>
           )}
 
+          {/* ✅ Reminders now always show when available */}
           {!isEditing && reminderSummary && (
             <div
               className="reminder-indicator"

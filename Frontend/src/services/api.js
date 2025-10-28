@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
-  // baseURL: "http://localhost:5001/api", // Localhost for local development
+  // baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
+  baseURL: "http://localhost:5001/api", // Localhost for local development
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
@@ -119,37 +119,33 @@ export const updateProfile = async (formData) => {
 // AI-related endpoints
 export const generateAITask = async (prompt) => {
   try {
-    const response = await api.post("/ai/chat", { prompt });
-    return {
-      success: true,
-      data: response.data,
-    };
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const response = await api.post(
+      "/ai/chat",
+      { prompt },
+      { headers: { "x-user-timezone": timezone } }
+    );
+    return { success: true, data: response.data };
   } catch (error) {
     const errorInfo = handleApiError(error);
-    return {
-      success: false,
-      error: errorInfo.message,
-    };
+    return { success: false, error: errorInfo.message };
   }
 };
 
 export const sendAIChatMessage = async (message, conversationHistory = []) => {
   try {
-    const response = await api.post("/ai/chat-conversation", {
-      message,
-      conversationHistory,
-    });
-    return {
-      success: true,
-      data: response.data,
-    };
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const response = await api.post(
+      "/ai/chat-conversation",
+      { message, conversationHistory },
+      { headers: { "x-user-timezone": timezone } }
+    );
+    return { success: true, data: response.data };
   } catch (error) {
     const errorInfo = handleApiError(error);
-    return {
-      success: false,
-      error: errorInfo.message,
-    };
+    return { success: false, error: errorInfo.message };
   }
 };
+
 
 export default api;

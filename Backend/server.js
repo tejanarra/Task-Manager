@@ -23,6 +23,7 @@ app.use(
       "Content-Type",
       "Authorization",
       "ngrok-skip-browser-warning",
+      "x-user-timezone",
     ],
     credentials: true,
   })
