@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./taskItem/TaskItem";
-import AIChatModal from "./AIChatModal";
+import AIChatModal from "./AIChatModal/AIChatModal";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
