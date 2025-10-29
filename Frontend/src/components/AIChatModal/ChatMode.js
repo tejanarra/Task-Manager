@@ -1,4 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
+import { normalizeRemindersBeforeSave } from "../../utils/reminderHelpers";
+
 import {
   sendAIChatMessage,
   generateAITask,
@@ -22,6 +24,7 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
   useEffect(() => {
     if (inputRef.current) inputRef.current.focus();
   }, []);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, previewTask]);
@@ -54,9 +57,19 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
     );
 
     setIsLoading(false);
-    if (!result.success) return setError(result.error);
+    if (!result.success) {
+      setError(result.error);
+      return;
+    }
 
     const { reply, previewUpdate } = result.data;
+
+    if (previewUpdate && previewUpdate.reminders) {
+      previewUpdate.reminders = normalizeRemindersBeforeSave(
+        previewUpdate.reminders,
+        previewUpdate.deadline
+      );
+    }
 
     // 🧠 Add assistant's reply
     setChatMessages((prev) => [
@@ -68,12 +81,15 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
       },
     ]);
 
-    // ✅ If AI suggests update/delete — show inline TaskItem
+    // ✅ If AI suggests update/delete – show inline TaskItem
     if (previewUpdate) {
       setPreviewTask({
         ...previewUpdate,
         _aiSuggested: true,
-        isUpdate: true,
+        isUpdate:
+          previewUpdate.action === "update" ||
+          previewUpdate.action === "delete",
+        isNewTask: previewUpdate.action === "create" || previewUpdate.isNewTask,
         createdAt: previewUpdate.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });
@@ -102,7 +118,11 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
 
     const result = await generateAITask(contextualPrompt);
     setIsLoading(false);
-    if (!result.success) return setError(result.error);
+
+    if (!result.success) {
+      setError(result.error);
+      return;
+    }
 
     const aiTask = result.data;
     setPreviewTask({
@@ -113,6 +133,8 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
       updatedAt: new Date().toISOString(),
       priority: 1,
       _aiSuggested: true,
+      isNewTask: true,
+      action: "create",
     });
   };
 
@@ -123,19 +145,26 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
     try {
       if (!task) return;
       setIsLoading(true);
+      setError(null);
+
+      // ✅ Normalize reminders before saving
+      const normalizedReminders = normalizeRemindersBeforeSave(
+        task.reminders || [],
+        task.deadline
+      );
 
       let resultMessage = "";
 
       if (task.action === "delete") {
         await deleteTask(task.id);
         resultMessage = `🗑️ Deleted task "${task.title}".`;
-      } else if (task.action === "create" || task.isNewTask) {
+      } else if (task.action === "create") {
         await createTask({
           title: task.title,
           description: task.description,
           status: task.status,
           deadline: task.deadline,
-          reminders: task.reminders,
+          reminders: normalizedReminders,
         });
         resultMessage = `✨ Created new task "${task.title}".`;
       } else {
@@ -144,15 +173,12 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
           description: task.description,
           status: task.status,
           deadline: task.deadline,
-          reminders: task.reminders,
+          reminders: normalizedReminders,
         });
         resultMessage = `✅ Updated task "${task.title}".`;
       }
 
-      // 🔁 Refresh parent task list
-      if (refreshTasks) await refreshTasks();
-
-      // 🧹 Clear preview and show chat response
+      await refreshTasks();
       setPreviewTask(null);
       setChatMessages((prev) => [
         ...prev,
@@ -229,12 +255,14 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
                     <button
                       className="btn btn-danger btn-sm"
                       onClick={() => handleConfirmUpdate(previewTask)}
+                      disabled={isLoading}
                     >
-                      Delete
+                      {isLoading ? "Deleting..." : "Delete"}
                     </button>
                     <button
                       className="btn btn-secondary btn-sm"
                       onClick={handleCancelPreview}
+                      disabled={isLoading}
                     >
                       Cancel
                     </button>
@@ -247,6 +275,9 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
                     ...previewTask,
                     title: previewTask.title || "",
                     description: previewTask.description || "",
+                    reminders: Array.isArray(previewTask.reminders)
+                      ? previewTask.reminders
+                      : [],
                   }}
                   isNewTask={true}
                   onSave={handleConfirmUpdate}

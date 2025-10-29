@@ -216,7 +216,7 @@ const TaskItem = ({
     <>
       <div
         ref={cardRef}
-        className={`task-card ${theme === "dark" ? "dark-mode" : ""} ${
+        className={`task-card ${theme === "dark" ? "dark" : ""} ${
           isLoading ? "loading" : ""
         } ${isNewTask ? "new-task" : ""}`}
         onClick={() => !isEditing && setIsEditing(true)}

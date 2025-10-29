@@ -310,6 +310,16 @@ Response:
   ]
 }
 
+**2️⃣ remove Task reminders**
+User: “Change my ‘Pay AT&T bill’ deadline to November 10th at 6pm.”
+Response:
+{
+  "action": "update",
+  "taskTitle": "Pay AT&T bill",
+  "newDeadline": "2025-11-10T18:00:00",
+  "newReminders": []
+}
+
 **3️⃣ Delete Task Example**
 User: “Delete my grocery shopping task.”
 Response:
@@ -462,24 +472,88 @@ Be concise, natural, and consistent.`,
           }
         }
 
-        let reminders = task.reminders || [];
-        if (Array.isArray(parsedAction.newReminders)) {
+        /* =====================================================
+   🔧 Safe reminder merge & normalization
+===================================================== */
+        let reminders = [];
+
+        // 1️⃣ Parse existing reminders safely (avoid "[" string bugs)
+        if (Array.isArray(task.reminders)) {
+          reminders = [...task.reminders];
+        } else if (typeof task.reminders === "string") {
+          try {
+            const parsed = JSON.parse(task.reminders);
+            if (Array.isArray(parsed)) reminders = parsed;
+          } catch {
+            console.warn("Existing task.reminders malformed:", task.reminders);
+          }
+        }
+
+        // 2️⃣ Handle the case where AI explicitly wants no reminders
+        if (
+          parsedAction.newReminders === null ||
+          parsedAction.newReminders === undefined ||
+          (Array.isArray(parsedAction.newReminders) &&
+            parsedAction.newReminders.length === 0)
+        ) {
+          reminders = [];
+        } else if (Array.isArray(parsedAction.newReminders)) {
+          // ✅ AI provided reminders → process & normalize them
           const newReminders = processReminders(
             parsedAction.newReminders,
             updatedDeadline
           );
-          const seen = new Set();
-          reminders = [...reminders, ...newReminders].filter((r) => {
+          reminders = [...reminders, ...newReminders];
+        }
+
+        // 3️⃣ Normalize and deduplicate
+        const seen = new Set();
+        reminders = reminders
+          .map((r) => {
+            const reminder = { ...r, type: r.type || "one-time" };
+
+            // ✅ Compute remindBefore if missing but customDate provided
+            if (
+              reminder.customDate &&
+              (!reminder.remindBefore || reminder.remindBefore <= 0)
+            ) {
+              try {
+                const customDateUTC = DateTime.fromISO(reminder.customDate, {
+                  zone: "utc",
+                });
+                const deadlineUTC = DateTime.fromISO(updatedDeadline, {
+                  zone: "utc",
+                });
+                const diffHrs = deadlineUTC.diff(customDateUTC, "hours").hours;
+                if (isFinite(diffHrs) && diffHrs > 0) {
+                  reminder.remindBefore = diffHrs;
+                }
+              } catch (err) {
+                console.warn(
+                  "Error computing remindBefore from customDate:",
+                  err
+                );
+              }
+            }
+
+            return reminder;
+          })
+          .filter(
+            (r) =>
+              typeof r.remindBefore === "number" &&
+              isFinite(r.remindBefore) &&
+              r.remindBefore >= 0
+          )
+          .filter((r) => {
             const key = r.customDate || `${r.remindBefore}-${r.type}`;
             if (seen.has(key)) return false;
             seen.add(key);
             return true;
           });
-        }
 
         previewUpdate = {
           id: task.id,
-          title: task.title,
+          title: parsedAction.newTitle || task.title,
           description: parsedAction.newDescription || task.description || "",
           status: parsedAction.newStatus || task.status,
           deadline: updatedDeadline,

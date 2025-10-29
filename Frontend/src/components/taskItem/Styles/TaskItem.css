@@ -140,12 +140,12 @@
   position: relative;
 }
 
-.task-card:not(.dark-mode) input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+.task-card:not(.dark) input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(0);
   cursor: pointer;
 }
 
-.task-card.dark-mode input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+.task-card.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   filter: invert(1);
   cursor: pointer;
 }

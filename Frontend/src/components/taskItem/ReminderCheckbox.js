@@ -1,4 +1,4 @@
-import React from "react";
+import "./Styles/ReminderCheckbox.css";
 
 const ReminderCheckbox = ({
   value,

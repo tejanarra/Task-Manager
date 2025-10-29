@@ -31,14 +31,26 @@ const TaskList = ({ theme }) => {
     loadTasks();
   }, [user, logout]);
 
-  const refreshTasks = async () => {
-    try {
-      const response = await fetchTasks();
-      setTasks(response.data);
-    } catch (error) {
-      console.error("Error refreshing tasks:", error);
+const refreshTasks = async (updatedTask) => {
+  try {
+    const response = await fetchTasks();
+    const newList = response.data;
+
+    if (updatedTask) {
+      // optional — replace the task locally for faster UI feedback
+      setTasks((prev) =>
+        prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+      );
+    } else {
+      setTasks(newList);
     }
-  };
+
+    return newList;
+  } catch (error) {
+    console.error("Error refreshing tasks:", error);
+  }
+};
+
 
   const handleDragEnd = async (result) => {
     const { destination, source } = result;
