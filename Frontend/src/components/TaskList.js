@@ -1,141 +1,180 @@
-import React, { useState, useEffect } from "react";
-import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
+import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchTasks, updateTaskPriority } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import TaskItem from "./taskItem/TaskItem";
+import TaskCard from "./taskItem/TaskCard";
 import AIChatModal from "./AIChatModal/AIChatModal";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
 
-const TaskList = ({ theme }) => {
-  const { user, logout } = useAuth();
-  const [tasks, setTasks] = useState(null);
-  const [newTaskId, setNewTaskId] = useState(null);
-  const [showAIModal, setShowAIModal] = useState(false);
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
-  useEffect(() => {
-    const loadTasks = async () => {
-      if (user) {
-        try {
-          const response = await fetchTasks();
-          setTasks(response.data);
-        } catch (error) {
-          console.error("Error loading tasks:", error);
-          if (error.response && error.response.status === 403) {
-            logout();
-          }
-        }
-      }
-    };
+// ---------- Sortable Task Card ----------
+const SortableTask = ({ task, theme }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    transition: {
+      duration: 250,
+      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
+    },
+  });
 
-    loadTasks();
-  }, [user, logout]);
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition:
+      transition || "transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)",
+    opacity: isDragging ? 0 : 1,
+    cursor: "grab",
+    // FIXED: Changed from "none" to "manipulation" to allow scrolling
+    touchAction: "manipulation",
+  };
 
-const refreshTasks = async (updatedTask) => {
-  try {
-    const response = await fetchTasks();
-    const newList = response.data;
-
-    if (updatedTask) {
-      // optional — replace the task locally for faster UI feedback
-      setTasks((prev) =>
-        prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-      );
-    } else {
-      setTasks(newList);
-    }
-
-    return newList;
-  } catch (error) {
-    console.error("Error refreshing tasks:", error);
-  }
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TaskCard theme={theme} task={task} />
+    </div>
+  );
 };
 
+// ---------- Main TaskList Component ----------
+const TaskList = ({ theme }) => {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [tasks, setTasks] = useState(null);
+  const [showAIModal, setShowAIModal] = useState(false);
+  const [activeId, setActiveId] = useState(null);
 
-  const handleDragEnd = async (result) => {
-    const { destination, source } = result;
-    if (!destination || destination.index === source.index) return;
+  // IMPROVED: Better touch sensor configuration for mobile
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200, // Reduced from 250ms for better responsiveness
+        tolerance: 5, // Reduced from 8 for more precise control
+      },
+    }),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    })
+  );
 
-    const reorderedTasks = Array.from(tasks);
-    const [movedTask] = reorderedTasks.splice(source.index, 1);
-    reorderedTasks.splice(destination.index, 0, movedTask);
-
-    const updatedTasksWithPriority = reorderedTasks.map((task, index) => ({
-      ...task,
-      priority: index + 1,
-    }));
-
-    setTasks(updatedTasksWithPriority);
-
-    try {
-      const movedTaskId = movedTask.id;
-      const newPriority = destination.index + 1;
-      await updateTaskPriority(movedTaskId, newPriority);
-    } catch (error) {
-      console.error("Error updating task priority:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
+  const loadTasks = useCallback(async () => {
+    if (user) {
+      try {
+        const response = await fetchTasks();
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+        if (error.response && error.response.status === 403) logout();
       }
+    }
+  }, [user, logout]);
+
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
+
+  const refreshTasks = async () => {
+    try {
+      const response = await fetchTasks();
+      setTasks(response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error refreshing tasks:", error);
     }
   };
 
-  const handleAddTask = () => {
-    const newTask = {
-      id: `temp-${Date.now()}`,
-      title: "",
-      description: "",
-      status: "not-started",
-      deadline: null,
-      reminders: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      priority: 1,
-    };
-
-    setNewTaskId(newTask.id);
-    setTasks((prev) => [newTask, ...prev]);
+  // ---------- Drag & Drop ----------
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
   };
 
-  const handleSaveNewTask = async (task) => {
-    try {
-      const response = await createTask({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        deadline: task.deadline,
-        priority: tasks.length + 1,
-        reminders: task.reminders,
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over || active.id === over.id) return;
+
+    setTasks((prevTasks) => {
+      const oldIndex = prevTasks.findIndex((t) => t.id === active.id);
+      const newIndex = prevTasks.findIndex((t) => t.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return prevTasks;
+
+      const reordered = arrayMove(prevTasks, oldIndex, newIndex);
+
+      // Update priorities in the backend
+      const updatePromises = reordered.map((task, idx) => {
+        const newPriority = idx + 1;
+        if (task.priority !== newPriority) {
+          return updateTaskPriority(task.id, newPriority).catch((err) => {
+            console.error(`Error updating priority for task ${task.id}:`, err);
+          });
+        }
+        return Promise.resolve();
       });
 
-      setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? response.data : t))
-      );
-      setNewTaskId(null);
-    } catch (error) {
-      console.error("Error saving new task:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
-      }
-    }
+      Promise.all(updatePromises);
+
+      // Return reordered array with updated priorities
+      return reordered.map((task, idx) => ({
+        ...task,
+        priority: idx + 1,
+      }));
+    });
   };
 
-  const handleCancelNewTask = (taskId) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    setNewTaskId(null);
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  // ---------- Task Management ----------
+  const handleAddTask = () => {
+    navigate("/tasks/new/edit");
   };
 
   const handleAITaskGenerated = (aiGeneratedTask) => {
-    setNewTaskId(aiGeneratedTask.id);
-    setTasks((prev) => [aiGeneratedTask, ...prev]);
+    // Navigate to editor with task data
+    navigate("/tasks/new/edit", { state: { task: aiGeneratedTask } });
   };
 
+  // ---------- Shimmer Loader ----------
   const renderShimmerLoader = () => (
     <div className="container mt-5">
       <div className="task-container">
         <div className="card-body p-3">
           <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
             <h2 className="card-title mb-0">Your Tasks</h2>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 button-group">
               <button
                 className={`btn btn-outline-${
                   theme === "dark" ? "light" : "dark"
@@ -143,7 +182,7 @@ const refreshTasks = async (updatedTask) => {
                 disabled
               >
                 <i className="bi bi-robot me-2"></i>
-                AI Assistant
+                <span className="button-text">AI Assistant</span>
               </button>
 
               <button
@@ -153,7 +192,7 @@ const refreshTasks = async (updatedTask) => {
                 disabled
               >
                 <i className="bi bi-plus-circle"></i>
-                New Task
+                <span className="button-text">New Task</span>
               </button>
             </div>
           </div>
@@ -171,10 +210,13 @@ const refreshTasks = async (updatedTask) => {
     </div>
   );
 
-  if (!tasks) {
-    return renderShimmerLoader();
-  }
+  if (!tasks) return renderShimmerLoader();
 
+  // Sort tasks by priority
+  const sortedTasks = [...tasks].sort((a, b) => a.priority - b.priority);
+  const activeTask = activeId ? tasks.find((t) => t.id === activeId) : null;
+
+  // ---------- Render ----------
   return (
     <>
       <div className="container mt-5">
@@ -182,7 +224,7 @@ const refreshTasks = async (updatedTask) => {
           <div className="card-body p-3">
             <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
               <h2 className="card-title mb-0">Your Tasks</h2>
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 button-group">
                 <button
                   className={`btn btn-outline-${
                     theme === "dark" ? "light" : "dark"
@@ -190,7 +232,7 @@ const refreshTasks = async (updatedTask) => {
                   onClick={() => setShowAIModal(true)}
                 >
                   <i className="bi bi-robot me-2"></i>
-                  AI Assistant
+                  <span className="button-text">AI Assistant</span>
                 </button>
 
                 <button
@@ -200,7 +242,7 @@ const refreshTasks = async (updatedTask) => {
                   onClick={handleAddTask}
                 >
                   <i className="bi bi-plus-circle"></i>
-                  New Task
+                  <span className="button-text">New Task</span>
                 </button>
               </div>
             </div>
@@ -220,49 +262,51 @@ const refreshTasks = async (updatedTask) => {
                 </small>
               </div>
             ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="taskList">
-                  {(provided) => (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
+              >
+                <SortableContext
+                  items={sortedTasks.map((t) => t.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="task-list">
+                    {sortedTasks.map((task) => (
+                      <SortableTask key={task.id} task={task} theme={theme} />
+                    ))}
+                  </div>
+                </SortableContext>
+
+                <DragOverlay
+                  adjustScale={false}
+                  dropAnimation={{
+                    duration: 300,
+                    easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
+                  }}
+                  style={{
+                    cursor: "grabbing",
+                  }}
+                >
+                  {activeTask ? (
                     <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="task-list"
+                      style={{
+                        transform: "scale(1.03) rotate(2deg)",
+                        cursor: "grabbing",
+                        boxShadow:
+                          "0 12px 24px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15)",
+                        borderRadius: "10px",
+                        transition:
+                          "all 150ms cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      }}
                     >
-                      {tasks
-                        .sort((a, b) => a.priority - b.priority)
-                        .map((task, index) => (
-                          <Draggable
-                            key={task.id}
-                            draggableId={task.id.toString()}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="mb-3"
-                                style={{
-                                  ...provided.draggableProps.style,
-                                }}
-                              >
-                                <TaskItem
-                                  theme={theme}
-                                  task={task}
-                                  setTasks={setTasks}
-                                  isNewTask={task.id === newTaskId}
-                                  onSave={handleSaveNewTask}
-                                  onCancel={handleCancelNewTask}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
+                      <TaskCard theme={theme} task={activeTask} />
                     </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
             )}
           </div>
         </div>

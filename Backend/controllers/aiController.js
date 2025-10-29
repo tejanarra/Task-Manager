@@ -177,7 +177,6 @@ export const chatConversation = async (req, res) => {
     const tasks = await Task.findAll({
       where: { userId },
       order: [["createdAt", "DESC"]],
-      limit: 10,
     });
 
     const taskSummary =
@@ -186,7 +185,7 @@ export const chatConversation = async (req, res) => {
         : tasks
             .map(
               (t, i) =>
-                `${i + 1}. ${t.title} — status: ${t.status}${
+                `${i + 1}. ${t.title} ${t.description} — status: ${t.status}${
                   t.deadline
                     ? `, due: ${new Date(t.deadline).toLocaleString()}`
                     : ""

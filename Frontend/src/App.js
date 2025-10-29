@@ -12,6 +12,7 @@ const Login = lazy(() => import("./components/Login"));
 const Register = lazy(() => import("./components/Register"));
 const ForgotPassword = lazy(() => import("./components/ForgotPassword"));
 const TaskList = lazy(() => import("./components/TaskList"));
+const TaskEditor = lazy(() => import("./components/TaskEditor"));
 const ProfileOverview = lazy(() => import("./components/ProfileOverview"));
 const EditProfile = lazy(() => import("./components/EditProfile"));
 const ChangePassword = lazy(() => import("./components/ChangePassword"));
@@ -79,6 +80,14 @@ function App() {
                 element={
                   <PrivateRoute>
                     <TaskList theme={theme} />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/tasks/:taskId/edit"
+                element={
+                  <PrivateRoute>
+                    <TaskEditor theme={theme} />
                   </PrivateRoute>
                 }
               />

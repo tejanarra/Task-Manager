@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
-  baseURL: "http://localhost:5001/api", // Localhost for local development
+  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
+  // baseURL: "http://localhost:5001/api", // Localhost for local development
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
@@ -45,6 +45,7 @@ const handleApiError = (error) => {
 
 // Task-related endpoints
 export const fetchTasks = () => api.get("/tasks");
+export const fetchTaskById = (taskId) => api.get(`/tasks/${taskId}`);
 export const createTask = (newTask) => api.post("/tasks", newTask);
 export const updateTask = (taskId, updatedTask) =>
   api.put(`/tasks/${taskId}`, updatedTask);
@@ -146,6 +147,5 @@ export const sendAIChatMessage = async (message, conversationHistory = []) => {
     return { success: false, error: errorInfo.message };
   }
 };
-
 
 export default api;
