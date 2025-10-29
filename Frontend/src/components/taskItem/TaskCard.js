@@ -3,11 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { formatRelativeTime } from "../../utils/dateUtils";
 import "./Styles/TaskCard.css";
 
-const TaskCard = ({ theme, task }) => {
+const TaskCard = ({ theme, task, demoMode = false }) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/tasks/${task.id}/edit`);
+    if (!demoMode) {
+      navigate(`/tasks/${task.id}/edit`);
+    }
   };
 
   const getStripColor = (status) => {
@@ -27,7 +29,9 @@ const TaskCard = ({ theme, task }) => {
     if (!task.reminders || task.reminders.length === 0) return null;
 
     const dailyCount = task.reminders.filter((r) => r.type === "daily").length;
-    const weeklyCount = task.reminders.filter((r) => r.type === "weekly").length;
+    const weeklyCount = task.reminders.filter(
+      (r) => r.type === "weekly"
+    ).length;
     const oneTimeCount = task.reminders.filter(
       (r) => r.type === "one-time" || !r.type
     ).length;
@@ -47,10 +51,7 @@ const TaskCard = ({ theme, task }) => {
       className={`task-card ${theme === "dark" ? "dark" : ""}`}
       onClick={handleClick}
     >
-      <div
-        className="task-strip"
-        style={{ backgroundColor: stripColor }}
-      ></div>
+      <div className="task-strip" style={{ backgroundColor: stripColor }}></div>
 
       <div className="task-card-content">
         <i
