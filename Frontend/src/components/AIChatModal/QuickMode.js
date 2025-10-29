@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { generateAITask } from "../../services/api";
 
-const QuickMode = ({ setError, setPreviewTask, onClose, onTaskGenerated }) => {
+const QuickMode = ({ setError, onClose }) => {
+  const navigate = useNavigate();
   const [quickPrompt, setQuickPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
@@ -18,22 +20,23 @@ const QuickMode = ({ setError, setPreviewTask, onClose, onTaskGenerated }) => {
     const result = await generateAITask(quickPrompt);
     setIsLoading(false);
 
-    if (!result.success) return setError(result.error);
+    if (!result.success) {
+      setError(result.error);
+      return;
+    }
 
     const aiTask = result.data;
     const newTask = {
-      id: `temp-${Date.now()}`,
       title: aiTask.title,
       description: aiTask.description,
       status: aiTask.status || "not-started",
       deadline: aiTask.deadline,
       reminders: aiTask.reminders || [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      priority: 1,
     };
-    onTaskGenerated(newTask);
+
+    // Close modal and navigate to editor with task data
     onClose();
+    navigate("/tasks/new", { state: { task: newTask } });
   };
 
   const handleKeyPress = (e) => {
@@ -54,15 +57,15 @@ const QuickMode = ({ setError, setPreviewTask, onClose, onTaskGenerated }) => {
           value={quickPrompt}
           onChange={(e) => setQuickPrompt(e.target.value)}
           onKeyDown={handleKeyPress}
-          placeholder="E.g., 'Prepare project report by Friday 5PM'"
+          placeholder="E.g., 'Prepare project report by Friday 5PM with reminders 1 day and 1 hour before'"
           disabled={isLoading}
         />
         <div className="quick-mode-suggestions">
           <small>Try these:</small>
           {[
-            "Schedule dentist appointment",
-            "Plan weekend shopping",
-            "Prepare presentation",
+            "Schedule dentist appointment next Tuesday at 3pm",
+            "Plan weekend shopping with 1 day reminder",
+            "Prepare presentation for Monday with daily reminders",
           ].map((text) => (
             <button
               key={text}

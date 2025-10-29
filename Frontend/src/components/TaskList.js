@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { fetchTasks, updateTaskPriority } from "../services/api";
 import { useAuth } from "../context/AuthContext";
-import TaskItem from "./taskItem/TaskItem";
+import TaskCard from "./taskItem/TaskCard";
 import AIChatModal from "./AIChatModal/AIChatModal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
@@ -25,16 +26,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 // ---------- Sortable Task Card ----------
-const SortableTask = ({
-  task,
-  theme,
-  setTasks,
-  newTaskId,
-  onSave,
-  onCancel,
-  isEditing,
-  setEditingTaskId,
-}) => {
+const SortableTask = ({ task, theme }) => {
   const {
     attributes,
     listeners,
@@ -44,52 +36,35 @@ const SortableTask = ({
     isDragging,
   } = useSortable({
     id: task.id,
-    disabled: isEditing,
     transition: {
       duration: 250,
-      easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+      easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
     },
   });
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition: transition || 'transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+    transition:
+      transition || "transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)",
     opacity: isDragging ? 0 : 1,
-    cursor: isEditing ? "default" : "grab",
+    cursor: "grab",
     touchAction: "none",
-    zIndex: isEditing ? 10 : 1,
-    gridColumn: isEditing ? "1 / -1" : "auto",
   };
 
   return (
-    <div 
-      ref={setNodeRef} 
-      style={style} 
-      {...(isEditing ? {} : attributes)} 
-      {...(isEditing ? {} : listeners)}
-    >
-      <TaskItem
-        theme={theme}
-        task={task}
-        setTasks={setTasks}
-        isNewTask={task.id === newTaskId}
-        onSave={onSave}
-        onCancel={onCancel}
-        isEditing={isEditing}
-        setIsEditing={(editing) => setEditingTaskId(editing ? task.id : null)}
-      />
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <TaskCard theme={theme} task={task} />
     </div>
   );
 };
 
 // ---------- Main TaskList Component ----------
 const TaskList = ({ theme }) => {
+  const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
-  const [newTaskId, setNewTaskId] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
   const [activeId, setActiveId] = useState(null);
-  const [editingTaskId, setEditingTaskId] = useState(null);
 
   // DnD sensors with activation constraints for better UX
   const sensors = useSensors(
@@ -112,38 +87,26 @@ const TaskList = ({ theme }) => {
   );
 
   useEffect(() => {
-    const loadTasks = async () => {
-      if (user) {
-        try {
-          const response = await fetchTasks();
-          setTasks(response.data);
-        } catch (error) {
-          console.error("Error loading tasks:", error);
-          if (error.response && error.response.status === 403) logout();
-        }
-      }
-    };
     loadTasks();
   }, [user, logout]);
 
-  useEffect(() => {
-    if (newTaskId) {
-      setEditingTaskId(newTaskId);
+  const loadTasks = async () => {
+    if (user) {
+      try {
+        const response = await fetchTasks();
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+        if (error.response && error.response.status === 403) logout();
+      }
     }
-  }, [newTaskId]);
+  };
 
-  const refreshTasks = async (updatedTask) => {
+  const refreshTasks = async () => {
     try {
       const response = await fetchTasks();
-      const newList = response.data;
-      if (updatedTask) {
-        setTasks((prev) =>
-          prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-        );
-      } else {
-        setTasks(newList);
-      }
-      return newList;
+      setTasks(response.data);
+      return response.data;
     } catch (error) {
       console.error("Error refreshing tasks:", error);
     }
@@ -195,53 +158,12 @@ const TaskList = ({ theme }) => {
 
   // ---------- Task Management ----------
   const handleAddTask = () => {
-    const newTask = {
-      id: `temp-${Date.now()}`,
-      title: "",
-      description: "",
-      status: "not-started",
-      deadline: null,
-      reminders: [],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      priority: 1,
-    };
-
-    setNewTaskId(newTask.id);
-    setTasks((prev) => [newTask, ...(prev || [])]);
-  };
-
-  const handleSaveNewTask = async (task) => {
-    try {
-      const response = await createTask({
-        title: task.title,
-        description: task.description,
-        status: task.status,
-        deadline: task.deadline,
-        priority: 1,
-        reminders: task.reminders,
-      });
-
-      setTasks((prev) =>
-        prev.map((t) => (t.id === task.id ? response.data : t))
-      );
-      setNewTaskId(null);
-      setEditingTaskId(null);
-    } catch (error) {
-      console.error("Error saving new task:", error);
-      if (error.response && error.response.status === 403) logout();
-    }
-  };
-
-  const handleCancelNewTask = (taskId) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-    setNewTaskId(null);
-    setEditingTaskId(null);
+    navigate("/tasks/new/edit");
   };
 
   const handleAITaskGenerated = (aiGeneratedTask) => {
-    setNewTaskId(aiGeneratedTask.id);
-    setTasks((prev) => [aiGeneratedTask, ...prev]);
+    // Navigate to editor with task data
+    navigate("/tasks/new/edit", { state: { task: aiGeneratedTask } });
   };
 
   // ---------- Shimmer Loader ----------
@@ -352,17 +274,7 @@ const TaskList = ({ theme }) => {
                 >
                   <div className="task-list">
                     {sortedTasks.map((task) => (
-                      <SortableTask
-                        key={task.id}
-                        task={task}
-                        theme={theme}
-                        setTasks={setTasks}
-                        newTaskId={newTaskId}
-                        onSave={handleSaveNewTask}
-                        onCancel={handleCancelNewTask}
-                        isEditing={editingTaskId === task.id}
-                        setEditingTaskId={setEditingTaskId}
-                      />
+                      <SortableTask key={task.id} task={task} theme={theme} />
                     ))}
                   </div>
                 </SortableContext>
@@ -389,12 +301,7 @@ const TaskList = ({ theme }) => {
                           "all 150ms cubic-bezier(0.25, 0.8, 0.25, 1)",
                       }}
                     >
-                      <TaskItem
-                        theme={theme}
-                        task={activeTask}
-                        setTasks={setTasks}
-                        isEditing={false}
-                      />
+                      <TaskCard theme={theme} task={activeTask} />
                     </div>
                   ) : null}
                 </DragOverlay>
