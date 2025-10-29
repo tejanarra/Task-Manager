@@ -3,19 +3,19 @@ import { Route, Routes, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import PrivateRoute from "./context/PrivateRoute";
 import PublicRoute from "./context/PublicRoute";
-import Navbar from "./components/Navbar";
-import Footer from "./components/footer";
+import Navbar from "./components/layout/Navbar";
+import Footer from "./components/layout/footer";
 import "./App.css";
 
 const LandingPage = lazy(() => import("./components/landingPage/LandingPage"));
-const Login = lazy(() => import("./components/Login"));
-const Register = lazy(() => import("./components/Register"));
-const ForgotPassword = lazy(() => import("./components/ForgotPassword"));
-const TaskList = lazy(() => import("./components/TaskList"));
-const TaskEditor = lazy(() => import("./components/TaskEditor"));
-const ProfileOverview = lazy(() => import("./components/ProfileOverview"));
-const EditProfile = lazy(() => import("./components/EditProfile"));
-const ChangePassword = lazy(() => import("./components/ChangePassword"));
+const Login = lazy(() => import("./components/auth/Login"));
+const Register = lazy(() => import("./components/auth/Register"));
+const ForgotPassword = lazy(() => import("./components/auth/ForgotPassword"));
+const TaskList = lazy(() => import("./components/tasks/TaskList"));
+const TaskEditor = lazy(() => import("./components/tasks/TaskEditor"));
+const ProfileOverview = lazy(() => import("./components/profile/ProfileOverview"));
+const EditProfile = lazy(() => import("./components/profile/EditProfile"));
+const ChangePassword = lazy(() => import("./components/auth/ChangePassword"));
 
 function App() {
   const [theme, setTheme] = useState("light");

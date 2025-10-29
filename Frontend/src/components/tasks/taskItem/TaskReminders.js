@@ -1,0 +1,367 @@
+import React, { useState } from "react";
+import ReminderCheckbox from "./ReminderCheckbox";
+import { formatDateTimeLocal } from "../../../utils/dateUtils";
+import { formatHoursLabel } from "../../../utils/reminderUtils";
+import "./Styles/TaskReminders.css";
+
+const TaskReminders = ({
+  tempDeadline,
+  tempReminders,
+  setTempReminders,
+  theme,
+  ALL_INTERVALS = [],
+}) => {
+  const [customReminder, setCustomReminder] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const now = new Date();
+  const deadlineDate = tempDeadline ? new Date(tempDeadline) : null;
+  const diffInHours =
+    deadlineDate && deadlineDate > now
+      ? (deadlineDate - now) / (1000 * 60 * 60)
+      : 0;
+
+  // Helper to check if reminder is one-time (not daily/weekly)
+  const isOneTimeReminder = (r) => {
+    return !r.type || r.type === "one-time";
+  };
+
+  // Check if daily reminders are active
+  const hasDailyReminders = tempReminders.some((r) => r.type === "daily");
+
+  // Check if weekly reminders are active
+  const hasWeeklyReminders = tempReminders.some((r) => r.type === "weekly");
+
+  // Toggle daily reminders
+  const toggleDailyReminders = (checked) => {
+    setTempReminders((prev) => {
+      if (checked) {
+        // Remove existing daily reminders and add a single daily reminder template
+        const withoutDaily = prev.filter((r) => r.type !== "daily");
+        return [
+          ...withoutDaily,
+          { remindBefore: 24, sent: false, type: "daily" },
+        ];
+      } else {
+        // Remove all daily reminders
+        return prev.filter((r) => r.type !== "daily");
+      }
+    });
+  };
+
+  // Toggle weekly reminders
+  const toggleWeeklyReminders = (checked) => {
+    setTempReminders((prev) => {
+      if (checked) {
+        // Remove existing weekly reminders and add a single weekly reminder template
+        const withoutWeekly = prev.filter((r) => r.type !== "weekly");
+        return [
+          ...withoutWeekly,
+          { remindBefore: 168, sent: false, type: "weekly" },
+        ];
+      } else {
+        // Remove all weekly reminders
+        return prev.filter((r) => r.type !== "weekly");
+      }
+    });
+  };
+
+  // Default intervals (e.g. 1 hr, 1 day, 1 week) - these are one-time reminders
+  const defaultIntervals = ALL_INTERVALS.filter((i) => i.value <= diffInHours);
+
+  // Custom reminders - one-time reminders that don't match default intervals
+  const customIntervals = tempReminders
+    .filter((r) => {
+      if (!isOneTimeReminder(r)) return false;
+      if (r.remindBefore > diffInHours) return false;
+
+      // Check if this matches any default interval
+      const matchesDefault = ALL_INTERVALS.some(
+        (ai) => Math.abs(ai.value - r.remindBefore) < 0.01
+      );
+
+      return !matchesDefault;
+    })
+    .map((r) => {
+      // If has customDate, show formatted date
+      if (r.customDate) {
+        try {
+          const date = new Date(r.customDate);
+          return {
+            value: r.remindBefore,
+            label: date.toLocaleString(),
+            customDate: r.customDate,
+          };
+        } catch (err) {
+          console.warn("Error formatting customDate:", err);
+        }
+      }
+
+      // Otherwise calculate date from remindBefore
+      if (deadlineDate) {
+        const reminderDate = new Date(
+          deadlineDate.getTime() - r.remindBefore * 3600000
+        );
+        return {
+          value: r.remindBefore,
+          label: reminderDate.toLocaleString(),
+        };
+      }
+
+      // Fallback to hours label
+      return {
+        value: r.remindBefore,
+        label: formatHoursLabel(r.remindBefore),
+      };
+    });
+
+  // Toggle reminder
+  const toggleReminder = (value, checked) => {
+    setTempReminders((prev) => {
+      if (checked) {
+        // Check if already exists
+        const existing = prev.find(
+          (r) => isOneTimeReminder(r) && Math.abs(r.remindBefore - value) < 0.01
+        );
+
+        if (!existing) {
+          return [
+            ...prev,
+            { remindBefore: value, sent: false, type: "one-time" },
+          ];
+        }
+        return prev;
+      } else {
+        // Remove the reminder
+        return prev.filter(
+          (r) =>
+            !isOneTimeReminder(r) || Math.abs(r.remindBefore - value) >= 0.01
+        );
+      }
+    });
+  };
+
+  // Add custom reminder
+  const handleAddCustomReminder = () => {
+    if (!customReminder) return;
+
+    const selectedDate = new Date(customReminder);
+    if (isNaN(selectedDate.getTime())) {
+      console.warn("Invalid date selected");
+      return;
+    }
+
+    if (!deadlineDate || selectedDate >= deadlineDate) {
+      console.warn("Custom reminder must be before deadline");
+      return;
+    }
+
+    if (selectedDate <= now) {
+      console.warn("Custom reminder must be in the future");
+      return;
+    }
+
+    const hours = (deadlineDate - selectedDate) / (1000 * 60 * 60);
+
+    if (hours > 0 && hours <= diffInHours) {
+      setTempReminders((prev) => {
+        // Check if similar reminder already exists
+        const exists = prev.some(
+          (r) => isOneTimeReminder(r) && Math.abs(r.remindBefore - hours) < 0.01
+        );
+
+        if (!exists) {
+          return [
+            ...prev,
+            {
+              remindBefore: hours,
+              sent: false,
+              type: "one-time",
+              customDate: selectedDate.toISOString(),
+            },
+          ];
+        }
+        return prev;
+      });
+      setCustomReminder("");
+    }
+  };
+
+  // Calculate how many days/weeks until deadline
+  const maxDays = Math.floor(diffInHours / 24);
+  const maxWeeks = Math.floor(diffInHours / (24 * 7));
+
+  return (
+    <div className="task-reminders-container">
+      {/* Dropdown Header Bar */}
+      <div className="reminders-dropdown" onClick={() => setIsOpen(!isOpen)}>
+        <div className="reminders-dropdown-header">
+          <h6>
+            <i className="bi bi-clock"></i> Reminders
+            {tempReminders.length > 0 && (
+              <span className="reminder-count-badge">
+                {tempReminders.length}
+              </span>
+            )}
+          </h6>
+          {isOpen ? (
+            <i className="bi bi-chevron-up"></i>
+          ) : (
+            <i className="bi bi-chevron-down"></i>
+          )}
+        </div>
+      </div>
+
+      {/* Collapsible Content */}
+      {isOpen && (
+        <div className="reminders-dropdown-content">
+          {/* Recurring Reminders Section */}
+          {(maxDays > 0 || maxWeeks > 0) && (
+            <div className="recurring-reminders-section">
+              <label className="reminder-section-label">
+                <i className="bi bi-arrow-repeat"></i> Recurring Reminders:
+              </label>
+              <div className="recurring-options">
+                {maxDays > 0 && (
+                  <div className="recurring-option">
+                    <input
+                      type="checkbox"
+                      checked={hasDailyReminders}
+                      onChange={(e) => toggleDailyReminders(e.target.checked)}
+                      id="daily-reminders"
+                    />
+                    <label htmlFor="daily-reminders">
+                      Every Day (up to {maxDays} reminder
+                      {maxDays !== 1 ? "s" : ""})
+                    </label>
+                  </div>
+                )}
+                {maxWeeks > 0 && (
+                  <div className="recurring-option">
+                    <input
+                      type="checkbox"
+                      checked={hasWeeklyReminders}
+                      onChange={(e) => toggleWeeklyReminders(e.target.checked)}
+                      id="weekly-reminders"
+                    />
+                    <label htmlFor="weekly-reminders">
+                      Every Week (up to {maxWeeks} reminder
+                      {maxWeeks !== 1 ? "s" : ""})
+                    </label>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* One-time Reminders Section */}
+          {defaultIntervals.length > 0 && (
+            <div className="reminder-section">
+              <label className="reminder-section-label">
+                <i className="bi bi-bell"></i> One-time Reminders:
+              </label>
+              <div className="reminder-grid">
+                {defaultIntervals.map((item) => {
+                  const existing = tempReminders.find(
+                    (r) =>
+                      isOneTimeReminder(r) &&
+                      Math.abs(r.remindBefore - item.value) < 0.01
+                  );
+                  const checked = !!existing;
+                  return (
+                    <ReminderCheckbox
+                      key={item.value}
+                      value={item.value}
+                      label={item.label}
+                      checked={checked}
+                      onChange={(checked) =>
+                        toggleReminder(item.value, checked)
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Custom Reminder Section */}
+          <div className="custom-reminder-section">
+            <label className="reminder-section-label">
+              <i className="bi bi-calendar-plus"></i> Add Custom Reminder:
+            </label>
+            <div className="custom-reminder-input-group">
+              <input
+                type="datetime-local"
+                value={customReminder}
+                onChange={(e) => setCustomReminder(e.target.value)}
+                min={formatDateTimeLocal(now.toISOString())}
+                max={
+                  tempDeadline ? formatDateTimeLocal(tempDeadline) : undefined
+                }
+              />
+              <button
+                className={`btn btn-sm ${
+                  theme === "dark" ? "btn-outline-light" : "btn-outline-dark"
+                }`}
+                onClick={handleAddCustomReminder}
+                disabled={!customReminder}
+              >
+                <i className="bi bi-plus-lg"></i> Add
+              </button>
+            </div>
+          </div>
+
+          {/* Custom One-time Reminders Section */}
+          {customIntervals.length > 0 && (
+            <div className="reminder-section">
+              <label className="reminder-section-label">
+                <i className="bi bi-calendar-check"></i> Custom One-time
+                Reminders:
+              </label>
+              <div className="reminder-grid">
+                {customIntervals.map((item, index) => {
+                  const existing = tempReminders.find(
+                    (r) =>
+                      isOneTimeReminder(r) &&
+                      Math.abs(r.remindBefore - item.value) < 0.01
+                  );
+                  const checked = !!existing;
+                  return (
+                    <ReminderCheckbox
+                      key={item.customDate || `${item.value}-${index}`}
+                      value={item.value}
+                      label={item.label}
+                      checked={checked}
+                      onChange={(checked) =>
+                        toggleReminder(item.value, checked)
+                      }
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Active reminders summary */}
+          {tempReminders.length > 0 && (
+            <div className="active-reminders-summary">
+              <small>
+                <i className="bi bi-info-circle"></i> <strong>Active:</strong>
+                {hasDailyReminders && " Daily"}
+                {hasDailyReminders && hasWeeklyReminders && ","}
+                {hasWeeklyReminders && " Weekly"}
+                {(hasDailyReminders || hasWeeklyReminders) &&
+                  tempReminders.filter(isOneTimeReminder).length > 0 &&
+                  ","}
+                {tempReminders.filter(isOneTimeReminder).length > 0 &&
+                  ` ${tempReminders.filter(isOneTimeReminder).length} one-time`}
+              </small>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default TaskReminders;
