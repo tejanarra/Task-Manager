@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTasks, updateTaskPriority } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -86,21 +86,24 @@ const TaskList = ({ theme }) => {
     })
   );
 
-  useEffect(() => {
-    loadTasks();
-  }, [user, logout]);
 
-  const loadTasks = async () => {
-    if (user) {
-      try {
-        const response = await fetchTasks();
-        setTasks(response.data);
-      } catch (error) {
-        console.error("Error loading tasks:", error);
-        if (error.response && error.response.status === 403) logout();
-      }
+
+const loadTasks = useCallback(async () => {
+  if (user) {
+    try {
+      const response = await fetchTasks();
+      setTasks(response.data);
+    } catch (error) {
+      console.error("Error loading tasks:", error);
+      if (error.response && error.response.status === 403) logout();
     }
-  };
+  }
+}, [user, logout]);
+
+useEffect(() => {
+  loadTasks();
+}, [loadTasks]);
+
 
   const refreshTasks = async () => {
     try {

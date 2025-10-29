@@ -6,7 +6,6 @@ import {
   deleteTask,
   fetchTaskById,
 } from "../services/api";
-import { normalizeRemindersBeforeSave } from "../utils/reminderHelpers";
 import TaskReminders from "./taskItem/TaskReminders";
 import ConfirmationModal from "./ConfirmationModal";
 import { formatDateTimeLocal } from "../utils/dateUtils";

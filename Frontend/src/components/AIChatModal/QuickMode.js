@@ -36,7 +36,7 @@ const QuickMode = ({ setError, onClose }) => {
 
     // Close modal and navigate to editor with task data
     onClose();
-    navigate("/tasks/new", { state: { task: newTask } });
+    navigate("/tasks/new/edit", { state: { task: newTask } });
   };
 
   const handleKeyPress = (e) => {

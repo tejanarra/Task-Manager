@@ -70,6 +70,7 @@ const AIChatModal = ({
             setError={setError}
             theme={theme}
             refreshTasks={refreshTasks}
+            onClose={onClose}
           />
         )}
       </div>
