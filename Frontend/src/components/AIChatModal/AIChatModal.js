@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import QuickMode from "./QuickMode";
 import ChatMode from "./ChatMode";
 import TaskPreviewModal from "./TaskPreviewModal";
@@ -14,13 +14,76 @@ const AIChatModal = ({
   const [mode, setMode] = useState("quick");
   const [previewTask, setPreviewTask] = useState(null);
   const [error, setError] = useState(null);
+  const [isClosing, setIsClosing] = useState(false);
 
-  if (!show) return null;
+  // Load last used mode from localStorage
+  useEffect(() => {
+    try {
+      const savedMode = localStorage.getItem("ai_chat_mode");
+      if (savedMode && (savedMode === "quick" || savedMode === "chat")) {
+        setMode(savedMode);
+      }
+    } catch (error) {
+      console.error("Error loading chat mode:", error);
+    }
+  }, []);
+
+  // Save mode preference when it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("ai_chat_mode", mode);
+    } catch (error) {
+      console.error("Error saving chat mode:", error);
+    }
+  }, [mode]);
+
+  // Handle ESC key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && show && !previewTask) {
+        handleClose();
+      }
+    };
+
+    if (show) {
+      document.addEventListener("keydown", handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [show, previewTask]);
+
+  const handleClose = () => {
+    setIsClosing(true);
+    // Small delay for animation
+    setTimeout(() => {
+      setIsClosing(false);
+      setError(null);
+      onClose();
+    }, 250);
+  };
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget && !previewTask) {
+      handleClose();
+    }
+  };
+
+  if (!show && !isClosing) return null;
 
   return (
-    <div className="ai-modal-overlay" onClick={onClose}>
+    <div
+      className={`ai-modal-overlay ${isClosing ? "closing" : ""}`}
+      onClick={handleOverlayClick}
+    >
       <div
-        className={`ai-modal-content ${theme === "dark" ? "dark-mode" : ""}`}
+        className={`ai-modal-content ${theme === "dark" ? "dark-mode" : ""} ${
+          isClosing ? "closing" : ""
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -28,7 +91,11 @@ const AIChatModal = ({
           <h3>
             <i className="bi bi-robot"></i> AI Task Assistant
           </h3>
-          <button className="close-button" onClick={onClose}>
+          <button
+            className="close-button"
+            onClick={handleClose}
+            aria-label="Close AI Assistant"
+          >
             <i className="bi bi-x-lg"></i>
           </button>
         </div>
@@ -38,14 +105,16 @@ const AIChatModal = ({
           <button
             className={`mode-button ${mode === "quick" ? "active" : ""}`}
             onClick={() => setMode("quick")}
+            aria-pressed={mode === "quick"}
           >
-            <i className="bi bi-lightning-charge"></i> Quick Generate
+            <i className="bi bi-lightning-charge"></i> Quick
           </button>
           <button
             className={`mode-button ${mode === "chat" ? "active" : ""}`}
             onClick={() => setMode("chat")}
+            aria-pressed={mode === "chat"}
           >
-            <i className="bi bi-chat-dots"></i> Chat Mode
+            <i className="bi bi-chat-dots"></i> Chat
           </button>
         </div>
 
@@ -53,6 +122,20 @@ const AIChatModal = ({
         {error && (
           <div className="error-banner">
             <i className="bi bi-exclamation-triangle"></i> {error}
+            <button
+              onClick={() => setError(null)}
+              style={{
+                marginLeft: "auto",
+                background: "none",
+                border: "none",
+                color: "inherit",
+                cursor: "pointer",
+                padding: "0 4px",
+              }}
+              aria-label="Dismiss error"
+            >
+              <i className="bi bi-x-lg"></i>
+            </button>
           </div>
         )}
 
@@ -62,7 +145,7 @@ const AIChatModal = ({
             setError={setError}
             setPreviewTask={setPreviewTask}
             onTaskGenerated={onTaskGenerated}
-            onClose={onClose}
+            onClose={handleClose}
             theme={theme}
           />
         ) : (
@@ -70,7 +153,7 @@ const AIChatModal = ({
             setError={setError}
             theme={theme}
             refreshTasks={refreshTasks}
-            onClose={onClose}
+            onClose={handleClose}
           />
         )}
       </div>
@@ -84,7 +167,7 @@ const AIChatModal = ({
           onSave={(task) => {
             onTaskGenerated(task);
             setPreviewTask(null);
-            onClose();
+            handleClose();
           }}
         />
       )}

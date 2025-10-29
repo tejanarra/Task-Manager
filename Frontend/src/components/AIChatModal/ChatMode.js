@@ -12,9 +12,22 @@ import ChatMessage from "./ChatMessage";
 import TaskItem from "../taskItem/TaskItem";
 import { useAuth } from "../../context/AuthContext";
 
+const CHAT_HISTORY_KEY = "ai_chat_history";
+
 const ChatMode = ({ setError, theme, refreshTasks }) => {
   const { user } = useAuth();
-  const [chatMessages, setChatMessages] = useState([]);
+  
+  // Load chat history from localStorage on mount
+  const [chatMessages, setChatMessages] = useState(() => {
+    try {
+      const saved = localStorage.getItem(CHAT_HISTORY_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {
+      console.error("Error loading chat history:", error);
+      return [];
+    }
+  });
+  
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [previewTask, setPreviewTask] = useState(null);
@@ -28,6 +41,15 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, previewTask]);
+
+  // Save chat history to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(chatMessages));
+    } catch (error) {
+      console.error("Error saving chat history:", error);
+    }
+  }, [chatMessages]);
 
   /* ====================================================
      Send Message to AI (chatConversation)
@@ -71,7 +93,7 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
       );
     }
 
-    // 🧠 Add assistant's reply
+    // Add assistant's reply
     setChatMessages((prev) => [
       ...prev,
       {
@@ -81,7 +103,7 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
       },
     ]);
 
-    // ✅ If AI suggests update/delete – show inline TaskItem
+    // If AI suggests update/delete – show inline TaskItem
     if (previewUpdate) {
       setPreviewTask({
         ...previewUpdate,
@@ -147,7 +169,7 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
       setIsLoading(true);
       setError(null);
 
-      // ✅ Normalize reminders before saving
+      // Normalize reminders before saving
       const normalizedReminders = normalizeRemindersBeforeSave(
         task.reminders || [],
         task.deadline
@@ -205,6 +227,11 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
     setChatMessages([]);
     setError(null);
     setPreviewTask(null);
+    try {
+      localStorage.removeItem(CHAT_HISTORY_KEY);
+    } catch (error) {
+      console.error("Error clearing chat history:", error);
+    }
   };
 
   const handleKeyPress = (e) => {
@@ -335,14 +362,14 @@ const ChatMode = ({ setError, theme, refreshTasks }) => {
           onClick={resetChat}
           disabled={isLoading || chatMessages.length === 0}
         >
-          <i className="bi bi-arrow-clockwise me-1"></i> Reset
+          <i className="bi bi-arrow-clockwise me-1"></i> Clear Chat
         </button>
         <button
           className="btn btn-sm btn-primary"
           onClick={handleGenerateFromChat}
           disabled={isLoading || chatMessages.length === 0}
         >
-          <i className="bi bi-eye me-1"></i> Preview
+          <i className="bi bi-magic me-1"></i> Generate Task
         </button>
       </div>
     </div>
