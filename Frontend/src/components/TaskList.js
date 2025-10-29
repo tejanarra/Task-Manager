@@ -3,15 +3,113 @@ import { fetchTasks, updateTaskPriority, createTask } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import TaskItem from "./taskItem/TaskItem";
 import AIChatModal from "./AIChatModal/AIChatModal";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../Styles/TaskList.css";
 
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  MouseSensor,
+  TouchSensor,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  arrayMove,
+  useSortable,
+  rectSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// ---------- Sortable Task Card ----------
+const SortableTask = ({
+  task,
+  theme,
+  setTasks,
+  newTaskId,
+  onSave,
+  onCancel,
+  isEditing,
+  setEditingTaskId,
+}) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: task.id,
+    disabled: isEditing,
+    transition: {
+      duration: 250,
+      easing: 'cubic-bezier(0.25, 0.8, 0.25, 1)',
+    },
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition: transition || 'transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)',
+    opacity: isDragging ? 0 : 1,
+    cursor: isEditing ? "default" : "grab",
+    touchAction: "none",
+    zIndex: isEditing ? 10 : 1,
+    gridColumn: isEditing ? "1 / -1" : "auto",
+  };
+
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      {...(isEditing ? {} : attributes)} 
+      {...(isEditing ? {} : listeners)}
+    >
+      <TaskItem
+        theme={theme}
+        task={task}
+        setTasks={setTasks}
+        isNewTask={task.id === newTaskId}
+        onSave={onSave}
+        onCancel={onCancel}
+        isEditing={isEditing}
+        setIsEditing={(editing) => setEditingTaskId(editing ? task.id : null)}
+      />
+    </div>
+  );
+};
+
+// ---------- Main TaskList Component ----------
 const TaskList = ({ theme }) => {
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
   const [newTaskId, setNewTaskId] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
+  const [activeId, setActiveId] = useState(null);
+  const [editingTaskId, setEditingTaskId] = useState(null);
+
+  // DnD sensors with activation constraints for better UX
+  const sensors = useSensors(
+    useSensor(MouseSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 8,
+      },
+    }),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 10,
+      },
+    })
+  );
 
   useEffect(() => {
     const loadTasks = async () => {
@@ -21,64 +119,81 @@ const TaskList = ({ theme }) => {
           setTasks(response.data);
         } catch (error) {
           console.error("Error loading tasks:", error);
-          if (error.response && error.response.status === 403) {
-            logout();
-          }
+          if (error.response && error.response.status === 403) logout();
         }
       }
     };
-
     loadTasks();
   }, [user, logout]);
 
-const refreshTasks = async (updatedTask) => {
-  try {
-    const response = await fetchTasks();
-    const newList = response.data;
-
-    if (updatedTask) {
-      // optional — replace the task locally for faster UI feedback
-      setTasks((prev) =>
-        prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
-      );
-    } else {
-      setTasks(newList);
+  useEffect(() => {
+    if (newTaskId) {
+      setEditingTaskId(newTaskId);
     }
+  }, [newTaskId]);
 
-    return newList;
-  } catch (error) {
-    console.error("Error refreshing tasks:", error);
-  }
-};
-
-
-  const handleDragEnd = async (result) => {
-    const { destination, source } = result;
-    if (!destination || destination.index === source.index) return;
-
-    const reorderedTasks = Array.from(tasks);
-    const [movedTask] = reorderedTasks.splice(source.index, 1);
-    reorderedTasks.splice(destination.index, 0, movedTask);
-
-    const updatedTasksWithPriority = reorderedTasks.map((task, index) => ({
-      ...task,
-      priority: index + 1,
-    }));
-
-    setTasks(updatedTasksWithPriority);
-
+  const refreshTasks = async (updatedTask) => {
     try {
-      const movedTaskId = movedTask.id;
-      const newPriority = destination.index + 1;
-      await updateTaskPriority(movedTaskId, newPriority);
-    } catch (error) {
-      console.error("Error updating task priority:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
+      const response = await fetchTasks();
+      const newList = response.data;
+      if (updatedTask) {
+        setTasks((prev) =>
+          prev.map((t) => (t.id === updatedTask.id ? updatedTask : t))
+        );
+      } else {
+        setTasks(newList);
       }
+      return newList;
+    } catch (error) {
+      console.error("Error refreshing tasks:", error);
     }
   };
 
+  // ---------- Drag & Drop ----------
+  const handleDragStart = (event) => {
+    setActiveId(event.active.id);
+  };
+
+  const handleDragEnd = async (event) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over || active.id === over.id) return;
+
+    setTasks((prevTasks) => {
+      const oldIndex = prevTasks.findIndex((t) => t.id === active.id);
+      const newIndex = prevTasks.findIndex((t) => t.id === over.id);
+
+      if (oldIndex === -1 || newIndex === -1) return prevTasks;
+
+      const reordered = arrayMove(prevTasks, oldIndex, newIndex);
+
+      // Update priorities in the backend
+      const updatePromises = reordered.map((task, idx) => {
+        const newPriority = idx + 1;
+        if (task.priority !== newPriority) {
+          return updateTaskPriority(task.id, newPriority).catch((err) => {
+            console.error(`Error updating priority for task ${task.id}:`, err);
+          });
+        }
+        return Promise.resolve();
+      });
+
+      Promise.all(updatePromises);
+
+      // Return reordered array with updated priorities
+      return reordered.map((task, idx) => ({
+        ...task,
+        priority: idx + 1,
+      }));
+    });
+  };
+
+  const handleDragCancel = () => {
+    setActiveId(null);
+  };
+
+  // ---------- Task Management ----------
   const handleAddTask = () => {
     const newTask = {
       id: `temp-${Date.now()}`,
@@ -93,7 +208,7 @@ const refreshTasks = async (updatedTask) => {
     };
 
     setNewTaskId(newTask.id);
-    setTasks((prev) => [newTask, ...prev]);
+    setTasks((prev) => [newTask, ...(prev || [])]);
   };
 
   const handleSaveNewTask = async (task) => {
@@ -103,7 +218,7 @@ const refreshTasks = async (updatedTask) => {
         description: task.description,
         status: task.status,
         deadline: task.deadline,
-        priority: tasks.length + 1,
+        priority: 1,
         reminders: task.reminders,
       });
 
@@ -111,17 +226,17 @@ const refreshTasks = async (updatedTask) => {
         prev.map((t) => (t.id === task.id ? response.data : t))
       );
       setNewTaskId(null);
+      setEditingTaskId(null);
     } catch (error) {
       console.error("Error saving new task:", error);
-      if (error.response && error.response.status === 403) {
-        logout();
-      }
+      if (error.response && error.response.status === 403) logout();
     }
   };
 
   const handleCancelNewTask = (taskId) => {
     setTasks((prev) => prev.filter((task) => task.id !== taskId));
     setNewTaskId(null);
+    setEditingTaskId(null);
   };
 
   const handleAITaskGenerated = (aiGeneratedTask) => {
@@ -129,6 +244,7 @@ const refreshTasks = async (updatedTask) => {
     setTasks((prev) => [aiGeneratedTask, ...prev]);
   };
 
+  // ---------- Shimmer Loader ----------
   const renderShimmerLoader = () => (
     <div className="container mt-5">
       <div className="task-container">
@@ -171,10 +287,13 @@ const refreshTasks = async (updatedTask) => {
     </div>
   );
 
-  if (!tasks) {
-    return renderShimmerLoader();
-  }
+  if (!tasks) return renderShimmerLoader();
 
+  // Sort tasks by priority
+  const sortedTasks = [...tasks].sort((a, b) => a.priority - b.priority);
+  const activeTask = activeId ? tasks.find((t) => t.id === activeId) : null;
+
+  // ---------- Render ----------
   return (
     <>
       <div className="container mt-5">
@@ -220,49 +339,66 @@ const refreshTasks = async (updatedTask) => {
                 </small>
               </div>
             ) : (
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <Droppable droppableId="taskList">
-                  {(provided) => (
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDragStart}
+                onDragEnd={handleDragEnd}
+                onDragCancel={handleDragCancel}
+              >
+                <SortableContext
+                  items={sortedTasks.map((t) => t.id)}
+                  strategy={rectSortingStrategy}
+                >
+                  <div className="task-list">
+                    {sortedTasks.map((task) => (
+                      <SortableTask
+                        key={task.id}
+                        task={task}
+                        theme={theme}
+                        setTasks={setTasks}
+                        newTaskId={newTaskId}
+                        onSave={handleSaveNewTask}
+                        onCancel={handleCancelNewTask}
+                        isEditing={editingTaskId === task.id}
+                        setEditingTaskId={setEditingTaskId}
+                      />
+                    ))}
+                  </div>
+                </SortableContext>
+
+                <DragOverlay
+                  adjustScale={false}
+                  dropAnimation={{
+                    duration: 300,
+                    easing: "cubic-bezier(0.25, 0.8, 0.25, 1)",
+                  }}
+                  style={{
+                    cursor: "grabbing",
+                  }}
+                >
+                  {activeTask ? (
                     <div
-                      {...provided.droppableProps}
-                      ref={provided.innerRef}
-                      className="task-list"
+                      style={{
+                        transform: "scale(1.03) rotate(2deg)",
+                        cursor: "grabbing",
+                        boxShadow:
+                          "0 12px 24px rgba(0, 0, 0, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15)",
+                        borderRadius: "10px",
+                        transition:
+                          "all 150ms cubic-bezier(0.25, 0.8, 0.25, 1)",
+                      }}
                     >
-                      {tasks
-                        .sort((a, b) => a.priority - b.priority)
-                        .map((task, index) => (
-                          <Draggable
-                            key={task.id}
-                            draggableId={task.id.toString()}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className="mb-3"
-                                style={{
-                                  ...provided.draggableProps.style,
-                                }}
-                              >
-                                <TaskItem
-                                  theme={theme}
-                                  task={task}
-                                  setTasks={setTasks}
-                                  isNewTask={task.id === newTaskId}
-                                  onSave={handleSaveNewTask}
-                                  onCancel={handleCancelNewTask}
-                                />
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                      {provided.placeholder}
+                      <TaskItem
+                        theme={theme}
+                        task={activeTask}
+                        setTasks={setTasks}
+                        isEditing={false}
+                      />
                     </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
             )}
           </div>
         </div>

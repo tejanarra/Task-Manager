@@ -1,109 +1,632 @@
+/* Task Container */
 .task-container {
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    padding: 20px;
-  }
-  
-  .header-container {
-    flex-wrap: nowrap;
-  }
-  
-  .add-task-button {
-    border-radius: 4px;
-    padding: 8px 16px;
-    font-size: 1rem;
-  }
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: var(--color-background);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
 
-  
-  @media (max-width: 576px) {
-    .header-container {
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-    }
-  
-    .add-task-button {
-      white-space: nowrap;
-    }
-  
-    .task-container {
-      padding: 10px;
-    }
-  
-    .task-item h5 {
-      font-size: 1rem;
-    }
-  
-    .task-item p {
-      font-size: 0.9rem;
-    }
-  }
+.dark .task-container {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+}
 
-  .skeleton-title {
-    width: 200px;
-    height: 24px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--color-shimmer-light) 25%, var(--color-shimmer-dark) 50%, var(--color-shimmer-light) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+/* Header Container */
+.header-container {
+  flex-wrap: nowrap;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--color-border-light);
+  margin-bottom: 1.25rem;
+  animation: slideInDown 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
   }
-  
-  .skeleton-button {
-    width: 100px;
-    height: 40px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--color-shimmer-light) 25%, var(--color-shimmer-dark) 50%, var(--color-shimmer-light) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-container h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, var(--color-text-primary), var(--color-button-bg));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button Styling */
+.header-container .btn {
+  border-radius: 8px;
+  padding: 0.625rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+  border-width: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-container .btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.header-container .btn:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.header-container .btn:hover:not(:disabled) {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.header-container .btn:active:not(:disabled) {
+  transform: translateY(-1px) scale(1.01);
+}
+
+.dark .header-container .btn:hover:not(:disabled) {
+  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+}
+
+.header-container .btn i {
+  font-size: 1rem;
+  transition: transform 0.3s ease;
+}
+
+.header-container .btn:hover:not(:disabled) i {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.ai-button {
+  background: linear-gradient(135deg, var(--color-button-bg) 0%, var(--color-button-hover-bg) 100%);
+  color: var(--color-button-text);
+  border: 2px solid var(--color-button-bg);
+  position: relative;
+}
+
+.ai-button::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.ai-button:hover:not(:disabled)::after {
+  transform: translateX(100%);
+}
+
+.ai-button:hover:not(:disabled) {
+  background: var(--color-button-hover-bg);
+  border-color: var(--color-button-hover-bg);
+  color: var(--color-button-hover-text);
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--color-background-secondary);
+  border-radius: 12px;
+  border: 2px dashed var(--color-border-light);
+  margin-top: 1rem;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1rem;
+  opacity: 0.5;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.empty-state p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.empty-state small {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* Shimmer Loader */
+.skeleton-title {
+  width: 200px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-button {
+  width: 120px;
+  height: 42px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer-list {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+}
+
+.shimmer-task-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  background: var(--color-background);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: shimmer-pulse 1.5s ease-in-out infinite;
+  min-height: 180px;
+}
+
+.dark .shimmer-task-item {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.shimmer-task-header {
+  width: 60%;
+  height: 20px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer-task-body {
+  width: 100%;
+  height: 16px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.shimmer-task-body:last-child {
+  width: 80%;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes shimmer-pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Task List Grid Layout */
+.task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Larger screens - 3 columns */
+@media (min-width: 1400px) {
+  .task-list {
+    grid-template-columns: repeat(3, 1fr);
   }
   
   .shimmer-list {
-    margin-top: 20px;
+    grid-template-columns: repeat(3, 1fr);
   }
-  
-  .shimmer-task-item {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding: 15px;
-    border: 1px solid var(--color-border-light);
-    border-radius: 8px;
-    background: var(--color-background);
-    margin-bottom: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  }
-  
-  .shimmer-task-header {
-    width: 50%;
-    height: 20px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--color-shimmer-light) 25%, var(--color-shimmer-dark) 50%, var(--color-shimmer-light) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-  
-  .shimmer-task-body {
-    width: 100%;
-    height: 15px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--color-shimmer-light) 25%, var(--color-shimmer-dark) 50%, var(--color-shimmer-light) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-  
+}
 
-@keyframes shimmer {
-  0% {
-      background-position: -200% 0;
+/* Medium screens - 2 columns */
+@media (min-width: 992px) and (max-width: 1399px) {
+  .task-list {
+    grid-template-columns: repeat(2, 1fr);
   }
-  100% {
-      background-position: 200% 0;
+  
+  .shimmer-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet and smaller */
+@media (max-width: 991px) {
+  .task-list {
+    grid-template-columns: 1fr;
+  }
+  
+  .shimmer-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .task-container {
+    padding: 1rem;
+    border-radius: 10px;
+  }
+
+  .header-container {
+    flex-direction: row;
+    gap: 0.75rem;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .header-container h2 {
+    font-size: 1.35rem;
+  }
+
+  .header-container .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1.5rem;
+  }
+
+  .empty-state-icon {
+    font-size: 3rem;
+  }
+
+  .shimmer-task-item {
+    padding: 1rem;
+    min-height: 160px;
   }
 }
 
 @media (max-width: 576px) {
+  .task-container {
+    padding: 0.875rem;
+    border-radius: 8px;
+  }
+
   .header-container {
     flex-direction: column;
-    gap: 10px;
+    gap: 0.75rem;
+    align-items: stretch;
   }
+
+  .header-container h2 {
+    font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .header-container > div {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .header-container .btn {
+    width: 100%;
+    justify-content: center;
+    padding: 0.625rem 1rem;
+  }
+
+  .empty-state {
+    padding: 2.5rem 1rem;
+  }
+
+  .empty-state-icon {
+    font-size: 2.5rem;
+  }
+
+  .empty-state p {
+    font-size: 1rem;
+  }
+
+  .empty-state small {
+    font-size: 0.85rem;
+  }
+
+  .skeleton-title {
+    width: 150px;
+    height: 28px;
+  }
+
+  .skeleton-button {
+    width: 100px;
+    height: 38px;
+  }
+
+  .shimmer-task-item {
+    padding: 0.875rem;
+    min-height: 150px;
+  }
+
+  .shimmer-task-header {
+    height: 18px;
+  }
+
+  .shimmer-task-body {
+    height: 14px;
+  }
+
+  .task-list {
+    gap: 0.875rem;
+  }
+  
+  .shimmer-list {
+    gap: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-container h2 {
+    font-size: 1.15rem;
+  }
+
+  .header-container .btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .header-container .btn i {
+    font-size: 0.9rem;
+  }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+  .task-container {
+    border-width: 2px;
+  }
+
+  .header-container {
+    border-bottom-width: 3px;
+  }
+
+  .empty-state {
+    border-width: 3px;
+  }
+
+  .header-container .btn {
+    border-width: 3px;
+  }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .header-container,
+  .header-container .btn,
+  .shimmer-task-item,
+  .task-list,
+  .empty-state {
+    animation: none;
+    transition: none;
+  }
+
+  .header-container .btn:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .header-container .btn i {
+    transition: none;
+  }
+
+  .header-container .btn:hover:not(:disabled) i {
+    transform: none;
+  }
+
+  .header-container .btn::before,
+  .ai-button::after {
+    transition: none;
+  }
+
+  .empty-state-icon {
+    animation: none;
+  }
+
+  .skeleton-title,
+  .skeleton-button,
+  .shimmer-task-header,
+  .shimmer-task-body {
+    animation: none;
+    background: var(--color-shimmer-light);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .header-container .btn {
+    display: none;
+  }
+
+  .task-container {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+
+  .shimmer-list {
+    display: none;
+  }
+  
+  .task-list {
+    display: block;
+  }
+}
+
+/* Focus Styles for Accessibility */
+.header-container .btn:focus-visible {
+  outline: 3px solid var(--color-button-bg);
+  outline-offset: 3px;
+}
+
+/* Loading State for Buttons */
+.header-container .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.header-container .btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.header-container .btn:disabled::before {
+  display: none;
+}
+
+/* Dark Mode Specific Adjustments */
+.dark .header-container .btn {
+  border-color: var(--color-border-dark);
+}
+
+.dark .empty-state {
+  border-color: var(--color-border);
+}
+
+.dark .ai-button {
+  background: linear-gradient(135deg, var(--color-button-bg) 0%, var(--color-button-hover-bg) 100%);
+}
+
+/* Stagger Animation for Task Items */
+.task-list > div:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.task-list > div:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.task-list > div:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.task-list > div:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.task-list > div:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.task-list > div:nth-child(n+6) {
+  animation-delay: 0.3s;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar for webkit browsers */
+.task-card-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.task-card-content::-webkit-scrollbar-track {
+  background: var(--color-background-secondary);
+  border-radius: 4px;
+}
+
+.task-card-content::-webkit-scrollbar-thumb {
+  background: var(--color-border-dark);
+  border-radius: 4px;
+  transition: background 0.3s ease;
+}
+
+.task-card-content::-webkit-scrollbar-thumb:hover {
+  background: var(--color-button-bg);
 }

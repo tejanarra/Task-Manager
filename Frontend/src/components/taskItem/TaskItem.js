@@ -25,8 +25,9 @@ const TaskItem = ({
   isNewTask = false,
   onSave = () => {},
   onCancel = () => {},
+  isEditing = false,
+  setIsEditing = () => {},
 }) => {
-  const [isEditing, setIsEditing] = useState(isNewTask);
   const [tempTitle, setTempTitle] = useState(task.title);
   const [tempDescription, setTempDescription] = useState(task.description);
   const [tempStatus, setTempStatus] = useState(task.status);
@@ -38,7 +39,7 @@ const TaskItem = ({
   const [isLoading, setIsLoading] = useState(false);
   const cardRef = useRef(null);
 
-  // ✅ Ensure reminders update when the AI-created task is previewed
+  // Ensure reminders update when the AI-created task is previewed
   useEffect(() => {
     if (Array.isArray(task.reminders) && task.reminders.length > 0) {
       setTempReminders(task.reminders);
@@ -51,7 +52,11 @@ const TaskItem = ({
     setTempStatus(task.status);
     setTempDeadline(task.deadline || null);
     setTempReminders(Array.isArray(task.reminders) ? task.reminders : []);
-    isNewTask ? onCancel(task.id) : setIsEditing(false);
+    if (isNewTask) {
+      onCancel(task.id);
+    } else {
+      setIsEditing(false);
+    }
   }, [
     task.title,
     task.description,
@@ -61,6 +66,7 @@ const TaskItem = ({
     isNewTask,
     onCancel,
     task.id,
+    setIsEditing,
   ]);
 
   useEffect(() => {
@@ -162,7 +168,11 @@ const TaskItem = ({
     }
   };
 
-  const handleDelete = () => setShowDeleteModal(true);
+  const handleDelete = (e) => {
+    e.stopPropagation();
+    setShowDeleteModal(true);
+  };
+
   const confirmDelete = async () => {
     setIsLoading(true);
     try {
@@ -180,19 +190,18 @@ const TaskItem = ({
   const getStripColor = (status) => {
     switch (status) {
       case "completed":
-        return "#007a00";
+        return "#28a745";
       case "in-progress":
-        return "#daa520";
+        return "#ffc107";
       default:
-        return "#a00000";
+        return "#dc3545";
     }
   };
 
-  const stripColor = getStripColor(task.status);
+  const stripColor = getStripColor(isEditing ? tempStatus : task.status);
   const isDeadlineInFuture =
     tempDeadline && new Date(tempDeadline) > new Date();
 
-  // ✅ Fixed — correctly include "one-time" reminders
   const getReminderSummary = () => {
     if (!tempReminders || tempReminders.length === 0) return null;
 
@@ -212,14 +221,20 @@ const TaskItem = ({
 
   const reminderSummary = getReminderSummary();
 
+  const handleCardClick = (e) => {
+    if (!isEditing && !isLoading && !e.target.closest('.reminder-indicator')) {
+      setIsEditing(true);
+    }
+  };
+
   return (
     <>
       <div
         ref={cardRef}
-        className={`task-card ${theme === "dark" ? "dark" : ""} ${
+        className={`task-card ${theme === "dark" ? "dark-mode" : ""} ${
           isLoading ? "loading" : ""
-        } ${isNewTask ? "new-task" : ""}`}
-        onClick={() => !isEditing && setIsEditing(true)}
+        } ${isNewTask ? "new-task" : ""} ${isEditing ? "editing" : ""}`}
+        onClick={handleCardClick}
       >
         <div
           className="task-strip"
@@ -231,10 +246,10 @@ const TaskItem = ({
             <i
               className={`bi ${
                 task.status === "completed"
-                  ? "bi-check-circle"
+                  ? "bi-check-circle-fill"
                   : task.status === "in-progress"
-                  ? "bi-hourglass"
-                  : "bi-ban"
+                  ? "bi-hourglass-split"
+                  : "bi-circle"
               } status-icon`}
               style={{ color: stripColor }}
             />
@@ -250,6 +265,7 @@ const TaskItem = ({
                   value={tempTitle}
                   onChange={(e) => setTempTitle(e.target.value)}
                   placeholder="Enter task title..."
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -261,6 +277,7 @@ const TaskItem = ({
                   value={tempDescription}
                   onChange={(e) => setTempDescription(e.target.value)}
                   placeholder="Enter task description..."
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -270,6 +287,7 @@ const TaskItem = ({
                   className="form-select"
                   value={tempStatus}
                   onChange={(e) => setTempStatus(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   <option value="not-started">Not Started</option>
                   <option value="in-progress">In Progress</option>
@@ -284,6 +302,7 @@ const TaskItem = ({
                   className="form-control"
                   value={tempDeadline ? formatDateTimeLocal(tempDeadline) : ""}
                   onChange={(e) => setTempDeadline(e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
                 />
               </div>
 
@@ -329,12 +348,9 @@ const TaskItem = ({
               {!isNewTask && (
                 <button
                   className={`btn ${
-                    theme === "dark" ? "btn-outline-danger" : "btn-secondary"
+                    theme === "dark" ? "btn-outline-danger" : "btn-danger"
                   }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete();
-                  }}
+                  onClick={handleDelete}
                   disabled={isLoading}
                 >
                   {isLoading ? "Deleting..." : "Delete"}
@@ -342,7 +358,19 @@ const TaskItem = ({
               )}
               <button
                 className={`btn ${
-                  theme === "dark" ? "btn-outline-light" : "btn-dark"
+                  theme === "dark" ? "btn-outline-secondary" : "btn-secondary"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCancel();
+                }}
+                disabled={isLoading}
+              >
+                Cancel
+              </button>
+              <button
+                className={`btn ${
+                  theme === "dark" ? "btn-outline-success" : "btn-success"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -357,13 +385,13 @@ const TaskItem = ({
             </div>
           )}
 
-          {/* ✅ Reminders now always show when available */}
           {!isEditing && reminderSummary && (
             <div
               className="reminder-indicator"
               title={`Reminders: ${reminderSummary}`}
+              onClick={(e) => e.stopPropagation()}
             >
-              <i className="bi bi-clock"></i>
+              <i className="bi bi-bell-fill"></i>
               <small>{reminderSummary}</small>
             </div>
           )}
