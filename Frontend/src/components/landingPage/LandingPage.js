@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import  { useRef } from "react";
 import { Link } from "react-router-dom";
 import "./Styles/LandingPage.css";
 import heroImage from "../../assets/hero1.jpg";
@@ -12,10 +12,10 @@ const LandingPage = ({ theme }) => {
   const featuresRef = useRef(null);
   const demoRef = useRef(null); // ✨ Added demo ref
 
-  const scrollToFeatures = (e) => {
-    e.preventDefault();
-    featuresRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  // const scrollToFeatures = (e) => {
+  //   e.preventDefault();
+  //   featuresRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  // };
 
   // ✨ Added scroll to demo function
   const scrollToDemo = (e) => {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import QuickMode from "./QuickMode";
 import ChatMode from "./ChatMode";
 import TaskPreviewModal from "./TaskPreviewModal";
@@ -37,6 +37,15 @@ const AIChatModal = ({
     }
   }, [mode]);
 
+  const handleClose = useCallback(() => {
+    setIsClosing(true);
+    setTimeout(() => {
+      setIsClosing(false);
+      setError(null);
+      onClose();
+    }, 250);
+  }, [onClose]);
+
   // Handle ESC key to close modal
   useEffect(() => {
     const handleEscape = (e) => {
@@ -47,7 +56,6 @@ const AIChatModal = ({
 
     if (show) {
       document.addEventListener("keydown", handleEscape);
-      // Prevent body scroll when modal is open
       document.body.style.overflow = "hidden";
     }
 
@@ -55,17 +63,7 @@ const AIChatModal = ({
       document.removeEventListener("keydown", handleEscape);
       document.body.style.overflow = "unset";
     };
-  }, [show, previewTask]);
-
-  const handleClose = () => {
-    setIsClosing(true);
-    // Small delay for animation
-    setTimeout(() => {
-      setIsClosing(false);
-      setError(null);
-      onClose();
-    }, 250);
-  };
+  }, [show, previewTask, handleClose]);
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget && !previewTask) {
