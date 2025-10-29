@@ -75,6 +75,7 @@
   overflow-wrap: break-word;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -92,6 +93,7 @@
   flex-grow: 1;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -216,6 +218,7 @@
   .task-description {
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
+    line-clamp: 2;
     -webkit-line-clamp: 2;
   }
 

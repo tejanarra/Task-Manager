@@ -48,7 +48,8 @@ const SortableTask = ({ task, theme }) => {
       transition || "transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)",
     opacity: isDragging ? 0 : 1,
     cursor: "grab",
-    touchAction: "none",
+    // FIXED: Changed from "none" to "manipulation" to allow scrolling
+    touchAction: "manipulation",
   };
 
   return (
@@ -66,7 +67,7 @@ const TaskList = ({ theme }) => {
   const [showAIModal, setShowAIModal] = useState(false);
   const [activeId, setActiveId] = useState(null);
 
-  // DnD sensors with activation constraints for better UX
+  // IMPROVED: Better touch sensor configuration for mobile
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -75,8 +76,8 @@ const TaskList = ({ theme }) => {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 250,
-        tolerance: 8,
+        delay: 200, // Reduced from 250ms for better responsiveness
+        tolerance: 5, // Reduced from 8 for more precise control
       },
     }),
     useSensor(PointerSensor, {
@@ -86,24 +87,21 @@ const TaskList = ({ theme }) => {
     })
   );
 
-
-
-const loadTasks = useCallback(async () => {
-  if (user) {
-    try {
-      const response = await fetchTasks();
-      setTasks(response.data);
-    } catch (error) {
-      console.error("Error loading tasks:", error);
-      if (error.response && error.response.status === 403) logout();
+  const loadTasks = useCallback(async () => {
+    if (user) {
+      try {
+        const response = await fetchTasks();
+        setTasks(response.data);
+      } catch (error) {
+        console.error("Error loading tasks:", error);
+        if (error.response && error.response.status === 403) logout();
+      }
     }
-  }
-}, [user, logout]);
+  }, [user, logout]);
 
-useEffect(() => {
-  loadTasks();
-}, [loadTasks]);
-
+  useEffect(() => {
+    loadTasks();
+  }, [loadTasks]);
 
   const refreshTasks = async () => {
     try {
@@ -176,7 +174,7 @@ useEffect(() => {
         <div className="card-body p-3">
           <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
             <h2 className="card-title mb-0">Your Tasks</h2>
-            <div className="d-flex gap-2">
+            <div className="d-flex gap-2 button-group">
               <button
                 className={`btn btn-outline-${
                   theme === "dark" ? "light" : "dark"
@@ -184,7 +182,7 @@ useEffect(() => {
                 disabled
               >
                 <i className="bi bi-robot me-2"></i>
-                AI Assistant
+                <span className="button-text">AI Assistant</span>
               </button>
 
               <button
@@ -194,7 +192,7 @@ useEffect(() => {
                 disabled
               >
                 <i className="bi bi-plus-circle"></i>
-                New Task
+                <span className="button-text">New Task</span>
               </button>
             </div>
           </div>
@@ -226,7 +224,7 @@ useEffect(() => {
           <div className="card-body p-3">
             <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
               <h2 className="card-title mb-0">Your Tasks</h2>
-              <div className="d-flex gap-2">
+              <div className="d-flex gap-2 button-group">
                 <button
                   className={`btn btn-outline-${
                     theme === "dark" ? "light" : "dark"
@@ -234,7 +232,7 @@ useEffect(() => {
                   onClick={() => setShowAIModal(true)}
                 >
                   <i className="bi bi-robot me-2"></i>
-                  AI Assistant
+                  <span className="button-text">AI Assistant</span>
                 </button>
 
                 <button
@@ -244,7 +242,7 @@ useEffect(() => {
                   onClick={handleAddTask}
                 >
                   <i className="bi bi-plus-circle"></i>
-                  New Task
+                  <span className="button-text">New Task</span>
                 </button>
               </div>
             </div>
