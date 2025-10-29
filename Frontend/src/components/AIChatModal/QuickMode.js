@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { generateAITask } from "../../services/api";
 
-const QuickMode = ({ setError, setPreviewTask, onClose }) => {
+const QuickMode = ({ setError, setPreviewTask, onClose, onTaskGenerated }) => {
   const [quickPrompt, setQuickPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
@@ -32,7 +32,8 @@ const QuickMode = ({ setError, setPreviewTask, onClose }) => {
       updatedAt: new Date().toISOString(),
       priority: 1,
     };
-    setPreviewTask(newTask);
+    onTaskGenerated(newTask);
+    onClose();
   };
 
   const handleKeyPress = (e) => {

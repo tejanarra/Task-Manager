@@ -31,6 +31,15 @@ const TaskList = ({ theme }) => {
     loadTasks();
   }, [user, logout]);
 
+  const refreshTasks = async () => {
+    try {
+      const response = await fetchTasks();
+      setTasks(response.data);
+    } catch (error) {
+      console.error("Error refreshing tasks:", error);
+    }
+  };
+
   const handleDragEnd = async (result) => {
     const { destination, source } = result;
     if (!destination || destination.index === source.index) return;
@@ -252,6 +261,7 @@ const TaskList = ({ theme }) => {
         onClose={() => setShowAIModal(false)}
         onTaskGenerated={handleAITaskGenerated}
         theme={theme}
+        refreshTasks={refreshTasks}
       />
     </>
   );

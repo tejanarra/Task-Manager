@@ -4,7 +4,13 @@ import ChatMode from "./ChatMode";
 import TaskPreviewModal from "./TaskPreviewModal";
 import "./Styles/AIChatModal.css";
 
-const AIChatModal = ({ show, onClose, onTaskGenerated, theme, setTasks }) => {
+const AIChatModal = ({
+  show,
+  onClose,
+  onTaskGenerated,
+  theme,
+  refreshTasks,
+}) => {
   const [mode, setMode] = useState("quick");
   const [previewTask, setPreviewTask] = useState(null);
   const [error, setError] = useState(null);
@@ -55,14 +61,15 @@ const AIChatModal = ({ show, onClose, onTaskGenerated, theme, setTasks }) => {
           <QuickMode
             setError={setError}
             setPreviewTask={setPreviewTask}
+            onTaskGenerated={onTaskGenerated}
             onClose={onClose}
             theme={theme}
           />
         ) : (
           <ChatMode
             setError={setError}
-            setPreviewTask={setPreviewTask}
             theme={theme}
+            refreshTasks={refreshTasks}
           />
         )}
       </div>

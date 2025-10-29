@@ -1,13 +1,21 @@
 import React, { useState, useRef, useEffect } from "react";
-import { sendAIChatMessage, generateAITask } from "../../services/api";
+import {
+  sendAIChatMessage,
+  generateAITask,
+  updateTask,
+  deleteTask,
+  createTask,
+} from "../../services/api";
 import ChatMessage from "./ChatMessage";
+import TaskItem from "../taskItem/TaskItem";
 import { useAuth } from "../../context/AuthContext";
 
-const ChatMode = ({ setError, setPreviewTask, theme }) => {
+const ChatMode = ({ setError, theme, refreshTasks }) => {
   const { user } = useAuth();
   const [chatMessages, setChatMessages] = useState([]);
   const [chatInput, setChatInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [previewTask, setPreviewTask] = useState(null);
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -16,8 +24,11 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
   }, []);
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+  }, [chatMessages, previewTask]);
 
+  /* ====================================================
+     Send Message to AI (chatConversation)
+  ==================================================== */
   const handleChatSend = async () => {
     if (!chatInput.trim()) return;
 
@@ -45,16 +56,33 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
     setIsLoading(false);
     if (!result.success) return setError(result.error);
 
+    const { reply, previewUpdate } = result.data;
+
+    // 🧠 Add assistant's reply
     setChatMessages((prev) => [
       ...prev,
       {
         role: "assistant",
-        content: result.data.reply,
+        content: reply,
         timestamp: new Date().toISOString(),
       },
     ]);
+
+    // ✅ If AI suggests update/delete — show inline TaskItem
+    if (previewUpdate) {
+      setPreviewTask({
+        ...previewUpdate,
+        _aiSuggested: true,
+        isUpdate: true,
+        createdAt: previewUpdate.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
   };
 
+  /* ====================================================
+     Generate new task from chat
+  ==================================================== */
   const handleGenerateFromChat = async () => {
     if (chatMessages.length === 0) {
       setError("No conversation found to generate task from");
@@ -70,30 +98,87 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
       )
       .join("\n");
 
-    const contextualPrompt = `Based on this conversation, create a task:\n\n${conversationSummary}\n\nCreate a detailed task with appropriate deadline and reminders based on the user's requirements discussed above.`;
+    const contextualPrompt = `Based on this conversation, create a task:\n\n${conversationSummary}\n\nCreate a detailed task with appropriate deadline and reminders.`;
 
     const result = await generateAITask(contextualPrompt);
     setIsLoading(false);
     if (!result.success) return setError(result.error);
 
     const aiTask = result.data;
-    const newTask = {
+    setPreviewTask({
+      ...aiTask,
       id: `temp-${Date.now()}`,
-      title: aiTask.title,
-      description: aiTask.description,
       status: aiTask.status || "not-started",
-      deadline: aiTask.deadline,
-      reminders: aiTask.reminders || [],
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       priority: 1,
-    };
-    setPreviewTask(newTask);
+      _aiSuggested: true,
+    });
   };
 
+  /* ====================================================
+     Confirm or Cancel AI Update / Delete
+  ==================================================== */
+  const handleConfirmUpdate = async (task) => {
+    try {
+      if (!task) return;
+      setIsLoading(true);
+
+      let resultMessage = "";
+
+      if (task.action === "delete") {
+        await deleteTask(task.id);
+        resultMessage = `🗑️ Deleted task "${task.title}".`;
+      } else if (task.action === "create" || task.isNewTask) {
+        await createTask({
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          deadline: task.deadline,
+          reminders: task.reminders,
+        });
+        resultMessage = `✨ Created new task "${task.title}".`;
+      } else {
+        await updateTask(task.id, {
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          deadline: task.deadline,
+          reminders: task.reminders,
+        });
+        resultMessage = `✅ Updated task "${task.title}".`;
+      }
+
+      // 🔁 Refresh parent task list
+      if (refreshTasks) await refreshTasks();
+
+      // 🧹 Clear preview and show chat response
+      setPreviewTask(null);
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: resultMessage,
+          timestamp: new Date().toISOString(),
+        },
+      ]);
+    } catch (error) {
+      console.error("Error applying AI update:", error);
+      setError("Failed to apply update.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCancelPreview = () => setPreviewTask(null);
+
+  /* ====================================================
+     Helpers
+  ==================================================== */
   const resetChat = () => {
     setChatMessages([]);
     setError(null);
+    setPreviewTask(null);
   };
 
   const handleKeyPress = (e) => {
@@ -103,10 +188,14 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
     }
   };
 
+  /* ====================================================
+     RENDER
+  ==================================================== */
   return (
     <div className="chat-mode">
       <div className="chat-messages">
-        {chatMessages.length === 0 ? (
+        {/* Empty Chat State */}
+        {chatMessages.length === 0 && !previewTask ? (
           <div className="chat-empty-state">
             <i className="bi bi-chat-heart"></i>
             <p>Start a conversation with AI</p>
@@ -117,6 +206,58 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
             <ChatMessage key={index} msg={msg} user={user} theme={theme} />
           ))
         )}
+
+        {/* Inline Task Preview using TaskItem */}
+        {previewTask && (
+          <div className="chat-message assistant">
+            <div className="message-avatar">
+              <i className="bi bi-robot"></i>
+            </div>
+            <div className="message-content w-100">
+              {previewTask.action === "delete" ? (
+                <div
+                  className={`ai-delete-preview p-3 rounded ${
+                    theme === "dark"
+                      ? "bg-dark text-light"
+                      : "bg-light text-dark"
+                  }`}
+                >
+                  <h6 className="mb-2">
+                    🗑️ Confirm delete: <strong>{previewTask.title}</strong>?
+                  </h6>
+                  <div className="d-flex gap-2">
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() => handleConfirmUpdate(previewTask)}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="btn btn-secondary btn-sm"
+                      onClick={handleCancelPreview}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <TaskItem
+                  theme={theme}
+                  task={{
+                    ...previewTask,
+                    title: previewTask.title || "",
+                    description: previewTask.description || "",
+                  }}
+                  isNewTask={true}
+                  onSave={handleConfirmUpdate}
+                  onCancel={handleCancelPreview}
+                />
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Typing indicator */}
         {isLoading && (
           <div className="chat-message assistant">
             <div className="message-avatar">
@@ -131,9 +272,11 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
             </div>
           </div>
         )}
+
         <div ref={chatEndRef} />
       </div>
 
+      {/* Chat Input */}
       <div className="chat-input-container">
         <input
           ref={inputRef}
@@ -154,6 +297,7 @@ const ChatMode = ({ setError, setPreviewTask, theme }) => {
         </button>
       </div>
 
+      {/* Chat Footer Actions */}
       <div className="chat-actions">
         <button
           className="btn btn-sm btn-outline-secondary"
