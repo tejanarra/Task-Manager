@@ -382,12 +382,19 @@
   max-width: 250px;
 }
 
+
 /* WhatsApp-Style Messages */
 .chat-message {
   display: flex;
   gap: 8px;
   max-width: 85%;
   animation: messageSlide 0.25s ease-out;
+}
+
+/* Full width for task preview messages */
+.chat-message.assistant:has(.task-card),
+.chat-message.assistant:has(.ai-delete-preview) {
+  max-width: 100%;
 }
 
 @keyframes messageSlide {
