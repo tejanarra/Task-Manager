@@ -1,13 +1,17 @@
-const express = require("express");
-const {
+// Task Routes
+// Handles all task-related endpoints
+
+import express from 'express';
+import {
   createTask,
   getTasks,
   updateTask,
   deleteTask,
   getTaskById,
-  updateTaskPriority
-} = require("../controllers/taskController");
-const authenticateToken = require("../middleware/authMiddleware");
+  updateTaskPriority,
+} from '../controllers/taskController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+
 const router = express.Router();
 
 /**
@@ -33,7 +37,7 @@ const router = express.Router();
  *               $ref: '#/components/schemas/Task'
  *       400: { description: Missing required fields }
  */
-router.post("/", authenticateToken, createTask);
+router.post('/', authenticateToken, createTask);
 
 /**
  * @openapi
@@ -52,7 +56,7 @@ router.post("/", authenticateToken, createTask);
  *               type: array
  *               items: { $ref: '#/components/schemas/Task' }
  */
-router.get("/", authenticateToken, getTasks);
+router.get('/', authenticateToken, getTasks);
 
 /**
  * @openapi
@@ -76,7 +80,7 @@ router.get("/", authenticateToken, getTasks);
  *               $ref: '#/components/schemas/Task'
  *       404: { description: Task not found }
  */
-router.get("/:taskId", authenticateToken, getTaskById);
+router.get('/:taskId', authenticateToken, getTaskById);
 
 /**
  * @openapi
@@ -106,7 +110,7 @@ router.get("/:taskId", authenticateToken, getTaskById);
  *               $ref: '#/components/schemas/Task'
  *       404: { description: Task not found }
  */
-router.put("/:taskId", authenticateToken, updateTask);
+router.put('/:taskId', authenticateToken, updateTask);
 
 /**
  * @openapi
@@ -130,7 +134,7 @@ router.put("/:taskId", authenticateToken, updateTask);
  *               $ref: '#/components/schemas/MessageResponse'
  *       404: { description: Task not found }
  */
-router.delete("/:taskId", authenticateToken, deleteTask);
+router.delete('/:taskId', authenticateToken, deleteTask);
 
 /**
  * @openapi
@@ -161,6 +165,6 @@ router.delete("/:taskId", authenticateToken, deleteTask);
  *       400: { description: Invalid priority }
  *       404: { description: Task not found }
  */
-router.put("/:taskId/priority", authenticateToken, updateTaskPriority);
+router.put('/:taskId/priority', authenticateToken, updateTaskPriority);
 
-module.exports = router;
+export default router;
