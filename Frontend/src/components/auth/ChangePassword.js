@@ -1,12 +1,9 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { changePassword } from "../../services/api";
 import "../profile/ProfileOverview.css";
 import "../profile/EditProfile.css";
 import { useAuth } from "../../context/AuthContext";
-import { FormInput, AlertBanner, LoadingButton, ProfileCard } from "../common";
-import { useFormState, useApiError, useLoading, usePasswordValidation } from "../../hooks";
-import { ERROR_MESSAGES, SUCCESS_MESSAGES } from "../../constants/appConstants";
 
 const ChangePassword = () => {
   const [formData, setFormData] = useState({

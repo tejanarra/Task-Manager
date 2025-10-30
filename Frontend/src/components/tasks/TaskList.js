@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import  { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTasks, updateTaskPriority } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
@@ -6,7 +6,6 @@ import TaskCard from "./taskItem/TaskCard";
 import AIChatModal from "./AIChatModal/AIChatModal";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./TaskList.css";
-import { DND_CONFIG } from "../../constants/appConstants";
 
 import {
   DndContext,

@@ -1,10 +1,7 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { sendForgotPasswordRequest, resetPassword } from "../../services/api";
 import "./ForgotPassword.css";
-import { FormInput, AlertBanner, LoadingButton } from "../common";
-import { useFormState, useApiError, useLoading, usePasswordValidation } from "../../hooks";
-import { ERROR_MESSAGES } from "../../constants/appConstants";
 
 const ForgotPassword = ({ theme }) => {
   const [email, setEmail] = useState("");

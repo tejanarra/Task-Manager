@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react";
+import  { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile } from "../../services/api";
 import "./ProfileOverview.css";
 import { useAuth } from "../../context/AuthContext";
 import ConfirmationModal from "../layout/ConfirmationModal";
 import { convertDateToWords } from "../../utils/dateUtils";
-import { AlertBanner, LoadingButton } from "../common";
-import { useApiError, useAuthCheck } from "../../hooks";
 
 const ProfileOverview = ({ theme }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);

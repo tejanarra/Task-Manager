@@ -1,5 +1,3 @@
-import React from "react";
-
 const Footer = ({ theme }) => {
   const footerClasses = `${
     theme === "dark" ? "bg-black text-light" : "bg-light text-dark"

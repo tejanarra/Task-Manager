@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { registerUser, sendVerificationCode } from "../../services/api";
 import VerificationForm from "./VerificationForm";
 import "./Register.css";

@@ -3,7 +3,6 @@ import QuickMode from "./QuickMode";
 import ChatMode from "./ChatMode";
 import TaskPreviewModal from "./TaskPreviewModal";
 import "./Styles/AIChatModal.css";
-import { STORAGE_KEYS, AI_SUGGESTIONS } from "../../../constants/appConstants";
 
 const AIChatModal = ({
   show,

@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { generateAITask } from "../../../services/api";
-import { AI_SUGGESTIONS } from "../../../constants/appConstants";
 
 const QuickMode = ({ setError, onClose }) => {
   const navigate = useNavigate();
