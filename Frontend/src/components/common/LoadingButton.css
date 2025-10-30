@@ -1,0 +1,17 @@
+.btn {
+  transition: all 0.3s ease;
+  font-weight: 500;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}

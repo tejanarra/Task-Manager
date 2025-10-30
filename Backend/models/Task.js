@@ -1,17 +1,22 @@
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+// Task Model
+// Defines the Task schema and validation rules
 
-const Task = sequelize.define("Task", {
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
+import { TASK_CONFIG } from '../constants/config.js';
+
+const Task = sequelize.define('Task', {
   title: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(TASK_CONFIG.MAX_TITLE_LENGTH),
     allowNull: false,
   },
   description: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(TASK_CONFIG.MAX_DESCRIPTION_LENGTH),
+    allowNull: true,
   },
   status: {
-    type: DataTypes.ENUM("not-started", "in-progress", "completed"),
-    defaultValue: "not-started",
+    type: DataTypes.ENUM(...TASK_CONFIG.VALID_STATUSES),
+    defaultValue: TASK_CONFIG.DEFAULT_STATUS,
   },
   userId: {
     type: DataTypes.INTEGER,
@@ -20,9 +25,8 @@ const Task = sequelize.define("Task", {
   priority: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    defaultValue: 1,
+    defaultValue: TASK_CONFIG.DEFAULT_PRIORITY,
   },
-
   deadline: {
     type: DataTypes.DATE,
     allowNull: true,
@@ -35,7 +39,7 @@ const Task = sequelize.define("Task", {
 });
 
 Task.associate = (models) => {
-  Task.belongsTo(models.User, { foreignKey: "userId", as: "user" });
+  Task.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
 };
 
-module.exports = Task;
+export default Task;

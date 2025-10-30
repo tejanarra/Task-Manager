@@ -1,20 +1,62 @@
-const Task = require("../models/Task");
-const { Sequelize } = require("sequelize");
+// Task Controller
+// Handles CRUD operations for tasks
 
-const sequelize = require("../config/db");
+import Task from '../models/Task.js';
+import { Sequelize } from 'sequelize';
+import sequelize from '../config/db.js';
+import {
+  validateTaskTitle,
+  validateTaskDescription,
+  isValidTaskStatus,
+  isValidPriority,
+} from '../utils/validationUtils.js';
+import {
+  HTTP_STATUS,
+  ERROR_MESSAGES,
+  SUCCESS_MESSAGES,
+} from '../constants/config.js';
 
 const fetchTask = async (taskId, userId) => {
   const task = await Task.findOne({ where: { id: taskId, userId } });
   return task;
 };
 
-const createTask = async (req, res) => {
+/**
+ * Create a new task
+ */
+export const createTask = async (req, res) => {
   const { title, description, status, deadline, reminders } = req.body;
   const userId = req.userId;
 
-  if (!title || !description || !status) {
-    return res.status(400).json({
-      message: "Missing required fields (title, description, status)",
+  // Validate required fields
+  if (!title || !status) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Title and status are required',
+    });
+  }
+
+  // Validate title
+  const titleValidation = validateTaskTitle(title);
+  if (!titleValidation.valid) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: titleValidation.error,
+    });
+  }
+
+  // Validate description
+  if (description) {
+    const descriptionValidation = validateTaskDescription(description);
+    if (!descriptionValidation.valid) {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: descriptionValidation.error,
+      });
+    }
+  }
+
+  // Validate status
+  if (!isValidTaskStatus(status)) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: ERROR_MESSAGES.INVALID_TASK_STATUS,
     });
   }
 
@@ -40,46 +82,90 @@ const createTask = async (req, res) => {
     );
 
     await transaction.commit();
-    res.status(201).json(task);
+    res.status(HTTP_STATUS.CREATED).json(task);
   } catch (err) {
     await transaction.rollback();
-    console.error("Error creating task:", err.message || err);
-    res.status(500).json({ message: "Server error during task creation" });
+    console.error('Error creating task:', err.message || err);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error during task creation',
+    });
   }
 };
 
-const getTasks = async (req, res) => {
+/**
+ * Get all tasks for user with pagination
+ */
+export const getTasks = async (req, res) => {
   const userId = req.userId;
 
-  try {
-    const tasks = await Task.findAll({
-      where: { userId },
-      order: [["priority", "ASC"]],
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = (page - 1) * limit;
+
+  // Validate pagination params
+  if (page < 1 || limit < 1 || limit > 100) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Invalid pagination parameters. Page must be >= 1, limit must be 1-100',
     });
-    res.status(200).json(tasks);
+  }
+
+  try {
+    const { count, rows: tasks } = await Task.findAndCountAll({
+      where: { userId },
+      order: [['priority', 'ASC']],
+      limit,
+      offset,
+    });
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(HTTP_STATUS.OK).json({
+      tasks,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalTasks: count,
+        tasksPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (err) {
-    console.error("Error fetching tasks:", err.message || err);
-    res.status(500).json({ message: "Server error fetching tasks" });
+    console.error('Error fetching tasks:', err.message || err);
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error fetching tasks',
+    });
   }
 };
 
-const getTaskById = async (req, res) => {
+/**
+ * Get single task by ID
+ */
+export const getTaskById = async (req, res) => {
   const { taskId } = req.params;
   const userId = req.userId;
 
   try {
     const task = await fetchTask(taskId, userId);
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: ERROR_MESSAGES.TASK_NOT_FOUND,
+      });
     }
-    res.status(200).json(task);
+    res.status(HTTP_STATUS.OK).json(task);
   } catch (err) {
     console.error(`Error fetching task with ID ${taskId}:`, err.message || err);
-    res.status(500).json({ message: "Server error fetching task" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error fetching task',
+    });
   }
 };
 
-const updateTask = async (req, res) => {
+/**
+ * Update task
+ */
+export const updateTask = async (req, res) => {
   const { taskId } = req.params;
   const { title, description, status, deadline, reminders } = req.body;
   const userId = req.userId;
@@ -87,30 +173,76 @@ const updateTask = async (req, res) => {
   try {
     const task = await fetchTask(taskId, userId);
     if (!task) {
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: ERROR_MESSAGES.TASK_NOT_FOUND,
+      });
     }
 
     const updatedFields = {};
-    if (title) updatedFields.title = title;
-    if (description) updatedFields.description = description;
-    if (status) updatedFields.status = status;
-    if (deadline) updatedFields.deadline = deadline;
-    if (deadline) updatedFields.reminderSent = false;
-    if(reminders) updatedFields.reminders = reminders;
+
+    // Validate and add title
+    if (title) {
+      const titleValidation = validateTaskTitle(title);
+      if (!titleValidation.valid) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          message: titleValidation.error,
+        });
+      }
+      updatedFields.title = title;
+    }
+
+    // Validate and add description
+    if (description !== undefined) {
+      if (description) {
+        const descriptionValidation = validateTaskDescription(description);
+        if (!descriptionValidation.valid) {
+          return res.status(HTTP_STATUS.BAD_REQUEST).json({
+            message: descriptionValidation.error,
+          });
+        }
+      }
+      updatedFields.description = description;
+    }
+
+    // Validate and add status
+    if (status) {
+      if (!isValidTaskStatus(status)) {
+        return res.status(HTTP_STATUS.BAD_REQUEST).json({
+          message: ERROR_MESSAGES.INVALID_TASK_STATUS,
+        });
+      }
+      updatedFields.status = status;
+    }
+
+    if (deadline !== undefined) {
+      updatedFields.deadline = deadline;
+      updatedFields.reminderSent = false;
+    }
+
+    if (reminders !== undefined) {
+      updatedFields.reminders = reminders;
+    }
 
     if (Object.keys(updatedFields).length === 0) {
-      return res.status(400).json({ message: "No fields to update" });
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        message: 'No fields to update',
+      });
     }
 
     await task.update(updatedFields);
-    res.status(200).json(task);
+    res.status(HTTP_STATUS.OK).json(task);
   } catch (err) {
     console.error(`Error updating task with ID ${taskId}:`, err.message || err);
-    res.status(500).json({ message: "Server error updating task" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error updating task',
+    });
   }
 };
 
-const deleteTask = async (req, res) => {
+/**
+ * Delete task
+ */
+export const deleteTask = async (req, res) => {
   const { taskId } = req.params;
   const userId = req.userId;
 
@@ -120,7 +252,9 @@ const deleteTask = async (req, res) => {
     const task = await fetchTask(taskId, userId);
     if (!task) {
       await transaction.rollback();
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: ERROR_MESSAGES.TASK_NOT_FOUND,
+      });
     }
 
     const deletedPriority = task.priority;
@@ -139,25 +273,31 @@ const deleteTask = async (req, res) => {
     );
 
     await transaction.commit();
-    res
-      .status(200)
-      .json({ message: "Task deleted successfully and priorities updated." });
+    res.status(HTTP_STATUS.OK).json({
+      message: SUCCESS_MESSAGES.TASK_DELETE_SUCCESS,
+    });
   } catch (err) {
     await transaction.rollback();
     console.error(`Error deleting task with ID ${taskId}:`, err.message || err);
-    res.status(500).json({ message: "Server error deleting task" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error deleting task',
+    });
   }
 };
 
-const updateTaskPriority = async (req, res) => {
+/**
+ * Update task priority
+ */
+export const updateTaskPriority = async (req, res) => {
   const { taskId } = req.params;
   const { priority } = req.body;
   const userId = req.userId;
 
-  if (priority === undefined || !Number.isInteger(priority) || priority <= 0) {
-    return res
-      .status(400)
-      .json({ message: "Priority must be a positive integer" });
+  // Validate priority
+  if (!isValidPriority(priority)) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: ERROR_MESSAGES.INVALID_PRIORITY,
+    });
   }
 
   const transaction = await sequelize.transaction();
@@ -166,7 +306,9 @@ const updateTaskPriority = async (req, res) => {
     const task = await fetchTask(taskId, userId);
     if (!task) {
       await transaction.rollback();
-      return res.status(404).json({ message: "Task not found" });
+      return res.status(HTTP_STATUS.NOT_FOUND).json({
+        message: ERROR_MESSAGES.TASK_NOT_FOUND,
+      });
     }
 
     const oldPriority = task.priority;
@@ -174,7 +316,7 @@ const updateTaskPriority = async (req, res) => {
 
     if (oldPriority === newPriority) {
       await transaction.rollback();
-      return res.status(200).json(task);
+      return res.status(HTTP_STATUS.OK).json(task);
     }
 
     const maxPriority = await Task.count({ where: { userId }, transaction });
@@ -215,22 +357,15 @@ const updateTaskPriority = async (req, res) => {
     await task.save({ transaction });
 
     await transaction.commit();
-    res.status(200).json(task);
+    res.status(HTTP_STATUS.OK).json(task);
   } catch (err) {
     await transaction.rollback();
     console.error(
       `Error updating priority for task with ID ${taskId}:`,
       err.message || err
     );
-    res.status(500).json({ message: "Server error updating task priority" });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
+      message: 'Server error updating task priority',
+    });
   }
-};
-
-module.exports = {
-  createTask,
-  getTasks,
-  updateTask,
-  deleteTask,
-  getTaskById,
-  updateTaskPriority,
 };

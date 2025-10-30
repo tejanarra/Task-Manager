@@ -1,29 +1,33 @@
-const express = require("express");
-const { getProfile, updateProfile } = require("../controllers/profileController");
-const authenticateToken = require("../middleware/authMiddleware");
-const { body } = require("express-validator");
-const multer = require("multer");
-const path = require("path");
+// Profile Routes
+// Handles all profile-related endpoints
+
+import express from 'express';
+import { getProfile, updateProfile } from '../controllers/profileController.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+import { body } from 'express-validator';
+import multer from 'multer';
+import path from 'path';
+import { CLOUDINARY_CONFIG, VALIDATION_CONFIG } from '../constants/config.js';
 
 const router = express.Router();
 
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png/;
-  const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+  const allowedTypes = new RegExp(CLOUDINARY_CONFIG.ALLOWED_FORMATS.join('|'));
+  const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase().replace('.', ''));
   const mime = allowedTypes.test(file.mimetype);
   if (ext && mime) {
     cb(null, true);
   } else {
-    cb(new Error("Only JPEG, JPG, and PNG files are allowed"));
+    cb(new Error(`Only ${CLOUDINARY_CONFIG.ALLOWED_FORMATS.join(', ')} files are allowed`));
   }
 };
 
 const upload = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 1024 * 1024 * 5 },
+  limits: { fileSize: CLOUDINARY_CONFIG.MAX_FILE_SIZE },
 });
 
 /**
@@ -44,7 +48,7 @@ const upload = multer({
  *       401: { description: Unauthorized }
  *       403: { description: Forbidden }
  */
-router.get("/", authenticateToken, getProfile);
+router.get('/', authenticateToken, getProfile);
 
 /**
  * @openapi
@@ -75,38 +79,38 @@ router.get("/", authenticateToken, getProfile);
  *       403: { description: Forbidden }
  */
 router.put(
-  "/",
+  '/',
   authenticateToken,
-  upload.single("avatar"),
+  upload.single('avatar'),
   [
-    body("firstName")
+    body('firstName')
       .optional()
-      .isLength({ min: 1, max: 50 })
-      .withMessage("First name must be between 1 and 50 characters"),
-    body("lastName")
+      .isLength({ min: VALIDATION_CONFIG.NAME_MIN_LENGTH, max: VALIDATION_CONFIG.NAME_MAX_LENGTH })
+      .withMessage(`First name must be between ${VALIDATION_CONFIG.NAME_MIN_LENGTH} and ${VALIDATION_CONFIG.NAME_MAX_LENGTH} characters`),
+    body('lastName')
       .optional()
-      .isLength({ min: 1, max: 50 })
-      .withMessage("Last name must be between 1 and 50 characters"),
-    body("phoneNumber")
+      .isLength({ min: VALIDATION_CONFIG.NAME_MIN_LENGTH, max: VALIDATION_CONFIG.NAME_MAX_LENGTH })
+      .withMessage(`Last name must be between ${VALIDATION_CONFIG.NAME_MIN_LENGTH} and ${VALIDATION_CONFIG.NAME_MAX_LENGTH} characters`),
+    body('phoneNumber')
       .optional()
-      .matches(/^[0-9\-+()\s]*$/)
-      .withMessage("Invalid phone number format"),
-    body("dob")
+      .matches(VALIDATION_CONFIG.PHONE_REGEX)
+      .withMessage('Invalid phone number format'),
+    body('dob')
       .optional()
       .isDate()
-      .withMessage("Invalid date of birth")
+      .withMessage('Invalid date of birth')
       .custom((value) => {
         if (new Date(value) >= new Date()) {
-          throw new Error("Date of birth must be in the past");
+          throw new Error('Date of birth must be in the past');
         }
         return true;
       }),
-    body("bio")
+    body('bio')
       .optional()
-      .isLength({ max: 500 })
-      .withMessage("Bio cannot exceed 500 characters"),
+      .isLength({ max: VALIDATION_CONFIG.BIO_MAX_LENGTH })
+      .withMessage(`Bio cannot exceed ${VALIDATION_CONFIG.BIO_MAX_LENGTH} characters`),
   ],
   updateProfile
 );
 
-module.exports = router;
+export default router;

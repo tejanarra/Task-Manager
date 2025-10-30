@@ -1,23 +1,32 @@
-const jwt = require("jsonwebtoken");
-const dotenv = require("dotenv");
+// Authentication Middleware
+// Verifies JWT token and attaches userId to request
+
+import dotenv from 'dotenv';
+import { verifyToken, extractTokenFromHeader } from '../utils/tokenUtils.js';
+import { HTTP_STATUS, ERROR_MESSAGES } from '../constants/config.js';
 
 dotenv.config();
 
-const authenticateToken = (req, res, next) => {
-  const token = req.header("Authorization")?.split(" ")[1];
+const authenticateToken = async (req, res, next) => {
+  const authHeader = req.header('Authorization');
+  const token = extractTokenFromHeader(authHeader);
 
   if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+    return res.status(HTTP_STATUS.UNAUTHORIZED).json({
+      message: ERROR_MESSAGES.TOKEN_REQUIRED,
+    });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = await verifyToken(token);
     req.userId = decoded.userId;
     next();
   } catch (err) {
-    console.error("Error verifying token:", err.message || err);
-    return res.status(403).json({ message: "Invalid or expired token" });
+    console.error('Error verifying token:', err.message || err);
+    return res.status(HTTP_STATUS.FORBIDDEN).json({
+      message: ERROR_MESSAGES.TOKEN_INVALID,
+    });
   }
 };
 
-module.exports = authenticateToken;
+export default authenticateToken;
