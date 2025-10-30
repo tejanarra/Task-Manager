@@ -80,23 +80,23 @@ Before getting started, make sure you have the following installed on your machi
 
 ### Login Page:
 The login page allows users to authenticate with their credentials.
-![Login Page](./images/LoginPage.png)
+![Login Page](./Assets/images/LoginPage.png)
 
 ### Register Page:
 The register page is where users can create a new account.
-![Register Page](./images/RegisterPage.png)
+![Register Page](./Assets/images/RegisterPage.png)
 
 ### New Task Page:
 This page lets users add new tasks with a title, description, and status.
-![New Task](./images/NewTask.png)
+![New Task](./Assets/images/NewTask.png)
 
 ### Task List:
 The task list displays all tasks with their status. Tasks can be edited or deleted.
-![Task List](./images/TaskList.png)
+![Task List](./Assets/images/TaskList.png)
 
 ### Task Edit Page:
 This page allows users to edit an existing task.
-![Task Edit](./images/TaskEdit.png)
+![Task Edit](./Assets/images/TaskEdit.png)
 
 ## API Endpoints
 
