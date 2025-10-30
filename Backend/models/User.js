@@ -1,22 +1,25 @@
-const bcrypt = require("bcryptjs");
-const { DataTypes } = require("sequelize");
-const sequelize = require("../config/db");
+// User Model
+// Defines the User schema and validation rules
+
+import { DataTypes } from 'sequelize';
+import sequelize from '../config/db.js';
+import { VALIDATION_CONFIG } from '../constants/config.js';
 
 const User = sequelize.define(
-  "User",
+  'User',
   {
     firstName: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [1, 50],
+        len: [VALIDATION_CONFIG.NAME_MIN_LENGTH, VALIDATION_CONFIG.NAME_MAX_LENGTH],
       },
     },
     lastName: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        len: [1, 50],
+        len: [VALIDATION_CONFIG.NAME_MIN_LENGTH, VALIDATION_CONFIG.NAME_MAX_LENGTH],
       },
     },
     email: {
@@ -31,7 +34,7 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
       validate: {
-        is: /^[0-9\-+()\s]*$/,
+        is: VALIDATION_CONFIG.PHONE_REGEX,
       },
     },
     dob: {
@@ -39,7 +42,7 @@ const User = sequelize.define(
       allowNull: true,
       validate: {
         isDate: true,
-        isBefore: new Date().toISOString().split("T")[0],
+        isBefore: new Date().toISOString().split('T')[0],
       },
     },
     password: {
@@ -62,7 +65,7 @@ const User = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
       validate: {
-        len: [0, 500],
+        len: [0, VALIDATION_CONFIG.BIO_MAX_LENGTH],
       },
     },
     avatar: {
@@ -72,15 +75,13 @@ const User = sequelize.define(
   },
   {
     sequelize,
-    modelName: "User",
-    tableName: "Users",
+    modelName: 'User',
+    tableName: 'Users',
     timestamps: true,
   }
 );
 
-User.beforeCreate(async (user) => {
-  const salt = await bcrypt.genSalt(10);
-  user.password = await bcrypt.hash(user.password, salt);
-});
+// NOTE: Password hashing is now handled explicitly in controllers using passwordUtils
+// This avoids double-hashing and gives better control over password management
 
-module.exports = User;
+export default User;

@@ -1,5 +1,8 @@
-const express = require("express");
-const {
+// Authentication Routes
+// Handles all auth-related endpoints
+
+import express from 'express';
+import {
   registerUser,
   loginUser,
   forgotPassword,
@@ -9,10 +12,11 @@ const {
   sendContactFormEmail,
   changePassword,
   googleLogin,
-} = require("../controllers/authController");
-const { executeCron } = require("../utils/cronJobs");
+} from '../controllers/authController.js';
+import { executeCron } from '../utils/cronJobs.js';
+import authenticateToken from '../middleware/authMiddleware.js';
+
 const router = express.Router();
-const authenticateToken = require("../middleware/authMiddleware");
 
 /**
  * @openapi
@@ -40,7 +44,7 @@ const authenticateToken = require("../middleware/authMiddleware");
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/register", registerUser);
+router.post('/register', registerUser);
 
 /**
  * @openapi
@@ -62,7 +66,7 @@ router.post("/register", registerUser);
  *             schema:
  *               $ref: '#/components/schemas/MessageResponse'
  */
-router.post("/resend-verification", resendVerificationEmail);
+router.post('/resend-verification', resendVerificationEmail);
 
 /**
  * @openapi
@@ -90,7 +94,7 @@ router.post("/resend-verification", resendVerificationEmail);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/verify-registration", verifyRegistrationCode);
+router.post('/verify-registration', verifyRegistrationCode);
 
 /**
  * @openapi
@@ -118,7 +122,7 @@ router.post("/verify-registration", verifyRegistrationCode);
  *             schema:
  *               $ref: '#/components/schemas/ErrorResponse'
  */
-router.post("/login", loginUser);
+router.post('/login', loginUser);
 
 /**
  * @openapi
@@ -140,7 +144,7 @@ router.post("/login", loginUser);
  *             schema:
  *               $ref: '#/components/schemas/VerificationSentResponse'
  */
-router.post("/forgot-password", forgotPassword);
+router.post('/forgot-password', forgotPassword);
 
 /**
  * @openapi
@@ -162,7 +166,7 @@ router.post("/forgot-password", forgotPassword);
  *             schema:
  *               $ref: '#/components/schemas/MessageResponse'
  */
-router.post("/verify-code", verifyVerificationCode);
+router.post('/verify-code', verifyVerificationCode);
 
 /**
  * @openapi
@@ -185,7 +189,7 @@ router.post("/verify-code", verifyVerificationCode);
  *               $ref: '#/components/schemas/MessageResponse'
  */
 
-router.post("/contact", sendContactFormEmail);
+router.post('/contact', sendContactFormEmail);
 
 /**
  * @openapi
@@ -213,7 +217,7 @@ router.post("/contact", sendContactFormEmail);
  *       403:
  *         description: Invalid or expired token
  */
-router.post("/change-password", authenticateToken, changePassword);
+router.post('/change-password', authenticateToken, changePassword);
 
 /**
  * @openapi
@@ -229,14 +233,14 @@ router.post("/change-password", authenticateToken, changePassword);
  *             schema:
  *               $ref: '#/components/schemas/MessageResponse'
  */
-router.get("/cronrun", async (req, res) => {
+router.get('/cronrun', async (req, res) => {
   try {
-    console.log("🔄 Manually triggering cron job via API...");
+    console.log('🔄 Manually triggering cron job via API...');
     await executeCron();
-    return res.status(200).json({ message: "Cron job executed successfully!" });
+    return res.status(200).json({ message: 'Cron job executed successfully!' });
   } catch (error) {
-    console.error("🚨 Error triggering cron job:", error);
-    return res.status(500).json({ error: "Internal Server Error" });
+    console.error('🚨 Error triggering cron job:', error);
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
 
@@ -260,7 +264,6 @@ router.get("/cronrun", async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/AuthResponse'
  */
-router.post("/google", googleLogin);
+router.post('/google', googleLogin);
 
-
-module.exports = router;
+export default router;

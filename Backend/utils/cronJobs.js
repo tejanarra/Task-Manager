@@ -1,17 +1,25 @@
-const { Op } = require("sequelize");
-const User = require("../models/User");
-const Task = require("../models/Task");
-const ejs = require("ejs");
-const path = require("path");
-const { sendEmail } = require("./mailer");
-const { format } = require("date-fns");
+// Cron Jobs for Task Reminders
+// Automated email reminders based on task deadlines
 
-const executeCron = async () => {
+import { Op } from 'sequelize';
+import User from '../models/User.js';
+import Task from '../models/Task.js';
+import ejs from 'ejs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { sendEmail } from './mailer.js';
+import { format } from 'date-fns';
+import { EMAIL_CONFIG } from '../constants/config.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+export const executeCron = async () => {
   try {
     const tasks = await Task.findAll({
       where: {
         deadline: { [Op.gt]: new Date() },
-        status: { [Op.ne]: "completed" },
+        status: { [Op.ne]: 'completed' },
       },
     });
 
@@ -41,19 +49,19 @@ const executeCron = async () => {
           await sendDeadlineReminder(task, reminder.remindBefore);
           reminder.sent = true;
           isUpdated = true;
-          sortedReminders.splice(i);
+          sortedReminders.splice(i, 1);
           break;
         }
       }
 
       if (isUpdated) {
         task.reminders = sortedReminders;
-        task.changed("reminders", true);
+        task.changed('reminders', true);
         await task.save();
       }
     }
   } catch (error) {
-    console.error("Error executing cron job:", error);
+    console.error('Error executing cron job:', error);
   }
 };
 
@@ -64,14 +72,14 @@ const sendDeadlineReminder = async (task, remindBefore) => {
 
     const email = user.email;
     const htmlContent = await ejs.renderFile(
-      path.join(__dirname, "../templates/taskReminder.ejs"),
+      path.join(__dirname, '../templates/taskReminder.ejs'),
       {
         task,
         deadlineIn: formatRelativeTime(task.deadline),
         userName: `${user.firstName} ${user.lastName}`,
         remindBefore,
-        actionLink: "https://tejanarra.github.io/Task-Manager/login",
-        theme: "dark",
+        actionLink: `${EMAIL_CONFIG.FRONTEND_BASE_URL}/login`,
+        theme: 'dark',
       }
     );
 
@@ -92,7 +100,7 @@ const formatRelativeTime = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
   const diffInSeconds = Math.floor((date - now) / 1000);
-  
+
   if (diffInSeconds > 0) {
     if (diffInSeconds < 60) {
       return `${diffInSeconds} seconds`;
@@ -108,11 +116,8 @@ const formatRelativeTime = (dateString) => {
     if (diffInSeconds < 172800) {
       return `1 day`;
     }
-    return format(date, "MMM dd, yyyy hh:mm a");
+    return format(date, 'MMM dd, yyyy hh:mm a');
   }
-  
-  return format(date, "MMM dd, yyyy hh:mm a");
+
+  return format(date, 'MMM dd, yyyy hh:mm a');
 };
-
-
-module.exports = { executeCron };

@@ -1,12 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import  { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../../services/api";
 import AvatarEditor from "react-avatar-editor";
 import { useAuth } from "../../context/AuthContext";
 import "./EditProfile.css";
-import { AlertBanner, LoadingButton, ProfileCard } from "../common";
-import { useApiError, useLoading, useAuthCheck } from "../../hooks";
-import { SUCCESS_MESSAGES, AVATAR_CONFIG } from "../../constants/appConstants";
 
 const EditProfile = () => {
   const [profile, setProfile] = useState(null);
