@@ -9,11 +9,8 @@ import {
 import TaskReminders from "./taskItem/TaskReminders";
 import ConfirmationModal from "../layout/ConfirmationModal";
 import { formatDateTimeLocal } from "../../utils/dateUtils";
-import { formatHoursLabel, normalizeRemindersBeforeSave } from "../../utils/reminderUtils";
-import { getStatusColor } from "../../utils/statusUtils";
 import "./TaskEditor.css";
-import { REMINDER_INTERVALS, TASK_STATUS } from "../../constants/appConstants";
-import { AlertBanner, LoadingButton } from "../common";
+import { REMINDER_INTERVALS } from "../../constants/appConstants";
 
 const TaskEditor = ({ theme }) => {
   const navigate = useNavigate();

@@ -57,14 +57,17 @@ A production-ready Task Manager application built with **Node.js**, **Express**,
 ---
 
 ## Tech Stack
-- **Node.js** – JavaScript runtime for backend logic
-- **Express** – Web framework for creating APIs
-- **Sequelize** – ORM for PostgreSQL database interaction
-- **PostgreSQL** – Relational database
-- **Cloudinary** – Image hosting & transformations for user avatars
-- **Nodemailer** – Email sending library
-- **JWT** – Token-based authentication
-- **Cron** – Scheduled tasks for reminders
+- **Node.js 16+** – JavaScript runtime for backend logic (ES6 modules)
+- **Express 5.1.0** – Web framework for creating APIs
+- **Sequelize 6.37.7** – ORM for PostgreSQL database interaction
+- **PostgreSQL 8.16.3** – Relational database
+- **Cloudinary 2.8.0** – Image hosting & transformations for user avatars
+- **Nodemailer 7.0.7** – Email sending library
+- **JWT 9.0.2** – Token-based authentication
+- **bcryptjs 3.0.2** – Password hashing
+- **node-cron 4.2.1** – Scheduled tasks for reminders
+- **Ollama 0.6.0** – AI task generation
+- **Jest 30.2.0** – Testing framework
 
 ---
 

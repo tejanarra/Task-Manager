@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { verifyRegistrationCode } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./VerificationForm.css";
-import { FormInput, AlertBanner, LoadingButton } from "../common";
-import { useApiError, useLoading } from "../../hooks";
 
 const VerificationForm = ({
   theme,

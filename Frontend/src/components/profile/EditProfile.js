@@ -1,20 +1,22 @@
-import  { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile } from "../../services/api";
-import AvatarEditor from "react-avatar-editor";
+import Cropper from "react-easy-crop";
 import { useAuth } from "../../context/AuthContext";
 import "./EditProfile.css";
 
 const EditProfile = () => {
   const [profile, setProfile] = useState(null);
   const [newAvatar, setNewAvatar] = useState(null);
+  const [newAvatarUrl, setNewAvatarUrl] = useState(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [scale, setScale] = useState(1);
-  const [rotate, setRotate] = useState(0);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [rotation, setRotation] = useState(0);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const editorRef = useRef(null);
   const { logout } = useAuth();
 
   useEffect(() => {
@@ -37,6 +39,58 @@ const EditProfile = () => {
     fetchProfile();
   }, [logout, navigate]);
 
+  const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const createImage = (url) =>
+    new Promise((resolve, reject) => {
+      const image = new Image();
+      image.addEventListener("load", () => resolve(image));
+      image.addEventListener("error", (error) => reject(error));
+      image.setAttribute("crossOrigin", "anonymous");
+      image.src = url;
+    });
+
+  const getCroppedImg = async (imageSrc, pixelCrop, rotation = 0) => {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+
+    const maxSize = Math.max(image.width, image.height);
+    const safeArea = 2 * ((maxSize / 2) * Math.sqrt(2));
+
+    canvas.width = safeArea;
+    canvas.height = safeArea;
+
+    ctx.translate(safeArea / 2, safeArea / 2);
+    ctx.rotate((rotation * Math.PI) / 180);
+    ctx.translate(-safeArea / 2, -safeArea / 2);
+
+    ctx.drawImage(
+      image,
+      safeArea / 2 - image.width * 0.5,
+      safeArea / 2 - image.height * 0.5
+    );
+
+    const data = ctx.getImageData(0, 0, safeArea, safeArea);
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.putImageData(
+      data,
+      Math.round(0 - safeArea / 2 + image.width * 0.5 - pixelCrop.x),
+      Math.round(0 - safeArea / 2 + image.height * 0.5 - pixelCrop.y)
+    );
+
+    return new Promise((resolve) => {
+      canvas.toBlob((blob) => {
+        resolve(blob);
+      }, "image/jpeg");
+    });
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (profile) {
@@ -48,19 +102,12 @@ const EditProfile = () => {
     const file = e.target.files[0];
     if (file) {
       setNewAvatar(file);
-      setScale(1);
-      setRotate(0);
+      const url = URL.createObjectURL(file);
+      setNewAvatarUrl(url);
+      setCrop({ x: 0, y: 0 });
+      setZoom(1);
+      setRotation(0);
     }
-  };
-
-  const handleScaleChange = (e) => {
-    const scaleValue = parseFloat(e.target.value);
-    setScale(scaleValue);
-  };
-
-  const handleRotateChange = (e) => {
-    const rotateValue = parseInt(e.target.value, 10);
-    setRotate(rotateValue);
   };
 
   const handleSubmit = async (e) => {
@@ -74,19 +121,26 @@ const EditProfile = () => {
     setIsLoading(true);
 
     const formData = new FormData();
-    if (newAvatar && editorRef.current) {
-      const canvas = editorRef.current.getImageScaledToCanvas();
-      canvas.toBlob(async (blob) => {
-        const croppedFile = new File([blob], newAvatar.name, {
+    if (newAvatar && croppedAreaPixels) {
+      try {
+        const croppedBlob = await getCroppedImg(
+          newAvatarUrl,
+          croppedAreaPixels,
+          rotation
+        );
+        const croppedFile = new File([croppedBlob], newAvatar.name, {
           type: "image/jpeg",
           lastModified: Date.now(),
         });
 
         formData.append("avatar", croppedFile);
-        appendProfileData(formData);
-      }, "image/jpeg");
+        await appendProfileData(formData);
+      } catch (error) {
+        setError("Failed to crop image: " + error.message);
+        setIsLoading(false);
+      }
     } else {
-      appendProfileData(formData);
+      await appendProfileData(formData);
     }
   };
 
@@ -137,76 +191,94 @@ const EditProfile = () => {
         <h2 className="profile-title text-center mb-4">Edit Profile</h2>
         {isLoading && <div className="loading-overlay">Updating...</div>}
         <form onSubmit={handleSubmit}>
-          <div className="text-center mb-4">
-            <label htmlFor="avatarUpload" className="profile-image-preview">
-              {newAvatar ? (
-                <AvatarEditor
-                  ref={editorRef}
-                  image={newAvatar}
-                  width={250}
-                  height={250}
-                  border={25}
-                  borderRadius={125}
-                  color={[255, 255, 255, 0.6]}
-                  scale={scale}
-                  rotate={rotate}
-                  className="avatar-editor"
+          {newAvatar ? (
+            <div className="crop-container mb-4">
+              <div className="crop-area" style={{ position: "relative", height: "400px" }}>
+                <Cropper
+                  image={newAvatarUrl}
+                  crop={crop}
+                  zoom={zoom}
+                  rotation={rotation}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onZoomChange={setZoom}
+                  onRotationChange={setRotation}
+                  onCropComplete={onCropComplete}
                 />
-              ) : profile.avatar ? (
-                <img
-                  src={profile.avatar}
-                  alt="Profile"
-                  className="rounded-circle profile-image"
-                />
-              ) : (
-                <div className="placeholder-avatar">
-                  {profile ? (
-                    <>
-                      {profile.firstName && profile.firstName[0]
-                        ? profile.firstName[0].toUpperCase()
-                        : ""}
-                      {profile.lastName && profile.lastName[0]
-                        ? profile.lastName[0].toUpperCase()
-                        : ""}
-                    </>
-                  ) : null}
+              </div>
+              <div className="image-controls mb-4 mt-3">
+                <div className="control-group">
+                  <label htmlFor="zoomRange">Zoom:</label>
+                  <input
+                    type="range"
+                    id="zoomRange"
+                    min="1"
+                    max="3"
+                    step="0.1"
+                    value={zoom}
+                    onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  />
                 </div>
-              )}
-            </label>
-            <input
-              type="file"
-              id="avatarUpload"
-              accept="image/*"
-              onChange={handleImageChange}
-              className="d-none"
-            />
-          </div>
-          {newAvatar && (
-            <div className="image-controls mb-4">
-              <div className="control-group">
-                <label htmlFor="zoomRange">Zoom:</label>
-                <input
-                  type="range"
-                  id="zoomRange"
-                  min="1"
-                  max="2"
-                  step="0.01"
-                  value={scale}
-                  onChange={handleScaleChange}
-                />
+                <div className="control-group">
+                  <label htmlFor="rotateRange">Rotate:</label>
+                  <input
+                    type="range"
+                    id="rotateRange"
+                    min="0"
+                    max="360"
+                    step="1"
+                    value={rotation}
+                    onChange={(e) => setRotation(parseInt(e.target.value, 10))}
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-secondary mt-2"
+                  onClick={() => {
+                    setNewAvatar(null);
+                    setNewAvatarUrl(null);
+                    setCrop({ x: 0, y: 0 });
+                    setZoom(1);
+                    setRotation(0);
+                  }}
+                >
+                  Cancel Crop
+                </button>
               </div>
-              <div className="control-group">
-                <label htmlFor="rotateRange">Rotate:</label>
-                <input
-                  type="range"
-                  id="rotateRange"
-                  min="0"
-                  max="360"
-                  step="1"
-                  value={rotate}
-                  onChange={handleRotateChange}
-                />
-              </div>
+            </div>
+          ) : (
+            <div className="text-center mb-4">
+              <label htmlFor="avatarUpload" className="profile-image-preview">
+                {profile.avatar ? (
+                  <img
+                    src={profile.avatar}
+                    alt="Profile"
+                    className="rounded-circle profile-image"
+                  />
+                ) : (
+                  <div className="placeholder-avatar">
+                    {profile ? (
+                      <>
+                        {profile.firstName && profile.firstName[0]
+                          ? profile.firstName[0].toUpperCase()
+                          : ""}
+                        {profile.lastName && profile.lastName[0]
+                          ? profile.lastName[0].toUpperCase()
+                          : ""}
+                      </>
+                    ) : null}
+                  </div>
+                )}
+              </label>
+              <input
+                type="file"
+                id="avatarUpload"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="d-none"
+              />
             </div>
           )}
           {Object.entries({
