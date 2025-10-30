@@ -92,7 +92,8 @@ const TaskList = ({ theme }) => {
     if (user) {
       try {
         const response = await fetchTasks();
-        setTasks(response.data);
+        // Backend now returns { tasks: [...], pagination: {...} }
+        setTasks(response.data.tasks || response.data);
       } catch (error) {
         console.error("Error loading tasks:", error);
         if (error.response && error.response.status === 403) logout();
@@ -107,8 +108,10 @@ const TaskList = ({ theme }) => {
   const refreshTasks = async () => {
     try {
       const response = await fetchTasks();
-      setTasks(response.data);
-      return response.data;
+      // Backend now returns { tasks: [...], pagination: {...} }
+      const tasksData = response.data.tasks || response.data;
+      setTasks(tasksData);
+      return tasksData;
     } catch (error) {
       console.error("Error refreshing tasks:", error);
     }
