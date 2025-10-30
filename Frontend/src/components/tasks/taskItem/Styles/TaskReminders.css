@@ -1,14 +1,22 @@
-/* Task Reminders Container */
+/* ============================================
+   TASK REMINDERS - Dropdown Reminder Selector
+   ============================================ */
+
+/* --------------------------------------------
+   Container
+   -------------------------------------------- */
 .task-reminders-container {
   margin-top: 1rem;
+  background: var(--color-background);
   border: 1px solid var(--color-border-light);
   border-radius: 8px;
   overflow: hidden;
-  background: var(--color-background);
   transition: all 0.3s ease;
 }
 
-/* Dropdown Header */
+/* --------------------------------------------
+   Dropdown Header
+   -------------------------------------------- */
 .reminders-dropdown {
   cursor: pointer;
   user-select: none;
@@ -29,27 +37,13 @@
 }
 
 .reminders-dropdown-header h6 {
-  margin: 0;
-  font-size: 0.9rem;
-  font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  color: var(--color-text-primary);
-}
-
-.reminder-count-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--color-button-bg);
-  color: var(--color-button-text);
-  border-radius: 12px;
-  padding: 2px 8px;
-  font-size: 0.7rem;
+  margin: 0;
+  font-size: 0.9rem;
   font-weight: 600;
-  min-width: 20px;
-  transition: all 0.3s ease;
+  color: var(--color-text-primary);
 }
 
 .reminders-dropdown-header i {
@@ -58,12 +52,29 @@
   transition: transform 0.2s;
 }
 
-/* Dropdown Content */
+/* Reminder Count Badge */
+.reminder-count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  padding: 2px 8px;
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* --------------------------------------------
+   Dropdown Content
+   -------------------------------------------- */
 .reminders-dropdown-content {
   padding: 1rem;
   background: var(--color-background);
-  animation: slideDown 0.2s ease;
   border-top: 1px solid var(--color-border-light);
+  animation: slideDown 0.2s ease;
 }
 
 @keyframes slideDown {
@@ -77,17 +88,19 @@
   }
 }
 
-/* Section Labels */
+/* --------------------------------------------
+   Section Labels
+   -------------------------------------------- */
 .reminder-section-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 0.75rem;
   font-size: 0.85rem;
   font-weight: 600;
-  margin-bottom: 0.75rem;
-  color: var(--color-text-primary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  color: var(--color-text-primary);
 }
 
 .reminder-section-label i {
@@ -95,7 +108,9 @@
   font-size: 0.9rem;
 }
 
-/* Reminder Sections */
+/* --------------------------------------------
+   Reminder Sections
+   -------------------------------------------- */
 .reminder-section {
   margin-bottom: 1.25rem;
 }
@@ -104,12 +119,13 @@
   margin-bottom: 0;
 }
 
+/* Recurring Reminders Section */
 .recurring-reminders-section {
   margin-bottom: 1.25rem;
   padding: 0.75rem;
   background: var(--color-background-secondary);
-  border-radius: 6px;
   border: 1px solid var(--color-border-light);
+  border-radius: 6px;
 }
 
 .recurring-options {
@@ -140,20 +156,24 @@
   color: var(--color-text-primary);
 }
 
-/* Reminder Grid */
+/* --------------------------------------------
+   Reminder Grid
+   -------------------------------------------- */
 .reminder-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
   gap: 0.75rem;
 }
 
-/* Custom Reminder Section */
+/* --------------------------------------------
+   Custom Reminder Section
+   -------------------------------------------- */
 .custom-reminder-section {
   margin-bottom: 1.25rem;
   padding: 0.75rem;
   background: var(--color-background-secondary);
-  border-radius: 6px;
   border: 1px solid var(--color-border-light);
+  border-radius: 6px;
 }
 
 .custom-reminder-input-group {
@@ -165,19 +185,23 @@
 .custom-reminder-input-group input[type="datetime-local"] {
   flex: 1;
   padding: 0.5rem 0.75rem;
+  font-size: 0.85rem;
+  font-family: inherit;
+  
+  /* Appearance */
   background-color: var(--form-background);
   color: var(--form-text);
   border: 1px solid var(--form-border);
   border-radius: 6px;
-  font-size: 0.85rem;
+  
+  /* Interaction */
   transition: all 0.2s ease;
-  font-family: inherit;
 }
 
 .custom-reminder-input-group input[type="datetime-local"]:focus {
-  outline: none;
   border-color: var(--color-border-dark);
   box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  outline: none;
 }
 
 .dark .custom-reminder-input-group input[type="datetime-local"]:focus {
@@ -194,24 +218,28 @@
 }
 
 .custom-reminder-input-group button {
-  white-space: nowrap;
-  padding: 0.5rem 1rem;
-  font-size: 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
   font-family: inherit;
+  white-space: nowrap;
+  
+  /* Appearance */
   background-color: var(--color-button-bg);
   color: var(--color-button-text);
   border: 1px solid var(--color-border-dark);
+  border-radius: 6px;
+  
+  /* Interaction */
+  transition: all 0.2s ease;
 }
 
 .custom-reminder-input-group button:hover:not(:disabled) {
+  background-color: var(--color-button-hover-bg);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background-color: var(--color-button-hover-bg);
 }
 
 .dark .custom-reminder-input-group button:hover:not(:disabled) {
@@ -224,7 +252,9 @@
   transform: none;
 }
 
-/* Active Reminders Summary */
+/* --------------------------------------------
+   Active Reminders Summary
+   -------------------------------------------- */
 .active-reminders-summary {
   margin-top: 1rem;
   padding: 0.75rem;
@@ -246,7 +276,11 @@
   color: var(--color-text-secondary);
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet (≤768px) */
 @media (max-width: 768px) {
   .reminder-grid {
     grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -285,6 +319,7 @@
   }
 }
 
+/* Mobile (≤480px) */
 @media (max-width: 480px) {
   .reminders-dropdown-header h6 {
     font-size: 0.85rem;
@@ -300,7 +335,11 @@
   }
 }
 
-/* Reduced motion support */
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
+
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .reminders-dropdown,
   .reminder-count-badge,
@@ -317,7 +356,7 @@
   }
 }
 
-/* High contrast mode support */
+/* High contrast mode */
 @media (prefers-contrast: high) {
   .task-reminders-container,
   .recurring-reminders-section,

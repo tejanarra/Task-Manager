@@ -15,6 +15,7 @@ const TaskItem = ({
   task,
   setTasks,
   isNewTask = false,
+  isChatPreview = false,
   onSave = () => {},
   onCancel = () => {},
 }) => {
@@ -56,6 +57,9 @@ const TaskItem = ({
   ]);
 
   useEffect(() => {
+    // Only add click outside listener if NOT in chat preview
+    if (isChatPreview) return;
+    
     const handleClickOutside = (e) => {
       if (isEditing && cardRef.current && !cardRef.current.contains(e.target)) {
         handleCancel();
@@ -63,7 +67,7 @@ const TaskItem = ({
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isEditing, handleCancel]);
+  }, [isEditing, handleCancel, isChatPreview]);
 
   const handleSave = async () => {
     if (!tempTitle.trim() || !tempDescription.trim()) return;
@@ -184,7 +188,7 @@ const TaskItem = ({
   const isDeadlineInFuture =
     tempDeadline && new Date(tempDeadline) > new Date();
 
-  // ✅ Fixed — correctly include "one-time" reminders
+  // ✅ Fixed – correctly include "one-time" reminders
   const getReminderSummary = () => {
     if (!tempReminders || tempReminders.length === 0) return null;
 
@@ -210,8 +214,8 @@ const TaskItem = ({
         ref={cardRef}
         className={`task-card ${theme === "dark" ? "dark" : ""} ${
           isLoading ? "loading" : ""
-        } ${isNewTask ? "new-task" : ""}`}
-        onClick={() => !isEditing && setIsEditing(true)}
+        } ${isNewTask ? "new-task" : ""} ${isChatPreview ? "chat-preview" : ""}`}
+        onClick={() => !isEditing && !isChatPreview && setIsEditing(true)}
       >
         <div
           className="task-strip"

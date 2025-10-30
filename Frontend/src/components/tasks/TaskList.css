@@ -1,9 +1,15 @@
-/* Task Container */
+/* ============================================
+   TASK LIST - Main Container & Layout
+   ============================================ */
+
+/* --------------------------------------------
+   Task Container (Wrapper)
+   -------------------------------------------- */
 .task-container {
-  border: 1px solid var(--color-border-light);
-  border-radius: 12px;
   padding: 1.25rem;
   background: var(--color-background);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
@@ -12,12 +18,17 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-/* Header Container */
+/* --------------------------------------------
+   Header Section
+   -------------------------------------------- */
 .header-container {
+  display: flex;
   flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: center;
   padding-bottom: 0.75rem;
-  border-bottom: 2px solid var(--color-border-light);
   margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--color-border-light);
   animation: slideInDown 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
@@ -32,13 +43,18 @@
   }
 }
 
+/* Header Title */
 .header-container h2 {
+  margin: 0;
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--color-text-primary), var(--color-button-bg));
+  color: var(--color-text-primary);
+  background: linear-gradient(
+    135deg,
+    var(--color-text-primary),
+    var(--color-button-bg)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -51,22 +67,30 @@
   flex-wrap: nowrap;
 }
 
-/* Button Styling */
+/* --------------------------------------------
+   Header Buttons
+   -------------------------------------------- */
 .header-container .btn {
-  border-radius: 8px;
-  padding: 0.625rem 1.25rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  /* Layout */
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  white-space: nowrap;
+  padding: 0.625rem 1.25rem;
+  
+  /* Appearance */
+  border-radius: 8px;
   border-width: 2px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+  
+  /* Effects */
   position: relative;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
+/* Button ripple effect */
 .header-container .btn::before {
   content: '';
   position: absolute;
@@ -98,18 +122,40 @@
   box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
 }
 
+/* Button icon */
 .header-container .btn i {
   font-size: 1rem;
-  transition: transform 0.3s ease;
   flex-shrink: 0;
+  transition: transform 0.3s ease;
 }
 
 .header-container .btn:hover:not(:disabled) i {
   transform: scale(1.1) rotate(5deg);
 }
 
+/* Button disabled state */
+.header-container .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.header-container .btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.header-container .btn:disabled::before {
+  display: none;
+}
+
+/* AI Button special styling */
 .ai-button {
-  background: linear-gradient(135deg, var(--color-button-bg) 0%, var(--color-button-hover-bg) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--color-button-bg) 0%,
+    var(--color-button-hover-bg) 100%
+  );
   color: var(--color-button-text);
   border: 2px solid var(--color-button-bg);
   position: relative;
@@ -119,7 +165,12 @@
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
   transform: translateX(-100%);
   transition: transform 0.6s;
 }
@@ -134,18 +185,50 @@
   color: var(--color-button-hover-text);
 }
 
-/* Empty State */
+/* --------------------------------------------
+   Task Grid Layout
+   -------------------------------------------- */
+.task-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1rem;
+  width: 100%;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation for task items */
+.task-list > div:nth-child(1) { animation-delay: 0.05s; }
+.task-list > div:nth-child(2) { animation-delay: 0.1s; }
+.task-list > div:nth-child(3) { animation-delay: 0.15s; }
+.task-list > div:nth-child(4) { animation-delay: 0.2s; }
+.task-list > div:nth-child(5) { animation-delay: 0.25s; }
+.task-list > div:nth-child(n+6) { animation-delay: 0.3s; }
+
+/* --------------------------------------------
+   Empty State
+   -------------------------------------------- */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 4rem 2rem;
+  margin-top: 1rem;
   text-align: center;
   background: var(--color-background-secondary);
-  border-radius: 12px;
   border: 2px dashed var(--color-border-light);
-  margin-top: 1rem;
+  border-radius: 12px;
   animation: fadeIn 0.6s ease-out;
 }
 
@@ -178,10 +261,10 @@
 }
 
 .empty-state p {
+  margin-bottom: 0.5rem;
   font-size: 1.1rem;
   font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
 }
 
 .empty-state small {
@@ -189,40 +272,14 @@
   color: var(--color-text-secondary);
 }
 
-/* Shimmer Loader */
-.skeleton-title {
-  width: 200px;
-  height: 32px;
-  border-radius: 6px;
-  background: linear-gradient(
-    90deg,
-    var(--color-shimmer-light) 25%,
-    var(--color-shimmer-dark) 50%,
-    var(--color-shimmer-light) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.skeleton-button {
-  width: 120px;
-  height: 42px;
-  border-radius: 8px;
-  background: linear-gradient(
-    90deg,
-    var(--color-shimmer-light) 25%,
-    var(--color-shimmer-dark) 50%,
-    var(--color-shimmer-light) 75%
-  );
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
-}
-
+/* --------------------------------------------
+   Shimmer Loader (Loading State)
+   -------------------------------------------- */
 .shimmer-list {
-  margin-top: 1rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
   gap: 1rem;
+  margin-top: 1rem;
 }
 
 .shimmer-task-item {
@@ -230,12 +287,12 @@
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem;
+  min-height: 180px;
+  background: var(--color-background);
   border: 1px solid var(--color-border-light);
   border-radius: 10px;
-  background: var(--color-background);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   animation: shimmer-pulse 1.5s ease-in-out infinite;
-  min-height: 180px;
 }
 
 .dark .shimmer-task-item {
@@ -274,7 +331,6 @@
   width: 80%;
 }
 
-/* Animations */
 @keyframes shimmer {
   0% {
     background-position: -200% 0;
@@ -293,60 +349,64 @@
   }
 }
 
-/* Task List Grid Layout */
-.task-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1rem;
-  width: 100%;
-  animation: fadeInUp 0.6s ease-out;
+/* Skeleton placeholders for buttons */
+.skeleton-title {
+  width: 200px;
+  height: 32px;
+  border-radius: 6px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.skeleton-button {
+  width: 120px;
+  height: 42px;
+  border-radius: 8px;
+  background: linear-gradient(
+    90deg,
+    var(--color-shimmer-light) 25%,
+    var(--color-shimmer-dark) 50%,
+    var(--color-shimmer-light) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
-/* Larger screens - 3 columns */
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Large Desktop (≥1400px) - 3 columns */
 @media (min-width: 1400px) {
-  .task-list {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
+  .task-list,
   .shimmer-list {
     grid-template-columns: repeat(3, 1fr);
   }
 }
 
-/* Medium screens - 2 columns */
+/* Desktop (992px - 1399px) - 2 columns */
 @media (min-width: 992px) and (max-width: 1399px) {
-  .task-list {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
+  .task-list,
   .shimmer-list {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
-/* Tablet and smaller */
+/* Tablet (≤991px) - 1 column */
 @media (max-width: 991px) {
-  .task-list {
-    grid-template-columns: 1fr;
-  }
-  
+  .task-list,
   .shimmer-list {
     grid-template-columns: 1fr;
   }
 }
 
-/* Tablet Portrait */
+/* Tablet Portrait (≤768px) */
 @media (max-width: 768px) {
   .task-container {
     padding: 1rem;
@@ -377,6 +437,7 @@
     font-size: 0.85rem;
     justify-content: center;
     min-width: 0;
+    min-height: 44px; /* Better touch target */
   }
 
   .header-container .btn i {
@@ -395,14 +456,9 @@
     padding: 1rem;
     min-height: 160px;
   }
-
-  /* Better touch targets */
-  .header-container .btn {
-    min-height: 44px;
-  }
 }
 
-/* Mobile Landscape & Small Tablets */
+/* Mobile Landscape (≤640px) */
 @media (max-width: 640px) {
   .task-container {
     padding: 0.875rem;
@@ -433,7 +489,6 @@
     font-size: 0.8rem;
   }
 
-  /* Hide button text on very small screens, show icons only */
   .button-text {
     display: inline;
   }
@@ -451,16 +506,13 @@
     min-height: 150px;
   }
 
-  .task-list {
-    gap: 0.875rem;
-  }
-  
+  .task-list,
   .shimmer-list {
     gap: 0.875rem;
   }
 }
 
-/* Mobile Portrait */
+/* Mobile Portrait (≤480px) */
 @media (max-width: 480px) {
   .task-container {
     padding: 0.75rem;
@@ -484,20 +536,17 @@
     font-size: 0.75rem;
     padding: 0.5rem 0.625rem;
     gap: 0.375rem;
+    min-width: 44px;
+    justify-content: center;
   }
 
   .header-container .btn i {
     font-size: 1rem;
   }
 
-  /* Show only icons on very small screens */
+  /* Hide button text, show only icons */
   .button-text {
     display: none;
-  }
-
-  .header-container .btn {
-    min-width: 44px;
-    justify-content: center;
   }
 
   .empty-state {
@@ -529,16 +578,13 @@
     height: 14px;
   }
 
-  .task-list {
-    gap: 0.75rem;
-  }
-  
+  .task-list,
   .shimmer-list {
     gap: 0.75rem;
   }
 }
 
-/* Extra Small Mobile */
+/* Extra Small Mobile (≤360px) */
 @media (max-width: 360px) {
   .task-container {
     padding: 0.625rem;
@@ -576,7 +622,17 @@
   }
 }
 
-/* High Contrast Mode */
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
+
+/* Focus styles */
+.header-container .btn:focus-visible {
+  outline: 3px solid var(--color-button-bg);
+  outline-offset: 3px;
+}
+
+/* High contrast mode */
 @media (prefers-contrast: high) {
   .task-container {
     border-width: 2px;
@@ -595,48 +651,39 @@
   }
 }
 
-/* Reduced Motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .header-container,
   .header-container .btn,
+  .header-container .btn i,
+  .header-container .btn::before,
+  .ai-button::after,
   .shimmer-task-item,
   .task-list,
-  .empty-state {
-    animation: none;
-    transition: none;
-  }
-
-  .header-container .btn:hover:not(:disabled) {
-    transform: none;
-  }
-
-  .header-container .btn i {
-    transition: none;
-  }
-
-  .header-container .btn:hover:not(:disabled) i {
-    transform: none;
-  }
-
-  .header-container .btn::before,
-  .ai-button::after {
-    transition: none;
-  }
-
-  .empty-state-icon {
-    animation: none;
-  }
-
+  .empty-state,
+  .empty-state-icon,
   .skeleton-title,
   .skeleton-button,
   .shimmer-task-header,
   .shimmer-task-body {
     animation: none;
+    transition: none;
+  }
+
+  .header-container .btn:hover:not(:disabled),
+  .header-container .btn:hover:not(:disabled) i {
+    transform: none;
+  }
+
+  .shimmer-task-header,
+  .shimmer-task-body,
+  .skeleton-title,
+  .skeleton-button {
     background: var(--color-shimmer-light);
   }
 }
 
-/* Print Styles */
+/* Print styles */
 @media print {
   .header-container .btn {
     display: none;
@@ -650,78 +697,22 @@
   .shimmer-list {
     display: none;
   }
-  
+
   .task-list {
     display: block;
   }
 }
 
-/* Focus Styles for Accessibility */
-.header-container .btn:focus-visible {
-  outline: 3px solid var(--color-button-bg);
-  outline-offset: 3px;
-}
-
-/* Loading State for Buttons */
-.header-container .btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.header-container .btn:disabled:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.header-container .btn:disabled::before {
-  display: none;
-}
-
-/* Dark Mode Specific Adjustments */
-.dark .header-container .btn {
-  border-color: var(--color-border-dark);
-}
-
-.dark .empty-state {
-  border-color: var(--color-border);
-}
-
-.dark .ai-button {
-  background: linear-gradient(135deg, var(--color-button-bg) 0%, var(--color-button-hover-bg) 100%);
-}
-
-/* Stagger Animation for Task Items */
-.task-list > div:nth-child(1) {
-  animation-delay: 0.05s;
-}
-
-.task-list > div:nth-child(2) {
-  animation-delay: 0.1s;
-}
-
-.task-list > div:nth-child(3) {
-  animation-delay: 0.15s;
-}
-
-.task-list > div:nth-child(4) {
-  animation-delay: 0.2s;
-}
-
-.task-list > div:nth-child(5) {
-  animation-delay: 0.25s;
-}
-
-.task-list > div:nth-child(n+6) {
-  animation-delay: 0.3s;
-}
+/* ============================================
+   UTILITY & HELPERS
+   ============================================ */
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar for webkit browsers */
+/* Custom scrollbar */
 .task-card-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -741,25 +732,26 @@ html {
   background: var(--color-button-bg);
 }
 
-/* Improve touch scrolling on mobile */
+/* Touch scrolling optimization */
 .task-list,
 .shimmer-list {
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
 }
 
-/* Prevent text selection during drag on mobile */
-.task-list * {
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+/* Dark mode specific adjustments */
+.dark .header-container .btn {
+  border-color: var(--color-border-dark);
 }
 
-/* Allow text selection in task cards when not dragging */
-.task-list:not(.dragging) * {
-  -webkit-user-select: text;
-  -moz-user-select: text;
-  -ms-user-select: text;
-  user-select: text;
+.dark .empty-state {
+  border-color: var(--color-border);
+}
+
+.dark .ai-button {
+  background: linear-gradient(
+    135deg,
+    var(--color-button-bg) 0%,
+    var(--color-button-hover-bg) 100%
+  );
 }

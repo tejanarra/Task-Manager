@@ -1,20 +1,35 @@
-/* Task Card Base Styling */
+/* ============================================
+   TASK CARD - Component Specific Styles
+   ============================================ */
+
+/* --------------------------------------------
+   Base Card Structure
+   -------------------------------------------- */
 .task-card {
+  /* Layout */
+  display: flex;
+  position: relative;
+  height: 100%;
+  margin-bottom: 0;
+  
+  /* Appearance */
   background: var(--color-background);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border: 1px solid var(--color-border-light);
   border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--color-text-primary);
+  
+  /* Effects */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   overflow: hidden;
+  
+  /* Interaction */
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Typography */
   font-family: "Poppins", sans-serif;
-  position: relative;
-  color: var(--color-text-primary);
-  display: flex;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 0;
-  height: 100%;
 }
 
 .task-card:hover {
@@ -27,7 +42,22 @@
   transform: translateY(-2px) scale(1.005);
 }
 
-/* Task Strip */
+/* Dark mode variant */
+.dark.task-card {
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark.task-card:hover {
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  border-color: var(--color-border-dark);
+}
+
+/* --------------------------------------------
+   Card Components
+   -------------------------------------------- */
+
+/* Status Strip */
 .task-strip {
   width: 8px;
   flex-shrink: 0;
@@ -38,7 +68,7 @@
   width: 12px;
 }
 
-/* Task Card Content */
+/* Content Container */
 .task-card-content {
   flex: 1;
   padding: 1.5rem;
@@ -63,7 +93,11 @@
   transform: scale(1.15) rotate(5deg);
 }
 
-/* Task Title */
+/* --------------------------------------------
+   Typography
+   -------------------------------------------- */
+
+/* Title */
 .task-title {
   font-size: 1.25rem;
   font-weight: 600;
@@ -73,6 +107,8 @@
   color: inherit;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  
+  /* Truncation */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -80,7 +116,7 @@
   overflow: hidden;
 }
 
-/* Task Description */
+/* Description */
 .task-description {
   font-size: 1rem;
   line-height: 1.5;
@@ -91,6 +127,8 @@
   word-wrap: break-word;
   overflow-wrap: break-word;
   flex-grow: 1;
+  
+  /* Truncation */
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -98,7 +136,9 @@
   overflow: hidden;
 }
 
-/* Task Metadata */
+/* --------------------------------------------
+   Metadata Section
+   -------------------------------------------- */
 .task-metadata {
   display: flex;
   flex-wrap: wrap;
@@ -130,7 +170,13 @@
   color: var(--color-text-secondary);
 }
 
-/* Reminder Indicator */
+.dark .task-metadata {
+  border-color: var(--color-border);
+}
+
+/* --------------------------------------------
+   Reminder Indicator
+   -------------------------------------------- */
 .reminder-indicator {
   position: absolute;
   bottom: 1rem;
@@ -160,21 +206,6 @@
   font-size: 0.85rem;
 }
 
-/* Dark Mode Support */
-.dark.task-card {
-  border-color: var(--color-border);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.dark.task-card:hover {
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-  border-color: var(--color-border-dark);
-}
-
-.dark .task-metadata {
-  border-color: var(--color-border);
-}
-
 .dark .reminder-indicator {
   background-color: var(--color-background-secondary);
   border-color: var(--color-border);
@@ -185,7 +216,61 @@
   box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
 }
 
-/* Responsive Breakpoints */
+/* --------------------------------------------
+   Animations
+   -------------------------------------------- */
+
+/* Entry animation */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-card.new-task {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* Hover effect enhancement */
+.task-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(0, 0, 0, 0.03),
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.task-card:hover::before {
+  opacity: 1;
+}
+
+.dark .task-card::before {
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(255, 255, 255, 0.05),
+    transparent 50%
+  );
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Desktop (≥768px) */
 @media (min-width: 768px) {
   .task-card-content {
     padding: 2rem;
@@ -197,7 +282,13 @@
   }
 }
 
+/* Tablet (≤767px) */
 @media (max-width: 767px) {
+  .task-card {
+    margin-bottom: 1rem;
+    border-radius: 10px;
+  }
+
   .task-card-content {
     padding: 1.25rem;
     min-height: 150px;
@@ -218,8 +309,8 @@
   .task-description {
     font-size: 0.95rem;
     margin-bottom: 0.75rem;
-    line-clamp: 2;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
   }
 
   .task-metadata {
@@ -250,7 +341,12 @@
   }
 }
 
+/* Mobile (≤480px) */
 @media (max-width: 480px) {
+  .task-card {
+    border-radius: 8px;
+  }
+
   .task-card-content {
     padding: 1rem;
     min-height: 140px;
@@ -293,29 +389,17 @@
   }
 }
 
-/* Animation for new tasks */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
 
-.task-card.new-task {
-  animation: slideInUp 0.5s ease-out;
-}
-
-/* Focus management for accessibility */
+/* Focus state */
 .task-card:focus-visible {
   outline: 3px solid var(--color-border-dark);
   outline-offset: 3px;
 }
 
-/* High contrast mode support */
+/* High contrast mode */
 @media (prefers-contrast: high) {
   .task-card {
     border-width: 2px;
@@ -330,7 +414,7 @@
   }
 }
 
-/* Reduced motion support */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .task-card,
   .status-icon,
@@ -339,14 +423,8 @@
     transition: none;
   }
 
-  .task-card:hover {
-    transform: none;
-  }
-
-  .task-card:hover .status-icon {
-    transform: none;
-  }
-
+  .task-card:hover,
+  .task-card:hover .status-icon,
   .task-card:hover .reminder-indicator {
     transform: none;
   }
@@ -372,26 +450,4 @@
   .reminder-indicator {
     display: none;
   }
-}
-
-/* Hover effect enhancement */
-.task-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 0, 0, 0.03), transparent 50%);
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.task-card:hover::before {
-  opacity: 1;
-}
-
-.dark .task-card::before {
-  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255, 255, 255, 0.05), transparent 50%);
 }

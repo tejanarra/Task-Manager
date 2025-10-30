@@ -1,12 +1,22 @@
-/* Task Editor Container */
+/* ============================================
+   TASK EDITOR - Full Page Editor Styles
+   ============================================ */
+
+/* --------------------------------------------
+   Container
+   -------------------------------------------- */
 .task-editor-container {
   max-width: 900px;
   margin: 0 auto;
+  padding: 2rem;
+  
+  /* Appearance */
   background: var(--color-background);
   border: 1px solid var(--color-border-light);
   border-radius: 12px;
-  padding: 2rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  
+  /* Effects */
   transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   animation: fadeInUp 0.4s ease-out;
 }
@@ -26,7 +36,26 @@
   }
 }
 
-/* Editor Header */
+/* --------------------------------------------
+   Editor Spine (Color Strip)
+   -------------------------------------------- */
+.editor-spine {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 8px;
+  border-radius: 12px 0 0 12px;
+  transition: width 0.3s ease;
+}
+
+.task-editor-container:hover .editor-spine {
+  width: 12px;
+}
+
+/* --------------------------------------------
+   Header Section
+   -------------------------------------------- */
 .editor-header {
   display: flex;
   align-items: center;
@@ -37,31 +66,40 @@
 }
 
 .editor-header h2 {
+  flex: 1;
+  margin: 0;
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--color-text-primary);
-  margin: 0;
-  flex: 1;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, var(--color-text-primary), var(--color-button-bg));
+  color: var(--color-text-primary);
+  background: linear-gradient(
+    135deg,
+    var(--color-text-primary),
+    var(--color-button-bg)
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
+/* Back Button */
 .back-button {
   width: 44px;
   height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Appearance */
   border-radius: 50%;
   border: 2px solid var(--color-border);
   background: var(--color-background);
   color: var(--color-text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.2rem;
+  
+  /* Interaction */
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.2rem;
 }
 
 .back-button:hover:not(:disabled) {
@@ -76,7 +114,16 @@
   cursor: not-allowed;
 }
 
-/* Editor Form */
+/* Status Icon in Header */
+.status-icon-header {
+  font-size: 1.75rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+/* --------------------------------------------
+   Form Layout
+   -------------------------------------------- */
 .editor-form {
   display: flex;
   flex-direction: column;
@@ -89,14 +136,26 @@
   flex-direction: column;
 }
 
+/* Form Row - Two column layout */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* --------------------------------------------
+   Form Elements
+   -------------------------------------------- */
+
+/* Labels */
 .form-group .form-label {
-  font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--color-text-primary);
-  margin-bottom: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
 }
 
 .form-group .required {
@@ -104,16 +163,22 @@
   font-size: 1rem;
 }
 
+/* Inputs & Selects */
 .form-group .form-control,
 .form-group .form-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-family: 'Poppins', sans-serif;
+  
+  /* Appearance */
   background-color: var(--form-background);
   color: var(--form-text);
   border: 2px solid var(--form-border);
   border-radius: 8px;
-  padding: 0.75rem;
-  font-size: 1rem;
+  
+  /* Interaction */
   transition: all 0.3s ease;
-  font-family: 'Poppins', sans-serif;
 }
 
 .form-group .form-control:focus,
@@ -130,6 +195,7 @@
   opacity: 0.7;
 }
 
+/* Textarea */
 .form-group textarea.form-control {
   resize: vertical;
   min-height: 120px;
@@ -137,14 +203,7 @@
   line-height: 1.6;
 }
 
-/* Form Row */
-.form-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.5rem;
-}
-
-/* Datetime Input Styling */
+/* Datetime Input */
 .form-group input[type="datetime-local"] {
   position: relative;
 }
@@ -159,14 +218,21 @@
   cursor: pointer;
 }
 
-/* Editor Actions */
+/* Reminders Section */
+.form-group.reminders-section {
+  margin-top: 0.5rem;
+}
+
+/* --------------------------------------------
+   Action Buttons
+   -------------------------------------------- */
 .editor-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
   padding-top: 2rem;
   border-top: 2px solid var(--color-border-light);
-  gap: 1rem;
   flex-wrap: wrap;
 }
 
@@ -177,16 +243,20 @@
 }
 
 .editor-actions .btn {
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
-  font-weight: 500;
-  border-radius: 8px;
-  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  border-width: 2px;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 500;
   white-space: nowrap;
+  
+  /* Appearance */
+  border-radius: 8px;
+  border-width: 2px;
+  
+  /* Interaction */
+  transition: all 0.3s ease;
 }
 
 .editor-actions .btn:hover:not(:disabled) {
@@ -201,6 +271,7 @@
   box-shadow: none;
 }
 
+/* Button variants */
 .editor-actions .btn-danger {
   background-color: #dc3545;
   color: white;
@@ -235,7 +306,9 @@
   color: var(--color-button-hover-text);
 }
 
-/* Loading State */
+/* --------------------------------------------
+   Loading State
+   -------------------------------------------- */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -253,16 +326,18 @@
 }
 
 .loading-state p {
+  margin: 0;
   font-size: 1rem;
   color: var(--color-text-secondary);
-  margin: 0;
 }
 
-/* Alert Styling */
+/* --------------------------------------------
+   Alerts
+   -------------------------------------------- */
 .task-editor-container .alert {
+  margin-bottom: 1.5rem;
   border-radius: 8px;
   border-width: 2px;
-  margin-bottom: 1.5rem;
   animation: slideDown 0.3s ease-out;
 }
 
@@ -277,7 +352,11 @@
   }
 }
 
-/* Responsive Design */
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Tablet (≤768px) */
 @media (max-width: 768px) {
   .task-editor-container {
     padding: 1.5rem;
@@ -338,6 +417,7 @@
   }
 }
 
+/* Mobile (≤480px) */
 @media (max-width: 480px) {
   .task-editor-container {
     padding: 1rem;
@@ -374,7 +454,24 @@
   }
 }
 
-/* High Contrast Mode */
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
+
+/* Focus states */
+.back-button:focus-visible,
+.editor-actions .btn:focus-visible {
+  outline: 3px solid var(--color-button-bg);
+  outline-offset: 3px;
+}
+
+.form-group .form-control:focus-visible,
+.form-group .form-select:focus-visible {
+  outline: 2px solid var(--color-button-bg);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
 @media (prefers-contrast: high) {
   .task-editor-container {
     border-width: 2px;
@@ -398,7 +495,7 @@
   }
 }
 
-/* Reduced Motion */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .task-editor-container,
   .back-button,
@@ -414,7 +511,7 @@
   }
 }
 
-/* Print Styles */
+/* Print styles */
 @media print {
   .back-button,
   .editor-actions {
@@ -425,17 +522,4 @@
     box-shadow: none;
     border: 1px solid #000;
   }
-}
-
-/* Focus Styles for Accessibility */
-.back-button:focus-visible,
-.editor-actions .btn:focus-visible {
-  outline: 3px solid var(--color-button-bg);
-  outline-offset: 3px;
-}
-
-.form-group .form-control:focus-visible,
-.form-group .form-select:focus-visible {
-  outline: 2px solid var(--color-button-bg);
-  outline-offset: 2px;
 }

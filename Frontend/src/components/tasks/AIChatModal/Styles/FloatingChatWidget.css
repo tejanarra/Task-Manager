@@ -1,0 +1,562 @@
+/* ============================================
+   FLOATING CHAT WIDGET - Draggable Button & Modal
+   ============================================ */
+
+/* --------------------------------------------
+   Floating Chat Button
+   -------------------------------------------- */
+.floating-chat-button {
+  position: fixed;
+  width: 60px;
+  height: 60px;
+  z-index: 1040;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Appearance */
+  background: linear-gradient(
+    135deg,
+    var(--color-button-bg),
+    var(--color-button-hover-bg)
+  );
+  border: none;
+  border-radius: 50%;
+  color: var(--color-button-text);
+  font-size: 1.75rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  
+  /* Interaction */
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  
+  /* Effects */
+  transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+              box-shadow 0.3s ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dragging state */
+.floating-chat-button.dragging {
+  cursor: grabbing;
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+  transition: none;
+  pointer-events: none;
+}
+
+/* Hover state */
+.floating-chat-button:not(.dragging):hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+}
+
+/* Smooth snapping animation */
+.floating-chat-button:not(.dragging) {
+  transition: left 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              top 0.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+              transform 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* --------------------------------------------
+   Floating Chat Modal (Widget Mode)
+   -------------------------------------------- */
+.floating-chat-modal {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1039;
+  
+  /* Layout */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  /* Appearance */
+  background: var(--color-background);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+  
+  /* Effects */
+  animation: scaleIn 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition: width 0.3s ease, height 0.3s ease,
+              max-width 0.3s ease, max-height 0.3s ease;
+}
+
+.floating-chat-modal.fullscreen {
+  bottom: 24px;
+  right: 24px;
+  left: 24px;
+  top: 24px;
+  width: auto !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.floating-chat-modal.dark {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* --------------------------------------------
+   Modal Header
+   -------------------------------------------- */
+.floating-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  flex-shrink: 0;
+  
+  /* Appearance */
+  background: var(--color-text-primary);
+  color: var(--color-button-text);
+  border-radius: 16px 16px 0 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.floating-chat-modal.dark .floating-modal-header {
+  background: var(--color-background-placeholder);
+  color: var(--color-text-placeholder);
+}
+
+.modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.modal-header-title i {
+  font-size: 1.3rem;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header Icon Button */
+.header-icon-button {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  
+  /* Appearance */
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  color: var(--color-button-text);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.header-icon-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------
+   Modal Body
+   -------------------------------------------- */
+.floating-modal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Override modal styles for widget mode */
+.floating-modal-body .ai-modal-overlay {
+  position: relative;
+  background: none;
+  backdrop-filter: none;
+  z-index: 1;
+  height: 100%;
+  animation: none;
+  touch-action: auto;
+  overscroll-behavior: auto;
+}
+
+.floating-modal-body .ai-modal-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  right: 0;
+  box-shadow: none;
+  border-radius: 0;
+  animation: none;
+}
+
+.floating-modal-body .ai-modal-header {
+  display: none;
+}
+
+/* --------------------------------------------
+   Options Dropdown
+   -------------------------------------------- */
+.floating-options {
+  position: relative;
+}
+
+.options-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  max-height: 400px;
+  padding: 8px;
+  z-index: 1050;
+  
+  /* Appearance */
+  background: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  
+  /* Effects */
+  animation: slideDown 0.2s ease-out;
+  overflow-y: auto;
+}
+
+.options-dropdown.dark {
+  background: var(--color-background-placeholder);
+  border-color: var(--color-border-dark);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.options-header {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-secondary);
+}
+
+.options-divider {
+  height: 1px;
+  margin: 8px 0;
+  background: var(--color-border);
+}
+
+.option-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  text-align: left;
+  
+  /* Appearance */
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--color-text-primary);
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option-item:hover {
+  background: var(--color-background-secondary);
+}
+
+.option-item.active {
+  background: var(--color-button-bg);
+  color: var(--color-button-text);
+}
+
+.option-item i:first-child {
+  width: 20px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.option-item span {
+  flex: 1;
+}
+
+.option-item i:last-child {
+  font-size: 1rem;
+  color: var(--color-button-text);
+}
+
+/* --------------------------------------------
+   Chat Preview Styles
+   -------------------------------------------- */
+.ai-preview-history {
+  position: relative;
+  opacity: 0.8;
+  pointer-events: none;
+}
+
+.ai-preview-history .task-card {
+  cursor: default;
+}
+
+.preview-status {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 4px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: 20px;
+  z-index: 10;
+  backdrop-filter: blur(10px);
+}
+
+.preview-status.confirmed {
+  background: rgba(0, 150, 0, 0.9);
+  color: white;
+}
+
+.preview-status.cancelled {
+  background: rgba(200, 0, 0, 0.9);
+  color: white;
+}
+
+/* --------------------------------------------
+   Drag Overlay
+   -------------------------------------------- */
+.drag-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1038;
+  cursor: grabbing;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Mobile */
+@media (max-width: 768px) {
+  .floating-chat-button {
+    width: 56px;
+    height: 56px;
+    font-size: 1.5rem;
+  }
+
+  .floating-chat-modal {
+    width: calc(100vw - 32px) !important;
+    height: calc(100vh - 120px) !important;
+    max-width: 400px !important;
+    max-height: 600px !important;
+    bottom: 20px;
+    right: 16px;
+  }
+
+  .floating-chat-modal.fullscreen {
+    width: calc(100vw - 20px) !important;
+    height: calc(100vh - 40px) !important;
+    max-width: none !important;
+    max-height: none !important;
+    bottom: 20px;
+    right: 10px;
+    left: 10px;
+    top: 20px;
+  }
+
+  .floating-modal-header {
+    padding: 14px 16px;
+  }
+
+  .modal-header-title {
+    font-size: 1rem;
+  }
+
+  .modal-header-title i {
+    font-size: 1.2rem;
+  }
+
+  .header-icon-button {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .options-dropdown {
+    min-width: 200px;
+  }
+
+  .option-item {
+    font-size: 0.85rem;
+    padding: 9px 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .floating-chat-button {
+    width: 52px;
+    height: 52px;
+    font-size: 1.4rem;
+  }
+
+  .floating-chat-modal {
+    width: calc(100vw - 20px) !important;
+    height: calc(100vh - 100px) !important;
+    bottom: 16px;
+    right: 10px;
+  }
+
+  .floating-chat-modal.fullscreen {
+    width: calc(100vw - 16px) !important;
+    height: calc(100vh - 32px) !important;
+    bottom: 16px;
+    right: 8px;
+    left: 8px;
+    top: 16px;
+  }
+
+  .floating-modal-header {
+    padding: 12px 14px;
+  }
+
+  .modal-header-title {
+    font-size: 0.95rem;
+    gap: 8px;
+  }
+
+  .modal-header-title i {
+    font-size: 1.1rem;
+  }
+
+  .header-icon-button {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+  }
+
+  .options-dropdown {
+    min-width: 190px;
+  }
+
+  .options-header {
+    font-size: 0.7rem;
+    padding: 6px 10px;
+  }
+
+  .option-item {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+    gap: 10px;
+  }
+
+  .option-item i:first-child {
+    font-size: 1rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
+
+/* Focus styles */
+.floating-chat-button:focus-visible,
+.header-icon-button:focus-visible,
+.option-item:focus-visible {
+  outline: 3px solid var(--color-button-bg);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .options-dropdown,
+  .floating-chat-modal {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .floating-chat-button,
+  .floating-chat-modal,
+  .options-dropdown {
+    animation: none;
+  }
+
+  .floating-chat-button:not(.dragging) {
+    transition: none;
+  }
+
+  .floating-chat-button:hover {
+    transform: none;
+  }
+
+  .floating-chat-modal {
+    transition: none;
+  }
+}
+
+/* Scrollbar for options */
+.options-dropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.options-dropdown::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.options-dropdown::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+.options-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-dark);
+}

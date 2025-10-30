@@ -1,9 +1,10 @@
-import  { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchTasks, updateTaskPriority } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import TaskCard from "./taskItem/TaskCard";
 import AIChatModal from "./AIChatModal/AIChatModal";
+import FloatingChatWidget from "./AIChatModal/FloatingChatWidget";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./TaskList.css";
 
@@ -25,7 +26,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// ---------- Sortable Task Card ----------
 const SortableTask = ({ task, theme }) => {
   const {
     attributes,
@@ -48,7 +48,6 @@ const SortableTask = ({ task, theme }) => {
       transition || "transform 250ms cubic-bezier(0.25, 0.8, 0.25, 1)",
     opacity: isDragging ? 0 : 1,
     cursor: "grab",
-    // FIXED: Changed from "none" to "manipulation" to allow scrolling
     touchAction: "manipulation",
   };
 
@@ -59,15 +58,17 @@ const SortableTask = ({ task, theme }) => {
   );
 };
 
-// ---------- Main TaskList Component ----------
 const TaskList = ({ theme }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
   const [activeId, setActiveId] = useState(null);
+  const [chatMode, setChatMode] = useState(() => {
+    const saved = localStorage.getItem("ai_chat_ui_mode");
+    return saved || "drawer";
+  });
 
-  // IMPROVED: Better touch sensor configuration for mobile
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
@@ -76,8 +77,8 @@ const TaskList = ({ theme }) => {
     }),
     useSensor(TouchSensor, {
       activationConstraint: {
-        delay: 200, // Reduced from 250ms for better responsiveness
-        tolerance: 5, // Reduced from 8 for more precise control
+        delay: 200,
+        tolerance: 5,
       },
     }),
     useSensor(PointerSensor, {
@@ -87,11 +88,31 @@ const TaskList = ({ theme }) => {
     })
   );
 
+  // Listen for chat mode changes
+  useEffect(() => {
+    const handleChatModeChange = (e) => {
+      setChatMode(e.detail);
+      setShowAIModal(false); // Close drawer if switching to widget
+    };
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem("ai_chat_ui_mode");
+      if (saved && saved !== chatMode) {
+        setChatMode(saved);
+        setShowAIModal(false);
+      }
+    };
+    window.addEventListener("chatModeChanged", handleChatModeChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => {
+      window.removeEventListener("chatModeChanged", handleChatModeChange);
+      window.removeEventListener("storage", handleStorageChange);
+    };
+  }, [chatMode]);
+
   const loadTasks = useCallback(async () => {
     if (user) {
       try {
         const response = await fetchTasks();
-        // Backend now returns { tasks: [...], pagination: {...} }
         setTasks(response.data.tasks || response.data);
       } catch (error) {
         console.error("Error loading tasks:", error);
@@ -107,7 +128,6 @@ const TaskList = ({ theme }) => {
   const refreshTasks = async () => {
     try {
       const response = await fetchTasks();
-      // Backend now returns { tasks: [...], pagination: {...} }
       const tasksData = response.data.tasks || response.data;
       setTasks(tasksData);
       return tasksData;
@@ -116,7 +136,6 @@ const TaskList = ({ theme }) => {
     }
   };
 
-  // ---------- Drag & Drop ----------
   const handleDragStart = (event) => {
     setActiveId(event.active.id);
   };
@@ -135,7 +154,6 @@ const TaskList = ({ theme }) => {
 
       const reordered = arrayMove(prevTasks, oldIndex, newIndex);
 
-      // Update priorities in the backend
       const updatePromises = reordered.map((task, idx) => {
         const newPriority = idx + 1;
         if (task.priority !== newPriority) {
@@ -148,7 +166,6 @@ const TaskList = ({ theme }) => {
 
       Promise.all(updatePromises);
 
-      // Return reordered array with updated priorities
       return reordered.map((task, idx) => ({
         ...task,
         priority: idx + 1,
@@ -160,17 +177,14 @@ const TaskList = ({ theme }) => {
     setActiveId(null);
   };
 
-  // ---------- Task Management ----------
   const handleAddTask = () => {
     navigate("/tasks/new/edit");
   };
 
   const handleAITaskGenerated = (aiGeneratedTask) => {
-    // Navigate to editor with task data
     navigate("/tasks/new/edit", { state: { task: aiGeneratedTask } });
   };
 
-  // ---------- Shimmer Loader ----------
   const renderShimmerLoader = () => (
     <div className="container mt-5">
       <div className="task-container">
@@ -181,20 +195,11 @@ const TaskList = ({ theme }) => {
               <button
                 className={`btn btn-outline-${
                   theme === "dark" ? "light" : "dark"
-                } ai-button`}
-                disabled
-              >
-                <i className="bi bi-robot me-2"></i>
-                <span className="button-text">AI Assistant</span>
-              </button>
-
-              <button
-                className={`btn btn-outline-${
-                  theme === "dark" ? "light" : "dark"
                 } d-flex align-items-center gap-2`}
-                disabled
+                onClick={handleAddTask}
+                aria-label="Create new task"
               >
-                <i className="bi bi-plus-circle"></i>
+                <i className="bi bi-plus-circle" aria-hidden="true"></i>
                 <span className="button-text">New Task</span>
               </button>
             </div>
@@ -215,11 +220,9 @@ const TaskList = ({ theme }) => {
 
   if (!tasks) return renderShimmerLoader();
 
-  // Sort tasks by priority
   const sortedTasks = [...tasks].sort((a, b) => a.priority - b.priority);
   const activeTask = activeId ? tasks.find((t) => t.id === activeId) : null;
 
-  // ---------- Render ----------
   return (
     <>
       <div className="container mt-5">
@@ -228,16 +231,6 @@ const TaskList = ({ theme }) => {
             <div className="d-flex flex-row justify-content-between align-items-center mb-3 header-container">
               <h2 className="card-title mb-0">Your Tasks</h2>
               <div className="d-flex gap-2 button-group">
-                <button
-                  className={`btn btn-outline-${
-                    theme === "dark" ? "light" : "dark"
-                  } ai-button`}
-                  onClick={() => setShowAIModal(true)}
-                >
-                  <i className="bi bi-robot me-2"></i>
-                  <span className="button-text">AI Assistant</span>
-                </button>
-
                 <button
                   className={`btn btn-outline-${
                     theme === "dark" ? "light" : "dark"
@@ -315,11 +308,21 @@ const TaskList = ({ theme }) => {
         </div>
       </div>
 
-      <AIChatModal
-        show={showAIModal}
-        onClose={() => setShowAIModal(false)}
-        onTaskGenerated={handleAITaskGenerated}
+      {/* Drawer Mode */}
+      {chatMode === "drawer" && (
+        <AIChatModal
+          show={showAIModal}
+          onClose={() => setShowAIModal(false)}
+          onTaskGenerated={handleAITaskGenerated}
+          theme={theme}
+          refreshTasks={refreshTasks}
+        />
+      )}
+
+      {/* Widget/Drawer with Cloud Button */}
+      <FloatingChatWidget
         theme={theme}
+        onTaskGenerated={handleAITaskGenerated}
         refreshTasks={refreshTasks}
       />
     </>

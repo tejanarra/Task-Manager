@@ -1,4 +1,4 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   createTask,
@@ -181,7 +181,7 @@ const TaskEditor = ({ theme }) => {
   if (isLoading && !isNewTask) {
     return (
       <div className="container mt-5">
-        <div className="task-editor-container" style={{ position: 'relative' }}>
+        <div className="task-editor-container" style={{ position: "relative" }}>
           <div className="editor-spine"></div>
           <div className="loading-state">
             <div className="spinner-border" role="status">
@@ -199,18 +199,21 @@ const TaskEditor = ({ theme }) => {
       <div className="container mt-5">
         <div
           className={`task-editor-container ${theme === "dark" ? "dark" : ""}`}
-          style={{ position: 'relative' }}
+          style={{ position: "relative" }}
         >
-          <div className="editor-spine" style={{ backgroundColor: getStatusColor() }}></div>
-          
+          <div
+            className="editor-spine"
+            style={{ backgroundColor: getStatusColor() }}
+          ></div>
+
           <div className="editor-header">
             <button
               className="back-button"
               onClick={handleCancel}
               disabled={isLoading}
-              aria-label="Go back to tasks"
+              aria-label="Go back to task list"
             >
-              <i className="bi bi-arrow-left"></i>
+              <i className="bi bi-arrow-left" aria-hidden="true"></i>
             </button>
             <h2>{isNewTask ? "Create New Task" : "Edit Task"}</h2>
             <i

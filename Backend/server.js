@@ -13,11 +13,7 @@ import { swaggerUi, swaggerSpec } from "./config/swagger.js";
 const app = express();
 app.use(
   cors({
-    origin: [
-      "https://tejanarra.github.io",
-      "https://task-manager-sigma-ashen.vercel.app",
-      "http://localhost:3000",
-    ],
+    origin: ["https://tejanarra.github.io"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
