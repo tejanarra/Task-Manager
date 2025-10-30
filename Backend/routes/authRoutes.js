@@ -15,8 +15,12 @@ import {
 } from '../controllers/authController.js';
 import { executeCron } from '../utils/cronJobs.js';
 import authenticateToken from '../middleware/authMiddleware.js';
+import { authLimiter } from '../middleware/rateLimiter.js';
 
 const router = express.Router();
+
+// Apply rate limiting to all auth routes
+router.use(authLimiter);
 
 /**
  * @openapi

@@ -93,17 +93,44 @@ export const createTask = async (req, res) => {
 };
 
 /**
- * Get all tasks for user
+ * Get all tasks for user with pagination
  */
 export const getTasks = async (req, res) => {
   const userId = req.userId;
 
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const limit = parseInt(req.query.limit) || 50;
+  const offset = (page - 1) * limit;
+
+  // Validate pagination params
+  if (page < 1 || limit < 1 || limit > 100) {
+    return res.status(HTTP_STATUS.BAD_REQUEST).json({
+      message: 'Invalid pagination parameters. Page must be >= 1, limit must be 1-100',
+    });
+  }
+
   try {
-    const tasks = await Task.findAll({
+    const { count, rows: tasks } = await Task.findAndCountAll({
       where: { userId },
       order: [['priority', 'ASC']],
+      limit,
+      offset,
     });
-    res.status(HTTP_STATUS.OK).json(tasks);
+
+    const totalPages = Math.ceil(count / limit);
+
+    res.status(HTTP_STATUS.OK).json({
+      tasks,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalTasks: count,
+        tasksPerPage: limit,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+      },
+    });
   } catch (err) {
     console.error('Error fetching tasks:', err.message || err);
     res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({
