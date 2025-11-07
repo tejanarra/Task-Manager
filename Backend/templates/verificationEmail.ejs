@@ -185,17 +185,20 @@
 
       <div class="email-content">
         <p>Hello <%= userName %>,</p>
-        <p>
-          We're sending you this email to verify your identity. Please use the
-          following verification code to complete your
-          <strong><%= purpose %></strong>:
-        </p>
+        <p><%= message %></p>
 
         <div class="verification-code"><%= verificationCode %></div>
 
         <p>
-          If you did not request this verification, please ignore this email.
+          This code will expire in <strong><%= expiryMinutes %> minutes</strong>.
         </p>
+
+        <p>
+          Once verified, you can log in at:
+          <a href="<%= loginUrl %>" target="_blank"><%= loginUrl %></a>
+        </p>
+
+        <p>If you did not request this verification, please ignore this email.</p>
       </div>
 
       <div class="email-footer">
