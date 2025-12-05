@@ -1,6 +1,32 @@
+# Task Manager - robots.txt
+# https://tejanarra.github.io/Task-Manager/
+
 User-agent: *
 Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /tasks
+
+# Disallow static assets to prevent crawling compiled files
 Disallow: /static/js/
 Disallow: /static/css/
+Disallow: /static/media/
 
+# Disallow user-specific routes
+Disallow: /profile-overview
+Disallow: /edit-profile
+Disallow: /change-password
+
+# Allow search engines to crawl images
+Allow: /*.png$
+Allow: /*.jpg$
+Allow: /*.jpeg$
+Allow: /*.gif$
+Allow: /*.svg$
+
+# Sitemap location
 Sitemap: https://tejanarra.github.io/Task-Manager/sitemap.xml
+
+# Crawl delay for polite bots
+Crawl-delay: 1

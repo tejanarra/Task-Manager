@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <tile>
+      <square150x150logo src="/Task-Manager/logo.png"/>
+      <square310x310logo src="/Task-Manager/logo.png"/>
+      <TileColor>#007bff</TileColor>
+    </tile>
+  </msapplication>
+</browserconfig>

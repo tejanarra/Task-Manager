@@ -1,0 +1,19 @@
+/* TEAM */
+Developer: Teja Narra
+Site: https://tejanarra.github.io
+Location: USA
+
+/* THANKS */
+AI Assistant: Claude Code (Anthropic)
+Framework: React 19
+UI Library: Bootstrap 5
+
+/* SITE */
+Last update: 2025/12/05
+Language: English
+Doctype: HTML5
+IDE: VS Code
+Standards: HTML5, CSS3, JavaScript ES6+
+Components: React, React Router, Axios
+Backend: Express 5, PostgreSQL, Sequelize
+AI: Ollama (Deepseek v3.1)
