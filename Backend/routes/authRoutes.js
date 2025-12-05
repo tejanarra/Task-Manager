@@ -228,23 +228,74 @@ router.post('/change-password', authenticateToken, changePassword);
  * /api/auth/cronrun:
  *   get:
  *     tags: [Auth]
- *     summary: Manually trigger cron job (internal tool)
+ *     summary: Trigger reminder email cron job (called by external cron service)
+ *     description: This endpoint is called by cronjob.org every 5 minutes to send reminder emails
+ *     parameters:
+ *       - in: header
+ *         name: x-cron-secret
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Optional secret key for authentication
  *     responses:
  *       200:
  *         description: Cron executed successfully
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/MessageResponse'
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 timestamp:
+ *                   type: string
+ *                 remindersSent:
+ *                   type: number
+ *       401:
+ *         description: Unauthorized (invalid secret)
+ *       500:
+ *         description: Server error
  */
 router.get('/cronrun', async (req, res) => {
   try {
-    console.log('🔄 Manually triggering cron job via API...');
-    await executeCron();
-    return res.status(200).json({ message: 'Cron job executed successfully!' });
+    // Optional security: Check for secret key if configured
+    const cronSecret = process.env.CRON_SECRET;
+    if (cronSecret) {
+      const providedSecret = req.headers['x-cron-secret'] || req.query.secret;
+      if (providedSecret !== cronSecret) {
+        console.warn('⚠️ Unauthorized cron job attempt from:', req.ip);
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized'
+        });
+      }
+    }
+
+    const startTime = Date.now();
+    console.log('🔄 Cron job triggered via API at', new Date().toISOString());
+
+    // Execute the cron job
+    const result = await executeCron();
+
+    const duration = Date.now() - startTime;
+    console.log(`✅ Cron job completed in ${duration}ms`);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Cron job executed successfully',
+      timestamp: new Date().toISOString(),
+      executionTime: `${duration}ms`,
+      remindersSent: result?.count || 0
+    });
   } catch (error) {
-    console.error('🚨 Error triggering cron job:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    console.error('🚨 Error executing cron job:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Internal Server Error',
+      timestamp: new Date().toISOString()
+    });
   }
 });
 

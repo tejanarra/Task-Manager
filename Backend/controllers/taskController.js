@@ -15,6 +15,8 @@ import {
   ERROR_MESSAGES,
   SUCCESS_MESSAGES,
 } from '../constants/config.js';
+import { normalizeReminders } from '../utils/reminderHelpers.js';
+import { getUserTimeZone } from '../utils/timeHelpers.js';
 
 const fetchTask = async (taskId, userId) => {
   const task = await Task.findOne({ where: { id: taskId, userId } });
@@ -68,6 +70,12 @@ export const createTask = async (req, res) => {
       { where: { userId }, transaction }
     );
 
+    // Normalize reminders before saving
+    const userTimeZone = getUserTimeZone(req);
+    const normalizedReminders = deadline && reminders
+      ? normalizeReminders(reminders, deadline, userTimeZone)
+      : [];
+
     const task = await Task.create(
       {
         title,
@@ -76,7 +84,7 @@ export const createTask = async (req, res) => {
         userId,
         deadline,
         priority: 1,
-        reminders: reminders || [],
+        reminders: normalizedReminders,
       },
       { transaction }
     );
@@ -220,7 +228,12 @@ export const updateTask = async (req, res) => {
     }
 
     if (reminders !== undefined) {
-      updatedFields.reminders = reminders;
+      // Normalize reminders before updating
+      const userTimeZone = getUserTimeZone(req);
+      const effectiveDeadline = deadline !== undefined ? deadline : task.deadline;
+      updatedFields.reminders = effectiveDeadline
+        ? normalizeReminders(reminders, effectiveDeadline, userTimeZone)
+        : [];
     }
 
     if (Object.keys(updatedFields).length === 0) {

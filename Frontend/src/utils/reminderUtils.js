@@ -28,118 +28,202 @@ export const formatHoursLabel = (hours) => {
 };
 
 /**
- * Normalize and calculate remindBefore for all reminders before saving
+ * Creates a one-time reminder from hours before deadline
+ * @param {number} hoursBeforeDeadline - Hours before deadline
+ * @param {Date|string} deadline - Task deadline
+ * @returns {Object|null} - Reminder object
+ */
+export const createOneTimeReminder = (hoursBeforeDeadline, deadline) => {
+  if (typeof hoursBeforeDeadline !== "number" || hoursBeforeDeadline <= 0 || !deadline) {
+    return null;
+  }
+
+  const deadlineDate = new Date(deadline);
+  const remindAt = new Date(deadlineDate.getTime() - hoursBeforeDeadline * 60 * 60 * 1000);
+  const now = new Date();
+
+  if (remindAt <= now) return null;
+
+  return {
+    type: REMINDER_TYPES.ONE_TIME,
+    remindAt: remindAt.toISOString(),
+    sent: false,
+    lastSentAt: null,
+  };
+};
+
+/**
+ * Creates a one-time reminder from a custom date
+ * @param {Date|string} customDate - Custom reminder date
+ * @param {Date|string} deadline - Task deadline
+ * @returns {Object|null} - Reminder object
+ */
+export const createOneTimeReminderFromDate = (customDate, deadline) => {
+  if (!customDate || !deadline) return null;
+
+  const remindDate = new Date(customDate);
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+
+  if (isNaN(remindDate.getTime()) || isNaN(deadlineDate.getTime())) return null;
+  if (remindDate <= now) return null;
+  if (remindDate >= deadlineDate) return null;
+
+  return {
+    type: REMINDER_TYPES.ONE_TIME,
+    remindAt: remindDate.toISOString(),
+    sent: false,
+    lastSentAt: null,
+  };
+};
+
+/**
+ * Creates a recurring reminder (daily or weekly)
+ * @param {string} type - 'daily' or 'weekly'
+ * @param {Date|string} deadline - Task deadline
+ * @returns {Object|null} - Reminder object
+ */
+export const createRecurringReminder = (type, deadline) => {
+  if (!deadline) return null;
+  if (type !== REMINDER_TYPES.DAILY && type !== REMINDER_TYPES.WEEKLY) return null;
+
+  const deadlineDate = new Date(deadline);
+  const now = new Date();
+  const hoursUntilDeadline = (deadlineDate - now) / (1000 * 60 * 60);
+
+  const intervalHours = type === REMINDER_TYPES.DAILY ? 24 : 168;
+  if (hoursUntilDeadline < intervalHours) return null;
+
+  return {
+    type,
+    intervalHours,
+    sent: false,
+    lastSentAt: null,
+  };
+};
+
+/**
+ * Normalizes reminders before saving to backend
+ * Converts frontend format to standardized backend format
  * @param {Array} reminders - List of reminder objects
- * @param {string|Date} deadline - ISO string or Date for task deadline
+ * @param {string|Date} deadline - Task deadline
  * @returns {Array} - Normalized reminders
  */
 export const normalizeRemindersBeforeSave = (reminders, deadline) => {
-  if (!Array.isArray(reminders) || !deadline) return reminders;
+  if (!Array.isArray(reminders) || !deadline) return [];
 
-  const deadlineDate = new Date(deadline);
+  const normalized = [];
+  const seen = new Set();
 
-  return reminders.map((r) => {
-    // Skip invalid dates or reminders with explicit remindBefore
-    if (r.remindBefore && !r.customDate) return r;
+  for (const reminder of reminders) {
+    if (!reminder || typeof reminder !== "object") continue;
 
-    // If a customDate exists, calculate remindBefore dynamically
-    if (r.customDate) {
-      const customDate = new Date(r.customDate);
-      if (!isNaN(customDate.getTime()) && customDate < deadlineDate) {
-        const diffHours = (deadlineDate - customDate) / (1000 * 60 * 60);
-        return { ...r, remindBefore: diffHours };
+    const { type, remindAt, remindBefore, customDate, intervalHours } = reminder;
+
+    // Handle recurring reminders
+    if (type === REMINDER_TYPES.DAILY || type === REMINDER_TYPES.WEEKLY) {
+      const key = `recurring-${type}`;
+      if (seen.has(key)) continue;
+
+      const recurring = createRecurringReminder(type, deadline);
+      if (recurring) {
+        normalized.push(recurring);
+        seen.add(key);
       }
+      continue;
     }
 
-    // Fallback: keep as-is
-    return r;
-  });
+    // Handle one-time reminders
+    let oneTime = null;
+
+    // Priority 1: Already has remindAt (new format)
+    if (remindAt) {
+      oneTime = createOneTimeReminderFromDate(remindAt, deadline);
+    }
+    // Priority 2: Has customDate
+    else if (customDate) {
+      oneTime = createOneTimeReminderFromDate(customDate, deadline);
+    }
+    // Priority 3: Has remindBefore (legacy format)
+    else if (typeof remindBefore === "number" && remindBefore > 0) {
+      oneTime = createOneTimeReminder(remindBefore, deadline);
+    }
+
+    if (oneTime) {
+      const key = `onetime-${oneTime.remindAt}`;
+      if (!seen.has(key)) {
+        normalized.push(oneTime);
+        seen.add(key);
+      }
+    }
+  }
+
+  return normalized;
 };
 
 /**
  * Gets reminder summary for display
  * @param {Array} reminders - Array of reminder objects
+ * @param {Date|string} deadline - Task deadline for calculating hours
  * @returns {string} - Summary text (e.g., "1 hr, 1 day before")
  */
-export const getReminderSummary = (reminders) => {
+export const getReminderSummary = (reminders, deadline = null) => {
   if (!reminders || reminders.length === 0) return "";
 
-  const oneTimeReminders = reminders.filter(
-    (r) => !r.type || r.type === REMINDER_TYPES.ONE_TIME
-  );
-
-  const hasDailyReminders = reminders.some((r) => r.type === REMINDER_TYPES.DAILY);
-  const hasWeeklyReminders = reminders.some((r) => r.type === REMINDER_TYPES.WEEKLY);
-
   const parts = [];
+  let oneTimeCount = 0;
+  let hasDaily = false;
+  let hasWeekly = false;
 
-  // Add one-time reminders
-  if (oneTimeReminders.length > 0) {
-    const labels = oneTimeReminders
-      .map((r) => formatHoursLabel(r.remindBefore))
-      .join(", ");
-    parts.push(labels);
+  for (const reminder of reminders) {
+    if (!reminder) continue;
+
+    if (reminder.type === REMINDER_TYPES.ONE_TIME) {
+      oneTimeCount++;
+    } else if (reminder.type === REMINDER_TYPES.DAILY) {
+      hasDaily = true;
+    } else if (reminder.type === REMINDER_TYPES.WEEKLY) {
+      hasWeekly = true;
+    }
   }
 
-  // Add recurring reminders
-  if (hasDailyReminders) parts.push("Daily");
-  if (hasWeeklyReminders) parts.push("Weekly");
+  if (oneTimeCount > 0) {
+    parts.push(`${oneTimeCount} reminder${oneTimeCount > 1 ? 's' : ''}`);
+  }
+  if (hasDaily) parts.push("Daily");
+  if (hasWeekly) parts.push("Weekly");
 
   return parts.join(", ");
 };
 
 /**
- * Regenerates recurring reminders (daily or weekly)
+ * Adds or removes a recurring reminder (daily or weekly)
  * @param {Array} currentReminders - Current reminder array
  * @param {string} type - "daily" or "weekly"
- * @param {Date} deadlineDate - Deadline date
- * @param {Date} now - Current date
+ * @param {boolean} enabled - Whether to enable or disable
+ * @param {Date|string} deadline - Deadline date
  * @returns {Array} - Updated reminders array
  */
-export const regenerateRecurringReminders = (
+export const toggleRecurringReminder = (
   currentReminders,
   type,
-  deadlineDate,
-  now = new Date()
+  enabled,
+  deadline
 ) => {
   // Remove existing reminders of this type
   const filtered = currentReminders.filter((r) => r.type !== type);
 
-  const diffInHours = (deadlineDate - now) / (1000 * 60 * 60);
-
-  if (type === REMINDER_TYPES.DAILY) {
-    const days = Math.floor(diffInHours / TIME_CONSTANTS.ONE_DAY_HOURS);
-    if (days < 1) return filtered;
-
-    const newReminders = [];
-    for (let i = 1; i <= days; i++) {
-      newReminders.push({
-        remindBefore: i * TIME_CONSTANTS.ONE_DAY_HOURS,
-        sent: false,
-        type: REMINDER_TYPES.DAILY,
-        dayNumber: i,
-      });
-    }
-    return [...filtered, ...newReminders];
+  if (!enabled) {
+    return filtered; // Just remove it
   }
 
-  if (type === REMINDER_TYPES.WEEKLY) {
-    const weeks = Math.floor(diffInHours / TIME_CONSTANTS.ONE_WEEK_HOURS);
-    if (weeks < 1) return filtered;
-
-    const newReminders = [];
-    for (let i = 1; i <= weeks; i++) {
-      newReminders.push({
-        remindBefore: i * TIME_CONSTANTS.ONE_WEEK_HOURS,
-        sent: false,
-        type: REMINDER_TYPES.WEEKLY,
-        weekNumber: i,
-      });
-    }
-    return [...filtered, ...newReminders];
+  // Add a single recurring reminder
+  const recurring = createRecurringReminder(type, deadline);
+  if (recurring) {
+    return [...filtered, recurring];
   }
 
-  return currentReminders;
+  return filtered;
 };
 
 /**

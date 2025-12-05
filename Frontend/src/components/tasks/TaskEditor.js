@@ -9,6 +9,7 @@ import {
 import TaskReminders from "./taskItem/TaskReminders";
 import ConfirmationModal from "../layout/ConfirmationModal";
 import { formatDateTimeLocal } from "../../utils/dateUtils";
+import { normalizeRemindersBeforeSave } from "../../utils/reminderUtils";
 import "./TaskEditor.css";
 import { REMINDER_INTERVALS } from "../../constants/appConstants";
 
@@ -79,58 +80,17 @@ const TaskEditor = ({ theme }) => {
     setIsLoading(true);
     setError(null);
 
-    const now = new Date();
-    const deadlineDate = deadline ? new Date(deadline) : null;
-    const diffInHours =
-      deadlineDate && deadlineDate > now
-        ? (deadlineDate - now) / (1000 * 60 * 60)
-        : 0;
-
-    const regenerateRecurringReminders = (reminders) => {
-      const hasDaily = reminders.some((r) => r.type === "daily");
-      const hasWeekly = reminders.some((r) => r.type === "weekly");
-
-      let filteredReminders = reminders.filter(
-        (r) =>
-          (r.type === "one-time" || !r.type) && r.remindBefore <= diffInHours
-      );
-
-      if (hasDaily && diffInHours > 0) {
-        const maxDays = Math.floor(diffInHours / 24);
-        for (let day = 1; day <= maxDays; day++) {
-          filteredReminders.push({
-            remindBefore: day * 24,
-            sent: false,
-            type: "daily",
-            dayNumber: day,
-          });
-        }
-      }
-
-      if (hasWeekly && diffInHours > 0) {
-        const maxWeeks = Math.floor(diffInHours / (24 * 7));
-        for (let week = 1; week <= maxWeeks; week++) {
-          filteredReminders.push({
-            remindBefore: week * 24 * 7,
-            sent: false,
-            type: "weekly",
-            weekNumber: week,
-          });
-        }
-      }
-
-      return filteredReminders;
-    };
-
-    const finalReminders =
-      diffInHours > 0 ? regenerateRecurringReminders(reminders) : [];
+    // Normalize reminders before sending to backend
+    const normalizedReminders = deadline
+      ? normalizeRemindersBeforeSave(reminders, deadline)
+      : [];
 
     const taskData = {
       title: title.trim(),
       description: description.trim(),
       status,
-      deadline: deadline ? deadlineDate.toISOString() : null,
-      reminders: finalReminders,
+      deadline: deadline ? new Date(deadline).toISOString() : null,
+      reminders: normalizedReminders,
     };
 
     try {

@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
 import {
   normalizeRemindersBeforeSave,
-  regenerateRecurringReminders,
+  toggleRecurringReminder,
   validateCustomReminder,
+  createOneTimeReminder,
+  createOneTimeReminderFromDate,
 } from "../utils/reminderUtils";
 import { REMINDER_TYPES } from "../constants/appConstants";
 
@@ -16,43 +18,25 @@ const useTaskReminders = (initialReminders = [], deadline = null) => {
   const [reminders, setReminders] = useState(initialReminders);
 
   const addOneTimeReminder = useCallback((remindBefore) => {
-    setReminders((prev) => [
-      ...prev,
-      {
-        remindBefore,
-        sent: false,
-        type: REMINDER_TYPES.ONE_TIME,
-      },
-    ]);
-  }, []);
+    if (!deadline) return;
 
-  const removeOneTimeReminder = useCallback((remindBefore) => {
+    const newReminder = createOneTimeReminder(remindBefore, deadline);
+    if (newReminder) {
+      setReminders((prev) => [...prev, newReminder]);
+    }
+  }, [deadline]);
+
+  const removeOneTimeReminder = useCallback((remindAt) => {
     setReminders((prev) =>
-      prev.filter(
-        (r) =>
-          !(r.type === REMINDER_TYPES.ONE_TIME && r.remindBefore === remindBefore)
-      )
+      prev.filter((r) => !(r.type === REMINDER_TYPES.ONE_TIME && r.remindAt === remindAt))
     );
   }, []);
 
   const toggleDailyReminders = useCallback(
     (checked) => {
       if (!deadline) return;
-
-      const deadlineDate = new Date(deadline);
-      const now = new Date();
-
-      if (checked) {
-        const updated = regenerateRecurringReminders(
-          reminders,
-          REMINDER_TYPES.DAILY,
-          deadlineDate,
-          now
-        );
-        setReminders(updated);
-      } else {
-        setReminders((prev) => prev.filter((r) => r.type !== REMINDER_TYPES.DAILY));
-      }
+      const updated = toggleRecurringReminder(reminders, REMINDER_TYPES.DAILY, checked, deadline);
+      setReminders(updated);
     },
     [reminders, deadline]
   );
@@ -60,21 +44,8 @@ const useTaskReminders = (initialReminders = [], deadline = null) => {
   const toggleWeeklyReminders = useCallback(
     (checked) => {
       if (!deadline) return;
-
-      const deadlineDate = new Date(deadline);
-      const now = new Date();
-
-      if (checked) {
-        const updated = regenerateRecurringReminders(
-          reminders,
-          REMINDER_TYPES.WEEKLY,
-          deadlineDate,
-          now
-        );
-        setReminders(updated);
-      } else {
-        setReminders((prev) => prev.filter((r) => r.type !== REMINDER_TYPES.WEEKLY));
-      }
+      const updated = toggleRecurringReminder(reminders, REMINDER_TYPES.WEEKLY, checked, deadline);
+      setReminders(updated);
     },
     [reminders, deadline]
   );
@@ -88,27 +59,19 @@ const useTaskReminders = (initialReminders = [], deadline = null) => {
         return { success: false, error: validation.error };
       }
 
-      const deadlineDate = new Date(deadline);
-      const reminderDate = new Date(customDate);
-      const diffHours = (deadlineDate - reminderDate) / (1000 * 60 * 60);
+      const newReminder = createOneTimeReminderFromDate(customDate, deadline);
+      if (newReminder) {
+        setReminders((prev) => [...prev, newReminder]);
+        return { success: true, error: null };
+      }
 
-      setReminders((prev) => [
-        ...prev,
-        {
-          remindBefore: diffHours,
-          sent: false,
-          type: REMINDER_TYPES.ONE_TIME,
-          customDate,
-        },
-      ]);
-
-      return { success: true, error: null };
+      return { success: false, error: "Failed to create reminder" };
     },
     [deadline]
   );
 
-  const removeCustomReminder = useCallback((customDate) => {
-    setReminders((prev) => prev.filter((r) => r.customDate !== customDate));
+  const removeCustomReminder = useCallback((remindAt) => {
+    setReminders((prev) => prev.filter((r) => r.remindAt !== remindAt));
   }, []);
 
   const normalizeReminders = useCallback(() => {

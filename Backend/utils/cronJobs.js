@@ -10,11 +10,22 @@ import { fileURLToPath } from 'url';
 import { sendEmail } from './mailer.js';
 import { format } from 'date-fns';
 import { EMAIL_CONFIG } from '../constants/config.js';
+import {
+  getReadyReminders,
+  markReminderAsSent,
+} from './reminderHelpers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const executeCron = async () => {
+  let stats = {
+    tasksChecked: 0,
+    remindersSent: 0,
+    errors: 0,
+    skipped: 0
+  };
+
   try {
     const tasks = await Task.findAll({
       where: {
@@ -23,49 +34,89 @@ export const executeCron = async () => {
       },
     });
 
+    stats.tasksChecked = tasks.length;
+    console.log(`📋 Checking ${tasks.length} active tasks with future deadlines`);
+
     for (const task of tasks) {
       if (!Array.isArray(task.reminders) || task.reminders.length === 0) {
+        stats.skipped++;
         continue;
       }
 
-      const now = new Date();
-      const deadlineDate = new Date(task.deadline);
-      const sortedReminders = [...task.reminders].sort(
-        (a, b) => a.remindBefore - b.remindBefore
-      );
+      // Get reminders that are ready to be sent
+      const readyReminders = getReadyReminders(task.reminders, task.deadline);
+
+      if (readyReminders.length === 0) {
+        stats.skipped++;
+        continue;
+      }
 
       let isUpdated = false;
 
-      for (let i = 0; i < sortedReminders.length; i++) {
-        const reminder = sortedReminders[i];
-        if (reminder.sent) {
-          continue;
-        }
+      // Send each ready reminder
+      for (const reminder of readyReminders) {
+        try {
+          await sendDeadlineReminder(task, reminder);
+          stats.remindersSent++;
 
-        const timeBeforeDeadline = deadlineDate - now;
-        const reminderTime = reminder.remindBefore * 60 * 60 * 1000;
+          // Mark reminder as sent in the task's reminder array
+          const index = task.reminders.findIndex(r =>
+            r.type === reminder.type &&
+            (r.remindAt === reminder.remindAt || r.intervalHours === reminder.intervalHours)
+          );
 
-        if (timeBeforeDeadline <= reminderTime && timeBeforeDeadline > 0) {
-          await sendDeadlineReminder(task, reminder.remindBefore);
-          reminder.sent = true;
-          isUpdated = true;
-          sortedReminders.splice(i, 1);
-          break;
+          if (index !== -1) {
+            task.reminders[index] = markReminderAsSent(task.reminders[index]);
+            isUpdated = true;
+          }
+        } catch (error) {
+          console.error(`❌ Failed to send reminder for task ${task.id}:`, error);
+          stats.errors++;
         }
       }
 
+      // Save updated reminders
       if (isUpdated) {
-        task.reminders = sortedReminders;
         task.changed('reminders', true);
         await task.save();
       }
     }
+
+    console.log(`📊 Cron job summary: ${stats.remindersSent} sent, ${stats.errors} errors, ${stats.skipped} skipped`);
+    return { success: true, count: stats.remindersSent, stats };
   } catch (error) {
-    console.error('Error executing cron job:', error);
+    console.error('❌ Critical error executing cron job:', error);
+    stats.errors++;
+    return { success: false, count: 0, stats, error: error.message };
   }
 };
 
-const sendDeadlineReminder = async (task, remindBefore) => {
+const getReminderDescription = (reminder, deadline) => {
+  if (!reminder) return 'Task reminder';
+
+  const { type, remindAt } = reminder;
+
+  if (type === 'daily') return 'Daily reminder';
+  if (type === 'weekly') return 'Weekly reminder';
+
+  // One-time reminder - calculate hours before deadline
+  if (remindAt && deadline) {
+    const deadlineDate = new Date(deadline);
+    const remindDate = new Date(remindAt);
+    const diffHours = (deadlineDate - remindDate) / (1000 * 60 * 60);
+
+    if (diffHours < 1) return `${Math.round(diffHours * 60)} minutes before`;
+    if (diffHours < 24) return `${Math.round(diffHours)} hour${diffHours !== 1 ? 's' : ''} before`;
+    const days = diffHours / 24;
+    if (days < 7) return `${Math.round(days)} day${Math.round(days) !== 1 ? 's' : ''} before`;
+    const weeks = days / 7;
+    return `${Math.round(weeks)} week${Math.round(weeks) !== 1 ? 's' : ''} before`;
+  }
+
+  return 'Task reminder';
+};
+
+const sendDeadlineReminder = async (task, reminder) => {
   try {
     const user = await User.findByPk(task.userId);
     if (!user) return;
@@ -77,7 +128,7 @@ const sendDeadlineReminder = async (task, remindBefore) => {
         task,
         deadlineIn: formatRelativeTime(task.deadline),
         userName: `${user.firstName} ${user.lastName}`,
-        remindBefore,
+        remindBefore: getReminderDescription(reminder, task.deadline),
         actionLink: `${EMAIL_CONFIG.FRONTEND_BASE_URL}/login`,
         theme: 'dark',
       }

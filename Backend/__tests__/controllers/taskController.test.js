@@ -24,6 +24,9 @@ describe('Task Controller', () => {
       body: {},
       params: {},
       query: {},
+      headers: {
+        'x-user-timezone': 'America/New_York',
+      },
     };
     res = {
       status: jest.fn().mockReturnThis(),
