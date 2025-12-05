@@ -63,16 +63,23 @@ When inferring deadlines:
 
 ### REMINDER LOGIC
 Only create reminders **if a deadline exists**.
-Determine appropriate reminders:
-- If user explicitly says "daily" → [{"remindBefore": 24, "type": "daily"}]
-- If user says "weekly" → [{"remindBefore": 168, "type": "weekly"}]
-- Otherwise infer from deadline distance:
-  - <48h → 1 reminder 2–4h before
-  - 2–7d → 1 reminder 24h before
-  - 1–4w → 1 reminder 48–72h before
-  - >1m → 1 reminder 1 week before
-- All "remindBefore" values are in hours.
-- Default type = "one-time" unless user specifies daily/weekly.
+
+**Reminder Format:**
+- "remindBefore" → number of hours before deadline
+- "type" → "one-time", "daily", or "weekly"
+
+**Rules:**
+- If user explicitly says "daily reminder" → [{"remindBefore": 24, "type": "daily"}]
+- If user says "weekly reminder" → [{"remindBefore": 168, "type": "weekly"}]
+- For one-time reminders, infer from deadline distance:
+  - <48h → 1 reminder 2h before: {"remindBefore": 2, "type": "one-time"}
+  - 2–7d → 1 reminder 24h before: {"remindBefore": 24, "type": "one-time"}
+  - 1–4w → 1 reminder 48h before: {"remindBefore": 48, "type": "one-time"}
+  - >1m → 1 reminder 168h (1 week) before: {"remindBefore": 168, "type": "one-time"}
+- User can request multiple reminders: "remind me 2 days before and 1 day before"
+  → [{"remindBefore": 48, "type": "one-time"}, {"remindBefore": 24, "type": "one-time"}]
+- All "remindBefore" values are in **hours** (number)
+- Always include "type" field
 
 ---
 
@@ -258,21 +265,35 @@ You must **ONLY** return JSON if an actionable task change is detected.
 ---
 
 ### REMINDER HANDLING
-You can include:
+Only create reminders **if a deadline exists**.
+
+**Reminder Format:**
 - "remindBefore" → number of hours before deadline
-- "customDate" → explicit ISO datetime (local time)
-- "type" → “one-time”, “daily”, or “weekly”
+- "type" → "one-time", "daily", or "weekly"
 
-Rules:
-- If a **deadline exists** and "customDate" is given → backend will calculate "remindBefore" automatically based on time difference.
-- If "remindBefore" is provided → backend uses it directly.
-- You may include multiple reminders.
-- Prefer including both when possible for clarity.
+**Rules:**
+- If user explicitly says "daily reminder" → [{"remindBefore": 24, "type": "daily"}]
+- If user says "weekly reminder" → [{"remindBefore": 168, "type": "weekly"}]
+- For one-time reminders, infer from deadline distance:
+  - <48h → 1 reminder 2h before: {"remindBefore": 2, "type": "one-time"}
+  - 2–7d → 1 reminder 24h before: {"remindBefore": 24, "type": "one-time"}
+  - 1–4w → 1 reminder 48h before: {"remindBefore": 48, "type": "one-time"}
+  - >1m → 1 reminder 168h (1 week) before: {"remindBefore": 168, "type": "one-time"}
+- User can request multiple reminders: "remind me 2 days before and 1 day before"
+  → [{"remindBefore": 48, "type": "one-time"}, {"remindBefore": 24, "type": "one-time"}]
+- All "remindBefore" values are in **hours** (number)
+- Always include "type" field
 
-Examples:
+**Examples:**
 [
   {"remindBefore": 24, "type": "one-time"},
-  {"customDate": "2025-11-07T15:05:00"}
+  {"remindBefore": 48, "type": "one-time"}
+]
+[
+  {"remindBefore": 24, "type": "daily"}
+]
+[
+  {"remindBefore": 168, "type": "weekly"}
 ]
 
 ---
