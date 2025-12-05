@@ -25,6 +25,17 @@ const FloatingChatWidget = ({ theme, onTaskGenerated, refreshTasks }) => {
   const buttonRef = useRef(null);
   const optionsRef = useRef(null);
 
+  // Helper function to get responsive button size and margin
+  const getButtonMetrics = useCallback(() => {
+    const width = window.innerWidth;
+    if (width <= 480) {
+      return { buttonSize: 52, margin: 20 };
+    } else if (width <= 768) {
+      return { buttonSize: 56, margin: 20 };
+    }
+    return { buttonSize: 60, margin: 24 };
+  }, []);
+
   // Save button position
   useEffect(() => {
     localStorage.setItem(
@@ -37,6 +48,33 @@ const FloatingChatWidget = ({ theme, onTaskGenerated, refreshTasks }) => {
   useEffect(() => {
     localStorage.setItem("chat_widget_size", widgetSize);
   }, [widgetSize]);
+
+  // Handle responsive repositioning on window resize
+  useEffect(() => {
+    let resizeTimeout;
+    const handleResize = () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        setButtonPosition((prev) => {
+          const { buttonSize, margin } = getButtonMetrics();
+          const maxX = window.innerWidth - buttonSize - margin;
+          const maxY = window.innerHeight - buttonSize - margin;
+
+          // Clamp position to valid bounds
+          const x = Math.max(margin, Math.min(prev.x, maxX));
+          const y = Math.max(margin, Math.min(prev.y, maxY));
+
+          return { x, y };
+        });
+      }, 150); // Debounce to avoid excessive updates
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(resizeTimeout);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [getButtonMetrics]);
 
   // Close options when clicking outside
   useEffect(() => {
@@ -56,8 +94,7 @@ const FloatingChatWidget = ({ theme, onTaskGenerated, refreshTasks }) => {
   const snapToCorner = useCallback((x, y) => {
     const windowWidth = window.innerWidth;
     const windowHeight = window.innerHeight;
-    const buttonSize = 60;
-    const margin = 24;
+    const { buttonSize, margin } = getButtonMetrics();
 
     const corners = [
       { x: margin, y: margin },
@@ -81,7 +118,7 @@ const FloatingChatWidget = ({ theme, onTaskGenerated, refreshTasks }) => {
     });
 
     return { x: nearest.x, y: nearest.y };
-  }, []);
+  }, [getButtonMetrics]);
 
   const handleMouseDown = (e) => {
     e.preventDefault();
