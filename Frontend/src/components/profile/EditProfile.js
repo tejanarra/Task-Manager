@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { getProfile, updateProfile } from "../../services/api";
 import Cropper from "react-easy-crop";
 import { useAuth } from "../../context/AuthContext";
@@ -16,7 +18,7 @@ const EditProfile = () => {
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
   const { logout } = useAuth();
 
   useEffect(() => {
@@ -31,7 +33,7 @@ const EditProfile = () => {
         );
         if (err && err.status === 403) {
           logout();
-          navigate("/login");
+          router.push("/login");
         }
       }
     };
@@ -158,10 +160,10 @@ const EditProfile = () => {
       const userInfo = JSON.parse(localStorage.getItem("userInfo"));
       userInfo.avatar = response.user.avatar;
       localStorage.setItem("userInfo", JSON.stringify(userInfo));
-      setTimeout(() => navigate("/profile-overview"), 2000);
+      setTimeout(() => router.push("/profile-overview"), 2000);
     } catch (err) {
       setError(err.message);
-      setTimeout(() => navigate("/profile-overview"), 2000);
+      setTimeout(() => router.push("/profile-overview"), 2000);
     } finally {
       setIsLoading(false);
     }
@@ -171,7 +173,7 @@ const EditProfile = () => {
     return (
       <div className="profile-container">
         <div className="loading-spinner">Loading profile...</div>
-        {navigate("/login")}
+        {router.push("/login")}
       </div>
     );
   }
@@ -323,7 +325,7 @@ const EditProfile = () => {
               <button
                 type="button"
                 className="btn btn-secondary w-100"
-                onClick={() => navigate("/profile-overview")}
+                onClick={() => router.push("/profile-overview")}
                 disabled={isLoading}
               >
                 Cancel

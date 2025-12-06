@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { verifyRegistrationCode } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import "./VerificationForm.css";
@@ -16,7 +18,7 @@ const VerificationForm = ({
   isLoading,
 }) => {
   const [verificationCode, setVerificationCode] = useState("");
-  const navigate = useNavigate();
+  const router = useRouter();
   const { login } = useAuth();
 
   const handleVerifyCode = async (e) => {
@@ -34,7 +36,7 @@ const VerificationForm = ({
       setTimeout(() => {
         setIsVerificationStep(false);
         login(token, userInfo);
-        navigate("/tasks");
+        router.push("/tasks");
       }, 2000);
     } catch (err) {
       setError(err.response?.data?.message || "Verification failed.");

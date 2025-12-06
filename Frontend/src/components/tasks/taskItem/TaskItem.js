@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { deleteTask, updateTask } from "../../../services/api";
 import "bootstrap/dist/css/bootstrap.min.css";

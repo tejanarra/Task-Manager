@@ -58,7 +58,7 @@ export default function RegisterPage() {
       <main className="main-content">
         <Register theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

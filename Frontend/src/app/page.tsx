@@ -41,7 +41,7 @@ export default function Home() {
       <main className="main-content">
         <LandingPage theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

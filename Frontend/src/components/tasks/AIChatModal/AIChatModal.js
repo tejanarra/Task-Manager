@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import QuickMode from "./QuickMode";
 import ChatMode from "./ChatMode";

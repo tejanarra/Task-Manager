@@ -1,3 +1,5 @@
+"use client";
+
 const BenefitsSection = ({ benefits }) => (
   <section className="lp-benefits">
     <h2>Why Choose Us?</h2>

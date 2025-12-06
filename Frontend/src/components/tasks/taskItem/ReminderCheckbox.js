@@ -1,3 +1,5 @@
+"use client";
+
 import "./Styles/ReminderCheckbox.css";
 
 const ReminderCheckbox = ({

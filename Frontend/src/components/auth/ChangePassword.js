@@ -1,5 +1,7 @@
+"use client";
+
 import  { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { changePassword } from "../../services/api";
 import "../profile/ProfileOverview.css";
 import "../profile/EditProfile.css";
@@ -13,7 +15,7 @@ const ChangePassword = () => {
   });
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const navigate = useNavigate();
+  const router = useRouter();
   const { logout } = useAuth();
 
   const handleChange = (e) => {
@@ -39,7 +41,7 @@ const ChangePassword = () => {
       await changePassword(currentPassword, newPassword);
       setSuccess("Password changed successfully!");
       setError("");
-      setTimeout(() => navigate("/profile-overview"), 2000);
+      setTimeout(() => router.push("/profile-overview"), 2000);
     } catch (err) {
       console.error(
         "Password change error:",
@@ -53,7 +55,7 @@ const ChangePassword = () => {
 
       if (err && err.status === 403) {
         logout();
-        navigate("/login");
+        router.push("/login");
       }
     }
   };
@@ -114,7 +116,7 @@ const ChangePassword = () => {
               <button
                 type="button"
                 className="btn btn-secondary w-100"
-                onClick={() => navigate("/profile-overview")}
+                onClick={() => router.push("/profile-overview")}
               >
                 Cancel
               </button>

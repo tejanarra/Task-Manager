@@ -1,9 +1,11 @@
+"use client";
+
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { generateAITask } from "../../../services/api";
 
 const QuickMode = ({ setError, onClose }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [quickPrompt, setQuickPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const inputRef = useRef(null);
@@ -36,7 +38,7 @@ const QuickMode = ({ setError, onClose }) => {
 
     // Close modal and navigate to editor with task data
     onClose();
-    navigate("/tasks/new/edit", { state: { task: newTask } });
+    router.push("/tasks/new/edit", { state: { task: newTask } });
   };
 
   const handleKeyPress = (e) => {

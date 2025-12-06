@@ -40,7 +40,7 @@ export default function ForgotPasswordPage() {
       <main className="main-content">
         <ForgotPassword theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

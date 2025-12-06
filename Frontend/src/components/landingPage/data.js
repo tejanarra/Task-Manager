@@ -1,3 +1,5 @@
+"use client";
+
 import feature1 from "../../assets/organize.jpg";
 import feature2 from "../../assets/reminder3.jpeg";
 import feature3 from "../../assets/switch.jpg";

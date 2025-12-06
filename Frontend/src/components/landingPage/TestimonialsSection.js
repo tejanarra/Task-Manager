@@ -1,3 +1,5 @@
+"use client";
+
 const TestimonialsSection = ({ testimonials }) => (
   <section className="lp-testimonials">
     <h2>What Our Users Say</h2>

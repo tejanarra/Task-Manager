@@ -1,5 +1,7 @@
+"use client";
+
 import  { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { getProfile } from "../../services/api";
 import "./ProfileOverview.css";
 import { useAuth } from "../../context/AuthContext";
@@ -11,12 +13,12 @@ const ProfileOverview = ({ theme }) => {
   const { logout } = useAuth();
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleLogout = () => {
     logout();
     setShowLogoutModal(false);
-    navigate("/login");
+    router.push("/login");
   };
 
   const logoutClicked = () => {
@@ -43,7 +45,7 @@ const ProfileOverview = ({ theme }) => {
         setError("Failed to fetch profile data.");
         if (err && err.status === 403) {
           logout();
-          navigate("/login");
+          router.push("/login");
         }
         console.log(err);
       }
@@ -142,7 +144,7 @@ const ProfileOverview = ({ theme }) => {
           <div className="col-12 col-md-6 mb-2 mb-md-0">
             <button
               className="btn btn-secondary w-100"
-              onClick={() => navigate("/change-password")}
+              onClick={() => router.push("/change-password")}
             >
               Change Password
             </button>
@@ -150,7 +152,7 @@ const ProfileOverview = ({ theme }) => {
           <div className="col-12 col-md-6">
             <button
               className="btn sign-in-btn w-100"
-              onClick={() => navigate("/edit-profile")}
+              onClick={() => router.push("/edit-profile")}
             >
               Edit Profile
             </button>

@@ -58,7 +58,7 @@ export default function LoginPage() {
       <main className="main-content">
         <Login theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

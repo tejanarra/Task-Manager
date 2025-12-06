@@ -1,17 +1,20 @@
-import { Link, useLocation } from "react-router-dom";
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useAuth } from "../../context/AuthContext";
 import "./Navbar.css";
 
 const Navbar = ({ theme, toggleTheme }) => {
   const { user } = useAuth();
-  const location = useLocation();
+  const pathname = usePathname();
 
   const isOnProfile =
-    location.pathname === "/profile-overview" ||
-    location.pathname === "/edit-profile";
+    pathname === "/profile-overview" ||
+    pathname === "/edit-profile";
 
   const avatarLink = isOnProfile ? "/tasks" : "/profile-overview";
-  const isHome = location.pathname === "/tasks";
+  const isHome = pathname === "/tasks";
 
   const avatarBorderStyle = isOnProfile
     ? theme === "dark"
@@ -49,7 +52,7 @@ const Navbar = ({ theme, toggleTheme }) => {
       <div className="container-fluid flex-row justify-content-between align-items-center">
         <Link
           className="navbar-brand"
-          to="/"
+          href="/"
           style={{ fontFamily: "Poppins", fontWeight: 600 }}
         >
           Task Manager
@@ -73,9 +76,9 @@ const Navbar = ({ theme, toggleTheme }) => {
             <>
               <li className="nav-item me-1">
                 <Link
-                  to="/login"
+                  href="/login"
                   className={`nav-link ${
-                    location.pathname === "/login" ? "active" : ""
+                    pathname === "/login" ? "active" : ""
                   }`}
                 >
                   Login
@@ -83,9 +86,9 @@ const Navbar = ({ theme, toggleTheme }) => {
               </li>
               <li className="nav-item">
                 <Link
-                  to="/register"
+                  href="/register"
                   className={`nav-link ${
-                    location.pathname === "/register" ? "active" : ""
+                    pathname === "/register" ? "active" : ""
                   }`}
                 >
                   Register
@@ -95,7 +98,7 @@ const Navbar = ({ theme, toggleTheme }) => {
           ) : (
             <>
               <li className="nav-item">
-                <Link to="/tasks" className="btn" aria-label="Home">
+                <Link href="/tasks" className="btn" aria-label="Home">
                   <i
                     className={`bi ${isHome ? "bi-house-fill" : "bi-house"} ${
                       theme === "dark" ? "text-light" : "text-dark"
@@ -105,7 +108,7 @@ const Navbar = ({ theme, toggleTheme }) => {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link to={avatarLink} style={{ textDecoration: "none" }}>
+                <Link href={avatarLink} style={{ textDecoration: "none" }}>
                   {user.avatar ? (
                     <img src={user.avatar} alt="Profile" style={avatarStyle} />
                   ) : (

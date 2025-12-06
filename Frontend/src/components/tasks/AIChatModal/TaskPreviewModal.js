@@ -1,3 +1,5 @@
+"use client";
+
 import TaskItem from "../taskItem/TaskItem";
 
 const TaskPreviewModal = ({ theme, task, onClose, onSave }) => (

@@ -1,5 +1,8 @@
+"use client";
+
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import {
   createTask,
   updateTask,
@@ -14,7 +17,7 @@ import "./TaskEditor.css";
 import { REMINDER_INTERVALS } from "../../constants/appConstants";
 
 const TaskEditor = ({ theme }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { taskId } = useParams();
   const isNewTask = taskId === "new";
 
@@ -44,7 +47,7 @@ const TaskEditor = ({ theme }) => {
             setReminders(Array.isArray(task.reminders) ? task.reminders : []);
           } else {
             setError("Task not found");
-            setTimeout(() => navigate("/tasks"), 2000);
+            setTimeout(() => router.push("/tasks"), 2000);
           }
         } catch (err) {
           console.error("Error loading task:", err);
@@ -99,7 +102,7 @@ const TaskEditor = ({ theme }) => {
       } else {
         await updateTask(taskId, taskData);
       }
-      navigate("/tasks");
+      router.push("/tasks");
     } catch (error) {
       console.error("Error saving task:", error);
       setError("Failed to save task. Please try again.");
@@ -112,7 +115,7 @@ const TaskEditor = ({ theme }) => {
     setIsLoading(true);
     try {
       await deleteTask(taskId);
-      navigate("/tasks");
+      router.push("/tasks");
     } catch (error) {
       console.error("Error deleting task:", error);
       setError("Failed to delete task");
@@ -122,7 +125,7 @@ const TaskEditor = ({ theme }) => {
   };
 
   const handleCancel = () => {
-    navigate("/tasks");
+    router.push("/tasks");
   };
 
   const getStatusColor = () => {

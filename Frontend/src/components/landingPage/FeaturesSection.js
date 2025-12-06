@@ -1,3 +1,5 @@
+"use client";
+
 const FeaturesSection = ({ features, theme, featuresRef }) => (
   <section className="lp-features" id="features" ref={featuresRef}>
     <h1>Features</h1>

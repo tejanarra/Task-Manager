@@ -1,5 +1,7 @@
+"use client";
+
 import  { useRef } from "react";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import "./Styles/LandingPage.css";
 import heroImage from "../../assets/hero1.jpg";
 import { featuresData, benefitsData, testimonialsData } from "./data";
@@ -34,7 +36,7 @@ const LandingPage = ({ theme }) => {
             management tools.
           </p>
           <div className="lp-cta-buttons">
-            <Link to="/register" className="lp-btn lp-btn-primary">
+            <Link href="/register" className="lp-btn lp-btn-primary">
               Get Started
             </Link>
             {/* ✨ Changed to scroll to demo instead */}
@@ -78,7 +80,7 @@ const LandingPage = ({ theme }) => {
       {/* CTA Section - UNCHANGED */}
       <section className="lp-cta">
         <h2>Ready to Boost Your Productivity?</h2>
-        <Link to="/register" className="lp-btn-secondary lp-btn">
+        <Link href="/register" className="lp-btn-secondary lp-btn">
           Sign Up Now
         </Link>
       </section>

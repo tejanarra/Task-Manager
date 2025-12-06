@@ -1,8 +1,10 @@
+"use client";
+
 import  { useState } from "react";
 import { registerUser, sendVerificationCode } from "../../services/api";
 import VerificationForm from "./VerificationForm";
 import "./Register.css";
-import { Link } from "react-router-dom";
+import Link from "next/link";
 import { FormInput, AlertBanner, LoadingButton } from "../common";
 import { useFormState, useApiError, useLoading, usePasswordValidation } from "../../hooks";
 import { ERROR_MESSAGES } from "../../constants/appConstants";
@@ -184,7 +186,7 @@ const Register = ({ theme }) => {
         <div className="text-center mt-4">
           <p className="mb-0 d-flex justify-content-center align-items-center gap-1">
             Already have an account?{" "}
-            <Link to="/login" className="login-link">
+            <Link href="/login" className="login-link">
               Login
             </Link>
           </p>

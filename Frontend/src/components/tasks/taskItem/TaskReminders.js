@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import ReminderCheckbox from "./ReminderCheckbox";
 import { formatDateTimeLocal } from "../../../utils/dateUtils";

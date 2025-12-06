@@ -1,3 +1,5 @@
+"use client";
+
 const ChatMessage = ({ msg, user, theme }) => {
   const userAvatar = user.avatar;
   const initials =

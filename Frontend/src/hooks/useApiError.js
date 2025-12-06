@@ -1,7 +1,9 @@
+"use client";
+
 import { useState, useCallback } from "react";
 import { getErrorMessage, isAuthorizationError } from "../utils/errorUtils";
 import { useAuth } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 
 /**
  * Custom hook for handling API errors
@@ -11,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 const useApiError = (handleAuth = true) => {
   const [error, setError] = useState("");
   const { logout } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const clearError = useCallback(() => {
     setError("");
@@ -24,7 +26,7 @@ const useApiError = (handleAuth = true) => {
       // Handle authorization errors
       if (handleAuth && isAuthorizationError(err)) {
         logout();
-        navigate("/login");
+        router.push("/login");
         setError("Session expired. Please login again.");
         return;
       }
@@ -33,7 +35,7 @@ const useApiError = (handleAuth = true) => {
       const message = getErrorMessage(err, defaultMessage);
       setError(message);
     },
-    [handleAuth, logout, navigate]
+    [handleAuth, logout, router]
   );
 
   return {

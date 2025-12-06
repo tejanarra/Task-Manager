@@ -1,4 +1,7 @@
-import { useNavigate, Link } from "react-router-dom";
+"use client";
+
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useAuth } from "../../context/AuthContext";
 import { loginUser, loginWithGoogle } from "../../services/api";
 import "./Login.css";
@@ -10,7 +13,7 @@ import { ERROR_MESSAGES } from "../../constants/appConstants";
 
 const Login = ({ theme }) => {
   const { login } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const { formData, handleChange } = useFormState({
     email: "",
@@ -28,7 +31,7 @@ const Login = ({ theme }) => {
       const { data } = await loginUser(formData.email, formData.password);
       const { token, userInfo } = data;
       login(token, userInfo);
-      navigate("/tasks");
+      router.push("/tasks");
     } catch (err) {
       handleError(err, ERROR_MESSAGES.LOGIN_FAILED);
     } finally {
@@ -43,7 +46,7 @@ const Login = ({ theme }) => {
       try {
         const { data } = await loginWithGoogle(response.code);
         login(data.token, data.userInfo);
-        navigate("/tasks");
+        router.push("/tasks");
       } catch (err) {
         handleError(err, "Google login failed");
         googleLogout();
@@ -59,7 +62,7 @@ const Login = ({ theme }) => {
   });
 
   const handleForgotPassword = () => {
-    navigate("/forgot-password");
+    router.push("/forgot-password");
   };
 
   return (
@@ -123,7 +126,7 @@ const Login = ({ theme }) => {
         </div>
 
         <div className="d-flex justify-content-between mt-3">
-          <Link to="/register" className="register-link">
+          <Link href="/register" className="register-link">
             Register
           </Link>
           <button

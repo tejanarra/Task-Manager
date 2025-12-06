@@ -1,12 +1,14 @@
+"use client";
+
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { formatRelativeTime } from "../../../utils/dateUtils";
 import { getStatusColor } from "../../../utils/statusUtils";
 import { getReminderSummary } from "../../../utils/reminderUtils";
 import "./Styles/TaskCard.css";
 
 const TaskCard = ({ theme, task, demoMode = false }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleClick = () => {
     if (!demoMode) {

@@ -56,9 +56,9 @@ export default function ChangePasswordPage() {
     <div className={`app-container ${theme}`}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="main-content">
-        <ChangePassword theme={theme} />
+        <ChangePassword />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

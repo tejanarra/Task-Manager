@@ -58,7 +58,7 @@ export default function TasksPage() {
       <main className="main-content">
         <TaskList theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

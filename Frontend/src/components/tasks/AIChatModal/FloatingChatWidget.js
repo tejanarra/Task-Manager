@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import AIChatModal from "./AIChatModal";
 import "./Styles/FloatingChatWidget.css";

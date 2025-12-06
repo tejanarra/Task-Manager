@@ -1,5 +1,7 @@
+"use client";
+
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { fetchTasks, updateTaskPriority } from "../../services/api";
 import { useAuth } from "../../context/AuthContext";
 import TaskCard from "./taskItem/TaskCard";
@@ -59,7 +61,7 @@ const SortableTask = ({ task, theme }) => {
 };
 
 const TaskList = ({ theme }) => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user, logout } = useAuth();
   const [tasks, setTasks] = useState(null);
   const [showAIModal, setShowAIModal] = useState(false);
@@ -178,11 +180,11 @@ const TaskList = ({ theme }) => {
   };
 
   const handleAddTask = () => {
-    navigate("/tasks/new/edit");
+    router.push("/tasks/new/edit");
   };
 
   const handleAITaskGenerated = (aiGeneratedTask) => {
-    navigate("/tasks/new/edit", { state: { task: aiGeneratedTask } });
+    router.push("/tasks/new/edit", { state: { task: aiGeneratedTask } });
   };
 
   const renderShimmerLoader = () => (

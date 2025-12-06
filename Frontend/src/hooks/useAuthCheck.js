@@ -1,5 +1,7 @@
+"use client";
+
 import { useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 import { isAuthorizationError } from "../utils/errorUtils";
 
@@ -8,19 +10,19 @@ import { isAuthorizationError } from "../utils/errorUtils";
  * @returns {Object} - { checkAuth }
  */
 const useAuthCheck = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { logout } = useAuth();
 
   const checkAuth = useCallback(
     (error) => {
       if (isAuthorizationError(error)) {
         logout();
-        navigate("/login");
+        router.push("/login");
         return true;
       }
       return false;
     },
-    [logout, navigate]
+    [logout, router]
   );
 
   return { checkAuth };

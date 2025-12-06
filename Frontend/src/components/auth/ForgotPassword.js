@@ -1,5 +1,7 @@
+"use client";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/navigation";
 import { sendForgotPasswordRequest, resetPassword } from "../../services/api";
 import "./ForgotPassword.css";
 
@@ -13,7 +15,7 @@ const ForgotPassword = ({ theme }) => {
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [hasCode, setHasCode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const handleSendEmail = async (e) => {
     e.preventDefault();
@@ -58,7 +60,7 @@ const ForgotPassword = ({ theme }) => {
       );
       setMessage(response.data.message || "Password reset successful!");
       setTimeout(() => {
-        navigate("/login");
+        router.push("/login");
       }, 2000);
     } catch (err) {
       console.error("Error resetting password:", err);
@@ -177,7 +179,7 @@ const ForgotPassword = ({ theme }) => {
             <button
               type="button"
               className="btn btn-link back-to-login"
-              onClick={() => navigate("/login")}
+              onClick={() => router.push("/login")}
             >
               Back to Login
             </button>

@@ -56,9 +56,9 @@ export default function EditProfilePage() {
     <div className={`app-container ${theme}`}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="main-content">
-        <EditProfile theme={theme} />
+        <EditProfile />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }

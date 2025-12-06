@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect, useRef } from "react";
 import { demoConversation, demoTasks } from "./data";
 import TaskCard from "../tasks/taskItem/TaskCard";

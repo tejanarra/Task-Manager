@@ -58,7 +58,7 @@ export default function ProfileOverviewPage() {
       <main className="main-content">
         <ProfileOverview theme={theme} />
       </main>
-      <Footer />
+      <Footer theme={theme} />
     </div>
   );
 }
