@@ -16,7 +16,7 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: ["https://tejanarra.github.io", "http://localhost:3000"],
+    origin: ["https://tejanarra.github.io"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
