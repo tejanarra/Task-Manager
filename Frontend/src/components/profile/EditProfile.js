@@ -39,7 +39,7 @@ const EditProfile = () => {
     };
 
     fetchProfile();
-  }, [logout, navigate]);
+  }, [logout, router]);
 
   const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
     setCroppedAreaPixels(croppedAreaPixels);

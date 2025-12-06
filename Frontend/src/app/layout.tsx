@@ -62,7 +62,7 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  manifest: "/Task-Manager/manifest.json",
+  manifest: "/manifest.json",
   icons: {
     icon: [
       { url: "/favicon.ico" },

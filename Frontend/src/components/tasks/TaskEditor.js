@@ -57,7 +57,7 @@ const TaskEditor = ({ theme, taskId }) => {
     };
 
     loadTask();
-  }, [taskId, isNewTask, navigate]);
+  }, [taskId, isNewTask, router]);
 
   // Load task from navigation state (for AI-generated tasks)
   useEffect(() => {

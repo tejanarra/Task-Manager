@@ -52,7 +52,7 @@ const ProfileOverview = ({ theme }) => {
     };
 
     fetchProfile();
-  }, [logout, navigate]);
+  }, [logout, router]);
 
   const renderSkeletonLoader = () => (
     <div className="profile-container">
