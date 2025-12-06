@@ -1,0 +1,701 @@
+/* ============================================
+   TASK ITEM - Editable Task Card Styles
+   ============================================ */
+
+/* --------------------------------------------
+   Base Card Structure
+   -------------------------------------------- */
+.task-card {
+  /* Layout */
+  display: flex;
+  position: relative;
+  margin-bottom: 1.5rem;
+  
+  /* Appearance */
+  background: var(--color-background);
+  border: 1px solid var(--color-border-light);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--color-text-primary);
+  
+  /* Effects */
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  overflow: hidden;
+  
+  /* Interaction */
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Typography */
+  font-family: "Poppins", sans-serif;
+}
+
+.task-card:hover {
+  transform: translateY(-2px) scale(1.002);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border-color: var(--color-border-dark);
+}
+
+/* State variants */
+.task-card.chat-preview {
+  cursor: default;
+  margin-bottom: 0;
+}
+
+.task-card.chat-preview:hover {
+  transform: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-card.loading {
+  opacity: 0.7;
+  pointer-events: none;
+  position: relative;
+}
+
+/* Dark mode variant */
+.dark-mode.task-card {
+  border-color: var(--color-border);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.dark-mode.task-card:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+  border-color: var(--color-border-dark);
+}
+
+/* --------------------------------------------
+   Card Components
+   -------------------------------------------- */
+
+/* Status Strip */
+.task-strip {
+  width: 8px;
+  flex-shrink: 0;
+  transition: width 0.3s ease;
+}
+
+.task-card:not(.chat-preview):hover .task-strip {
+  width: 10px;
+}
+
+/* Content Container */
+.task-card-content {
+  flex: 1;
+  padding: 1.5rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+/* Status Icon */
+.status-icon {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 1.5rem;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.task-card:not(.chat-preview):hover .status-icon {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------
+   Typography
+   -------------------------------------------- */
+
+/* Title */
+.task-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  margin-right: 2.5rem;
+  line-height: 1.3;
+  color: inherit;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Description */
+.task-description {
+  font-size: 1rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  color: var(--color-text-primary);
+  opacity: 0.9;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  flex-grow: 1;
+}
+
+/* --------------------------------------------
+   Form Elements (Edit Mode)
+   -------------------------------------------- */
+
+/* Form Grid Layout */
+.task-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.task-form-group {
+  margin-bottom: 1.25rem;
+}
+
+.task-form-group:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+.task-form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+/* Form Labels */
+.task-card .form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+/* Form Inputs */
+.task-card .form-control,
+.task-card .form-select {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  
+  /* Appearance */
+  background-color: var(--form-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 8px;
+  
+  /* Interaction */
+  transition: all 0.3s ease;
+}
+
+.task-card .form-control:focus,
+.task-card .form-select:focus {
+  border-color: var(--color-border-dark);
+  color: var(--form-text);
+  background-color: var(--form-background);
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+  outline: none;
+}
+
+.task-card .form-control::placeholder,
+.task-card .form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 0.7;
+}
+
+/* Textarea specific */
+.task-card textarea.form-control {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+}
+
+/* Datetime input */
+.task-card input[type="datetime-local"] {
+  position: relative;
+}
+
+.task-card:not(.dark) input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0);
+  cursor: pointer;
+}
+
+.task-card.dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* --------------------------------------------
+   Metadata Section
+   -------------------------------------------- */
+.task-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  opacity: 0.8;
+}
+
+.task-metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.task-metadata-item strong {
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-primary);
+}
+
+.task-metadata-item span {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.dark-mode .task-metadata {
+  border-color: var(--color-border);
+}
+
+/* --------------------------------------------
+   Action Buttons
+   -------------------------------------------- */
+.task-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border-light);
+}
+
+.task-actions .btn {
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: inherit;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  min-width: 80px;
+}
+
+.task-actions .btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.task-actions .btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.dark-mode .task-actions {
+  border-color: var(--color-border);
+}
+
+.dark-mode .task-actions .btn:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15);
+}
+
+/* --------------------------------------------
+   Reminder Indicator
+   -------------------------------------------- */
+.reminder-indicator {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  opacity: 0.8;
+  background-color: var(--color-background-secondary);
+  padding: 0.3rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border-light);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.reminder-indicator:hover {
+  opacity: 1;
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reminder-indicator i {
+  font-size: 0.9rem;
+}
+
+.dark-mode .reminder-indicator {
+  background-color: var(--color-background-secondary);
+  border-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.dark-mode .reminder-indicator:hover {
+  box-shadow: 0 2px 8px rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .form-check-input {
+  accent-color: var(--color-text-primary);
+}
+
+/* --------------------------------------------
+   Loading State
+   -------------------------------------------- */
+.task-card.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--overlay);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.task-card.loading::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-border-light);
+  border-top: 3px solid var(--color-text-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  z-index: 11;
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* --------------------------------------------
+   Animations
+   -------------------------------------------- */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.task-card.new-task:not(.chat-preview) {
+  animation: slideInUp 0.5s ease-out;
+}
+
+/* ============================================
+   CHAT PREVIEW SPECIFIC STYLES
+   ============================================ */
+
+/* Make chat previews more compact */
+.chat-messages .task-card .task-card-content {
+  padding: 1rem;
+}
+
+.chat-messages .task-card .task-title {
+  font-size: 1.1rem;
+}
+
+.chat-messages .task-card .task-description {
+  font-size: 0.95rem;
+}
+
+.chat-messages .task-card .status-icon {
+  font-size: 1.3rem;
+}
+
+.chat-messages .task-card .task-metadata {
+  font-size: 0.8rem;
+  gap: 0.75rem;
+}
+
+.chat-messages .task-card .task-form-grid {
+  gap: 1rem;
+}
+
+.chat-messages .task-card .form-control,
+.chat-messages .task-card .form-select {
+  padding: 0.6rem;
+  font-size: 0.9rem;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+/* Desktop (≥768px) */
+@media (min-width: 768px) {
+  .task-card-content {
+    padding: 2rem;
+  }
+
+  .task-form-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+
+  .task-metadata {
+    flex-direction: row;
+    gap: 2rem;
+  }
+
+  .task-actions {
+    gap: 1rem;
+  }
+
+  .task-actions .btn {
+    min-width: 100px;
+  }
+
+  /* Chat remains compact on larger screens */
+  .chat-messages .task-card .task-card-content {
+    padding: 1.25rem;
+  }
+}
+
+/* Tablet (≤767px) */
+@media (max-width: 767px) {
+  .task-card {
+    margin-bottom: 1rem;
+    border-radius: 10px;
+  }
+
+  .task-card-content {
+    padding: 1.25rem;
+    min-height: 100px;
+  }
+
+  .status-icon {
+    top: 0.75rem;
+    right: 0.75rem;
+    font-size: 1.3rem;
+  }
+
+  .task-title {
+    font-size: 1.1rem;
+    margin-right: 2rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .task-description {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .task-form-group {
+    margin-bottom: 1rem;
+  }
+
+  .task-card .form-control,
+  .task-card .form-select {
+    padding: 0.6rem;
+    font-size: 0.9rem;
+  }
+
+  .task-metadata {
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .task-metadata-item {
+    gap: 0.1rem;
+  }
+
+  .task-metadata-item strong {
+    font-size: 0.75rem;
+  }
+
+  .task-metadata-item span {
+    font-size: 0.8rem;
+  }
+
+  .task-actions {
+    gap: 0.5rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .task-actions .btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .reminder-indicator {
+    position: static;
+    margin-top: 0.75rem;
+    margin-left: auto;
+    font-size: 0.8rem;
+    padding: 0.25rem 0.5rem;
+    align-self: flex-start;
+  }
+
+  .chat-messages .task-card .task-card-content {
+    padding: 0.75rem;
+  }
+
+  .chat-messages .task-card .task-title {
+    font-size: 1rem;
+  }
+
+  .chat-messages .task-card .task-description {
+    font-size: 0.9rem;
+  }
+}
+
+/* Mobile (≤480px) */
+@media (max-width: 480px) {
+  .task-card {
+    border-radius: 8px;
+  }
+
+  .task-card-content {
+    padding: 1rem;
+  }
+
+  .status-icon {
+    font-size: 1.2rem;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+
+  .task-title {
+    font-size: 1rem;
+    margin-right: 1.8rem;
+  }
+
+  .task-description {
+    font-size: 0.9rem;
+  }
+
+  .task-card .form-control,
+  .task-card .form-select {
+    padding: 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .task-card .form-label {
+    font-size: 0.85rem;
+  }
+
+  .task-metadata {
+    font-size: 0.75rem;
+  }
+
+  .task-metadata-item strong {
+    font-size: 0.7rem;
+  }
+
+  .task-metadata-item span {
+    font-size: 0.75rem;
+  }
+
+  .task-actions {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .task-actions .btn {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .reminder-indicator {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .reminder-indicator i {
+    font-size: 0.8rem;
+  }
+
+  .chat-messages .task-card .task-card-content {
+    padding: 0.625rem;
+  }
+
+  .chat-messages .task-card .task-title {
+    font-size: 0.95rem;
+  }
+
+  .chat-messages .task-card .task-description {
+    font-size: 0.85rem;
+  }
+
+  .chat-messages .task-card .status-icon {
+    font-size: 1.1rem;
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY & SPECIAL STATES
+   ============================================ */
+
+/* Focus state */
+.task-card:focus-within {
+  outline: 2px solid var(--color-border-dark);
+  outline-offset: 2px;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .task-card {
+    border-width: 2px;
+  }
+
+  .task-card .form-control,
+  .task-card .form-select {
+    border-width: 2px;
+  }
+
+  .status-icon {
+    opacity: 1;
+  }
+
+  .reminder-indicator {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .task-card,
+  .status-icon,
+  .reminder-indicator,
+  .task-actions .btn {
+    transition: none;
+  }
+
+  .task-card:hover {
+    transform: none;
+  }
+
+  .task-card.new-task {
+    animation: none;
+  }
+
+  .task-card.loading::before {
+    animation: none;
+  }
+}

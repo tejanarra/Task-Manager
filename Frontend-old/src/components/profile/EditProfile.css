@@ -1,0 +1,187 @@
+.profile-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 50px 20px;
+  }
+  
+  .profile-card {
+    background: var(--form-background);
+    padding: 30px;
+    border-radius: 15px;
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .profile-title {
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .profile-image-preview {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+  }
+  
+  .profile-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  .profile-container .sign-in-btn {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .profile-container .sign-in-btn:hover {
+    background-color: var(--color-button-hover-bg);
+    color: var(--color-button-hover-text);
+  
+  }
+  
+  .placeholder-avatar {
+    width: 150px;
+    height: 150px;
+    background-color: var(--color-background-placeholder);
+    border: 3px solid var(--color-border-dark);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--color-text-primary);
+    font-size: 3rem;
+    font-weight: bold;
+  }
+  
+  .image-controls {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .control-group label {
+    margin-bottom: 5px;
+    font-weight: 500;
+  }
+  
+  .control-group input[type="range"] {
+    width: 150px;
+  }
+  
+  .loading-spinner,
+  .loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--color-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    color: #343a40;
+    border-radius: 15px;
+  }
+  
+  .avatar-editor {
+    border-radius: 50%;
+    margin-bottom: 15px;
+  }
+
+
+.profile-container .form-control {
+  background-color: var(--form-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-container .form-control:focus {
+  background-color: var(--form-background);
+  border-color: var(--color-border-dark);
+  color: var(--form-text);
+  box-shadow: none;
+}
+
+.profile-container .form-label {
+  color: var(--color-text-primary);
+}
+
+.profile-container .form-select {
+  background-color: var(--form-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.profile-container .form-select:focus {
+  border-color: var(--color-border-dark);
+}
+
+/* Placeholder Styling */
+.profile-container .form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-control::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-control:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-control::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-select::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-select:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-select::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.profile-container .form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}

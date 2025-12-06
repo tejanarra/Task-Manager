@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReminderCheckbox from "./ReminderCheckbox";
 import { formatDateTimeLocal } from "../../../utils/dateUtils";
+import { formatHoursLabel } from "../../../utils/reminderUtils";
 import "./Styles/TaskReminders.css";
 
 const TaskReminders = ({
@@ -42,7 +43,7 @@ const TaskReminders = ({
             type: "daily",
             intervalHours: 24,
             sent: false,
-            lastSentAt: null,
+            lastSentAt: null
           },
         ];
       }
@@ -64,7 +65,7 @@ const TaskReminders = ({
             type: "weekly",
             intervalHours: 168,
             sent: false,
-            lastSentAt: null,
+            lastSentAt: null
           },
         ];
       }
@@ -118,9 +119,7 @@ const TaskReminders = ({
       if (checked) {
         // Calculate remindAt time
         const deadlineDt = new Date(tempDeadline);
-        const remindAt = new Date(
-          deadlineDt.getTime() - value * 60 * 60 * 1000
-        );
+        const remindAt = new Date(deadlineDt.getTime() - value * 60 * 60 * 1000);
 
         // Check if already exists (by comparing remindAt times)
         const existing = prev.find(
@@ -134,7 +133,7 @@ const TaskReminders = ({
               type: "one-time",
               remindAt: remindAt.toISOString(),
               sent: false,
-              lastSentAt: null,
+              lastSentAt: null
             },
           ];
         }
@@ -142,12 +141,8 @@ const TaskReminders = ({
       } else {
         // Remove by matching the calculated remindAt
         const deadlineDt = new Date(tempDeadline);
-        const remindAt = new Date(
-          deadlineDt.getTime() - value * 60 * 60 * 1000
-        ).toISOString();
-        return prev.filter(
-          (r) => !isOneTimeReminder(r) || r.remindAt !== remindAt
-        );
+        const remindAt = new Date(deadlineDt.getTime() - value * 60 * 60 * 1000).toISOString();
+        return prev.filter((r) => !isOneTimeReminder(r) || r.remindAt !== remindAt);
       }
     });
   };
@@ -190,7 +185,7 @@ const TaskReminders = ({
             type: "one-time",
             remindAt: remindAtISO,
             sent: false,
-            lastSentAt: null,
+            lastSentAt: null
           },
         ];
       }
@@ -275,16 +270,12 @@ const TaskReminders = ({
                 {defaultIntervals.map((item) => {
                   // Calculate the expected remindAt for this interval
                   const expectedRemindAt = tempDeadline
-                    ? new Date(
-                        new Date(tempDeadline).getTime() -
-                          item.value * 60 * 60 * 1000
-                      ).toISOString()
+                    ? new Date(new Date(tempDeadline).getTime() - item.value * 60 * 60 * 1000).toISOString()
                     : null;
 
                   // Check if reminder exists by matching remindAt
                   const existing = tempReminders.find(
-                    (r) =>
-                      isOneTimeReminder(r) && r.remindAt === expectedRemindAt
+                    (r) => isOneTimeReminder(r) && r.remindAt === expectedRemindAt
                   );
                   const checked = !!existing;
 

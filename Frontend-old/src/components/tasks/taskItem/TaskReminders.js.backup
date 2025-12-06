@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ReminderCheckbox from "./ReminderCheckbox";
 import { formatDateTimeLocal } from "../../../utils/dateUtils";
+import { formatHoursLabel } from "../../../utils/reminderUtils";
 import "./Styles/TaskReminders.css";
 
 const TaskReminders = ({
@@ -8,7 +9,33 @@ const TaskReminders = ({
   tempReminders,
   setTempReminders,
   theme,
-  ALL_INTERVALS = [],
+  ALL_INTERVALS,
+}) => {
+  const [customReminder, setCustomReminder] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  const now = new Date();
+  const deadlineDate = tempDeadline ? new Date(tempDeadline) : null;
+  const diffInHours =
+    deadlineDate && deadlineDate > now
+      ? (deadlineDate - now) / (1000 * 60 * 60)
+      : 0;
+  if (days < 7)
+    return `${days % 1 === 0 ? days : days.toFixed(1)} day${
+      days !== 1 ? "s" : ""
+    }`;
+  const weeks = days / 7;
+  return `${weeks % 1 === 0 ? weeks : weeks.toFixed(1)} week${
+    weeks !== 1 ? "s" : ""
+  }`;
+};
+
+const TaskReminders = ({
+  tempDeadline,
+  tempReminders,
+  setTempReminders,
+  theme,
+  ALL_INTERVALS,
 }) => {
   const [customReminder, setCustomReminder] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -25,51 +52,43 @@ const TaskReminders = ({
     return !r.type || r.type === "one-time";
   };
 
-  // Check if daily/weekly reminders are active (only one of each type allowed now)
+  // Check if daily reminders are active
   const hasDailyReminders = tempReminders.some((r) => r.type === "daily");
+
+  // Check if weekly reminders are active
   const hasWeeklyReminders = tempReminders.some((r) => r.type === "weekly");
 
-  // Toggle daily reminders - simplified to single reminder
+  // Toggle daily reminders
   const toggleDailyReminders = (checked) => {
     setTempReminders((prev) => {
-      const withoutDaily = prev.filter((r) => r.type !== "daily");
-
-      if (checked && tempDeadline) {
-        // Add a single daily reminder
+      if (checked) {
+        // Remove existing daily reminders and add a single daily reminder template
+        const withoutDaily = prev.filter((r) => r.type !== "daily");
         return [
           ...withoutDaily,
-          {
-            type: "daily",
-            intervalHours: 24,
-            sent: false,
-            lastSentAt: null,
-          },
+          { remindBefore: 24, sent: false, type: "daily" },
         ];
+      } else {
+        // Remove all daily reminders
+        return prev.filter((r) => r.type !== "daily");
       }
-
-      return withoutDaily;
     });
   };
 
-  // Toggle weekly reminders - simplified to single reminder
+  // Toggle weekly reminders
   const toggleWeeklyReminders = (checked) => {
     setTempReminders((prev) => {
-      const withoutWeekly = prev.filter((r) => r.type !== "weekly");
-
-      if (checked && tempDeadline) {
-        // Add a single weekly reminder
+      if (checked) {
+        // Remove existing weekly reminders and add a single weekly reminder template
+        const withoutWeekly = prev.filter((r) => r.type !== "weekly");
         return [
           ...withoutWeekly,
-          {
-            type: "weekly",
-            intervalHours: 168,
-            sent: false,
-            lastSentAt: null,
-          },
+          { remindBefore: 168, sent: false, type: "weekly" },
         ];
+      } else {
+        // Remove all weekly reminders
+        return prev.filter((r) => r.type !== "weekly");
       }
-
-      return withoutWeekly;
     });
   };
 
@@ -80,73 +99,69 @@ const TaskReminders = ({
   const customIntervals = tempReminders
     .filter((r) => {
       if (!isOneTimeReminder(r)) return false;
+      if (r.remindBefore > diffInHours) return false;
 
-      // Calculate hours before deadline from remindAt
-      if (r.remindAt && deadlineDate) {
-        const remindDate = new Date(r.remindAt);
-        const hours = (deadlineDate - remindDate) / (1000 * 60 * 60);
-        if (hours > diffInHours || hours <= 0) return false;
+      // Check if this matches any default interval
+      const matchesDefault = ALL_INTERVALS.some(
+        (ai) => Math.abs(ai.value - r.remindBefore) < 0.01
+      );
 
-        // Check if this matches any default interval
-        const matchesDefault = ALL_INTERVALS.some(
-          (ai) => Math.abs(ai.value - hours) < 0.01
-        );
-        return !matchesDefault;
-      }
-
-      return false;
+      return !matchesDefault;
     })
     .map((r) => {
-      if (r.remindAt) {
-        const remindDate = new Date(r.remindAt);
-        const hours = (deadlineDate - remindDate) / (1000 * 60 * 60);
+      // If has customDate, show formatted date
+      if (r.customDate) {
+        try {
+          const date = new Date(r.customDate);
+          return {
+            value: r.remindBefore,
+            label: date.toLocaleString(),
+            customDate: r.customDate,
+          };
+        } catch (err) {
+          console.warn("Error formatting customDate:", err);
+        }
+      }
+
+      // Otherwise calculate date from remindBefore
+      if (deadlineDate) {
+        const reminderDate = new Date(
+          deadlineDate.getTime() - r.remindBefore * 3600000
+        );
         return {
-          remindAt: r.remindAt,
-          label: remindDate.toLocaleString(),
-          value: hours,
+          value: r.remindBefore,
+          label: reminderDate.toLocaleString(),
         };
       }
-      return null;
-    })
-    .filter(Boolean);
 
-  // Toggle reminder by hours before deadline
+      // Fallback to hours label
+      return {
+        value: r.remindBefore,
+        label: formatHoursLabel(r.remindBefore),
+      };
+    });
+
+  // Toggle reminder
   const toggleReminder = (value, checked) => {
-    if (!tempDeadline) return;
-
     setTempReminders((prev) => {
       if (checked) {
-        // Calculate remindAt time
-        const deadlineDt = new Date(tempDeadline);
-        const remindAt = new Date(
-          deadlineDt.getTime() - value * 60 * 60 * 1000
-        );
-
-        // Check if already exists (by comparing remindAt times)
+        // Check if already exists
         const existing = prev.find(
-          (r) => isOneTimeReminder(r) && r.remindAt === remindAt.toISOString()
+          (r) => isOneTimeReminder(r) && Math.abs(r.remindBefore - value) < 0.01
         );
 
         if (!existing) {
           return [
             ...prev,
-            {
-              type: "one-time",
-              remindAt: remindAt.toISOString(),
-              sent: false,
-              lastSentAt: null,
-            },
+            { remindBefore: value, sent: false, type: "one-time" },
           ];
         }
         return prev;
       } else {
-        // Remove by matching the calculated remindAt
-        const deadlineDt = new Date(tempDeadline);
-        const remindAt = new Date(
-          deadlineDt.getTime() - value * 60 * 60 * 1000
-        ).toISOString();
+        // Remove the reminder
         return prev.filter(
-          (r) => !isOneTimeReminder(r) || r.remindAt !== remindAt
+          (r) =>
+            !isOneTimeReminder(r) || Math.abs(r.remindBefore - value) >= 0.01
         );
       }
     });
@@ -154,18 +169,15 @@ const TaskReminders = ({
 
   // Add custom reminder
   const handleAddCustomReminder = () => {
-    if (!customReminder || !tempDeadline) return;
+    if (!customReminder) return;
 
     const selectedDate = new Date(customReminder);
-    const deadlineDt = new Date(tempDeadline);
-
-    // Validation
     if (isNaN(selectedDate.getTime())) {
       console.warn("Invalid date selected");
       return;
     }
 
-    if (selectedDate >= deadlineDt) {
+    if (!deadlineDate || selectedDate >= deadlineDate) {
       console.warn("Custom reminder must be before deadline");
       return;
     }
@@ -175,29 +187,30 @@ const TaskReminders = ({
       return;
     }
 
-    const remindAtISO = selectedDate.toISOString();
+    const hours = (deadlineDate - selectedDate) / (1000 * 60 * 60);
 
-    setTempReminders((prev) => {
-      // Check if this exact reminder already exists
-      const exists = prev.some(
-        (r) => isOneTimeReminder(r) && r.remindAt === remindAtISO
-      );
+    if (hours > 0 && hours <= diffInHours) {
+      setTempReminders((prev) => {
+        // Check if similar reminder already exists
+        const exists = prev.some(
+          (r) => isOneTimeReminder(r) && Math.abs(r.remindBefore - hours) < 0.01
+        );
 
-      if (!exists) {
-        return [
-          ...prev,
-          {
-            type: "one-time",
-            remindAt: remindAtISO,
-            sent: false,
-            lastSentAt: null,
-          },
-        ];
-      }
-      return prev;
-    });
-
-    setCustomReminder("");
+        if (!exists) {
+          return [
+            ...prev,
+            {
+              remindBefore: hours,
+              sent: false,
+              type: "one-time",
+              customDate: selectedDate.toISOString(),
+            },
+          ];
+        }
+        return prev;
+      });
+      setCustomReminder("");
+    }
   };
 
   // Calculate how many days/weeks until deadline
@@ -244,7 +257,8 @@ const TaskReminders = ({
                       id="daily-reminders"
                     />
                     <label htmlFor="daily-reminders">
-                      Daily reminders until deadline
+                      Every Day (up to {maxDays} reminder
+                      {maxDays !== 1 ? "s" : ""})
                     </label>
                   </div>
                 )}
@@ -257,7 +271,8 @@ const TaskReminders = ({
                       id="weekly-reminders"
                     />
                     <label htmlFor="weekly-reminders">
-                      Weekly reminders until deadline
+                      Every Week (up to {maxWeeks} reminder
+                      {maxWeeks !== 1 ? "s" : ""})
                     </label>
                   </div>
                 )}
@@ -273,21 +288,12 @@ const TaskReminders = ({
               </label>
               <div className="reminder-grid">
                 {defaultIntervals.map((item) => {
-                  // Calculate the expected remindAt for this interval
-                  const expectedRemindAt = tempDeadline
-                    ? new Date(
-                        new Date(tempDeadline).getTime() -
-                          item.value * 60 * 60 * 1000
-                      ).toISOString()
-                    : null;
-
-                  // Check if reminder exists by matching remindAt
                   const existing = tempReminders.find(
                     (r) =>
-                      isOneTimeReminder(r) && r.remindAt === expectedRemindAt
+                      isOneTimeReminder(r) &&
+                      Math.abs(r.remindBefore - item.value) < 0.01
                   );
                   const checked = !!existing;
-
                   return (
                     <ReminderCheckbox
                       key={item.value}
@@ -340,24 +346,21 @@ const TaskReminders = ({
               </label>
               <div className="reminder-grid">
                 {customIntervals.map((item, index) => {
-                  const checked = tempReminders.some(
-                    (r) => isOneTimeReminder(r) && r.remindAt === item.remindAt
+                  const existing = tempReminders.find(
+                    (r) =>
+                      isOneTimeReminder(r) &&
+                      Math.abs(r.remindBefore - item.value) < 0.01
                   );
-
+                  const checked = !!existing;
                   return (
                     <ReminderCheckbox
-                      key={item.remindAt || `${item.value}-${index}`}
+                      key={item.customDate || `${item.value}-${index}`}
                       value={item.value}
                       label={item.label}
                       checked={checked}
-                      onChange={(checked) => {
-                        if (!checked) {
-                          // Remove by remindAt
-                          setTempReminders((prev) =>
-                            prev.filter((r) => r.remindAt !== item.remindAt)
-                          );
-                        }
-                      }}
+                      onChange={(checked) =>
+                        toggleReminder(item.value, checked)
+                      }
                     />
                   );
                 })}

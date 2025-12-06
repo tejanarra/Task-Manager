@@ -1,0 +1,196 @@
+/* Light Theme Variables */
+:root {
+  /* Text Colors */
+  --color-text-primary: #000000; /* Black */
+  --color-text-secondary: #555555; /* Dark Gray */
+  --color-text-placeholder: #6c757d; /* Placeholder Gray */
+  --color-text-link: #000000; /* Black */
+  --color-text-link-hover: #000000; /* Black */
+
+  /* Background Colors */
+  --color-background: #ffffff; /* White */
+  --color-background-secondary: rgba(255, 255, 255, 0.43); /* Semi-transparent White */
+  --color-background-placeholder: #f0f0f0; /* Light Gray for placeholders */
+
+  /* Border Colors */
+  --color-border: #dddddd; /* Light Gray */ /* Corrected from #000000 to #dddddd */
+  --color-border-dark: #000000; /* Black */ /* Ensures contrast in Light Mode */
+  --color-border-light: #e0e0e0; /* Lighter Gray */
+  --color-border-lighter: #f8f8f8; /* Even Lighter Gray */
+
+  /* Button Colors */
+  --color-button-bg: #000000; /* Black */
+  --color-button-text: #ffffff; /* White */
+  --color-button-hover-text:#ffffff;
+  --color-button-hover-bg: #424242; /* Dark Gray */
+
+  /* Shimmer Colors */
+  --color-shimmer-light: #e0e0e0; /* Light Gray */
+  --color-shimmer-dark: #f8f8f8; /* Lighter Gray */
+
+  /* Placeholder Avatar */
+  --color-placeholder-avatar: #6c757d; /* Placeholder Gray */
+
+  /* Form Colors */
+  --form-background: #ffffff;
+  --form-text: #000000;
+  --form-border: var(--color-border);
+  --form-placeholder: #6c757d;
+
+  /* Overlay */
+  --overlay: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark Theme Variables */
+.dark {
+  /* Text Colors */
+  --color-text-primary: #ffffff; /* White */
+  --color-text-secondary: #aaaaaa; /* Light Gray */
+  --color-text-placeholder: #cdd1d5; /* Placeholder Gray (unchanged) */
+  --color-text-link: #ffffff; /* White */
+  --color-text-link-hover: #ffffff; /* White */
+
+  /* Background Colors */
+  --color-background: #000000; /* Dark Background */
+  --color-background-secondary: rgba(0, 0, 0, 0.9); /* Semi-transparent Dark */
+  --color-background-placeholder: #333333; /* Dark Gray for placeholders */
+
+  /* Border Colors */
+  --color-border: #555555; /* Dark Gray */ /* Corrected from #ffffff to #555555 */
+  --color-border-dark: #ffffff; /* White */ /* Ensures contrast in Dark Mode */
+  --color-border-light: #666666; /* Medium Dark Gray */
+  --color-border-lighter: #777777; /* Lighter Dark Gray */
+
+  /* Button Colors */
+  --color-button-bg: #ffffff; /* White */
+  --color-button-text: #000000; /* Black */
+  --color-button-hover-text:#000000;
+  --color-button-hover-bg: #c4bdbd; /* Dark Gray */
+
+  /* Shimmer Colors */
+  --color-shimmer-light: #555555; /* Dark Gray */
+  --color-shimmer-dark: #777777; /* Lighter Dark Gray */
+
+  /* Placeholder Avatar */
+  --color-placeholder-avatar: #6c757d; /* Placeholder Gray (unchanged) */
+
+  /* Form Colors */
+  --form-background: #2c2c2c;
+  --form-text: #ffffff;
+  --form-border: var(--color-border);
+  --form-placeholder: #6c757d;
+
+    /* Overlay */
+    --overlay: rgba(255, 255, 255, 0.3);;
+}
+
+* {
+  transition:  background-color 0.3s ease, border-color 0.3s ease, 
+              background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.app-container {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.main-content {
+  margin-top: 70px;
+  flex-grow: 1;
+}
+
+footer {
+  background-color: var(--color-background);
+  text-align: center;
+  padding: 1rem 0;
+  margin-top: 1rem;
+  color: var(--color-text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Form Control Styling */
+.form-control {
+  background-color: var(--form-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: var(--color-border-dark);
+  background-color: var(--form-background);
+  color: var(--form-text);
+  box-shadow: none;
+}
+
+.form-label {
+  color: var(--color-text-primary);
+}
+
+.form-select {
+  background-color: var(--form-background);
+  color: var(--form-text);
+  border: 2px solid var(--form-border);
+  border-radius: 6px;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: var(--color-border-dark);
+}
+
+/* Placeholder Styling */
+.form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-control::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-control:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-control::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-control::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-select::-webkit-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-select:-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-select::-ms-input-placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}
+
+.form-select::placeholder {
+  color: var(--color-text-placeholder);
+  opacity: 1;
+}

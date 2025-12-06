@@ -1,0 +1,69 @@
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.897);
+    z-index: 1050;
+  }
+  
+  .custom-modal-content {
+    background-color: var(--color-background-placeholder);
+    border-radius: 8px;
+    padding: 1.5rem;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0px 4px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal2-title{
+    color: var(--color-text-primary);
+  }
+
+  .custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+  
+  .custom-modal-body {
+    margin-bottom: 1.5rem;
+  }
+  
+  .custom-modal-footer .btn-black {
+    background-color: #000;
+    color: #fff;
+    font-weight: 500;
+    border: none;
+  }
+  
+  .custom-modal-footer .btn-black:hover {
+    background-color: #333;
+  }
+  
+  .custom-modal-footer .btn-secondary {
+    background-color: #6c757d;
+    color: #fff;
+  }
+  
+  .custom-modal-footer .btn-secondary:hover {
+    background-color: #5a6268;
+  }
+
+  
+  .custom-modal-overlay .sign-in-btn {
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  .custom-modal-overlay .sign-in-btn:hover {
+    background-color: var(--color-button-hover-bg);
+    color: var(--color-button-hover-text);
+  
+  }
