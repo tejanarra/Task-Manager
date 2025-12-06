@@ -1,8 +1,8 @@
-:HL["/Task-Manager/_next/static/chunks/7a7b5c15602a3e34.css","style"]
+:HL["/Task-Manager/_next/static/chunks/8ca791e6f6b062d5.css","style"]
 :HL["/Task-Manager/_next/static/chunks/d43ab978ac5b76ce.css","style"]
 :HL["/Task-Manager/_next/static/media/a218039a3287bcfd-s.p.4a23d71b.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/Task-Manager/_next/static/media/c875c6f5d3e977ac-s.p.80fc2c9e.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/Task-Manager/_next/static/media/e2334d715941921e-s.p.d82a9aff.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
 :HL["/Task-Manager/_next/static/chunks/3ef90dd9eeac1095.css","style"]
 :HL["https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css","style"]
-0:{"buildId":"dZgHxAg-QroNNi0N66gIT","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"register","paramType":null,"paramKey":"register","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
+0:{"buildId":"5jDm7yTLal6AsB_HVInvP","tree":{"name":"","paramType":null,"paramKey":"","hasRuntimePrefetch":false,"slots":{"children":{"name":"register","paramType":null,"paramKey":"register","hasRuntimePrefetch":false,"slots":{"children":{"name":"__PAGE__","paramType":null,"paramKey":"__PAGE__","hasRuntimePrefetch":false,"slots":null,"isRootLayout":false}},"isRootLayout":false}},"isRootLayout":true},"staleTime":300}
