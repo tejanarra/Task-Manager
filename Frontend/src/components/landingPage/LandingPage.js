@@ -3,7 +3,7 @@
 import  { useRef } from "react";
 import Link from "next/link";
 import "./Styles/LandingPage.css";
-import heroImage from "../../assets/hero1.jpg";
+const heroImage = "/hero1.jpg";
 import { featuresData, benefitsData, testimonialsData } from "./data";
 import FeaturesSection from "./FeaturesSection";
 import BenefitsSection from "./BenefitsSection";

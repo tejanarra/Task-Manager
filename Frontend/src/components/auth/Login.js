@@ -6,7 +6,8 @@ import { useAuth } from "../../context/AuthContext";
 import { loginUser, loginWithGoogle } from "../../services/api";
 import "./Login.css";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
-import googlelogo from "../../assets/google_logo.png";
+// Google logo is now in public folder
+const googlelogo = "/google_logo.png";
 import { FormInput, AlertBanner, LoadingButton } from "../common";
 import { useFormState, useApiError, useLoading } from "../../hooks";
 import { ERROR_MESSAGES } from "../../constants/appConstants";

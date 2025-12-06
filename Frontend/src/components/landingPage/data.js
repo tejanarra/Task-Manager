@@ -1,10 +1,11 @@
 "use client";
 
-import feature1 from "../../assets/organize.jpg";
-import feature2 from "../../assets/reminder3.jpeg";
-import feature3 from "../../assets/switch.jpg";
-import feature4 from "../../assets/priority.jpg";
-import feature0 from "../../assets/ai.jpg"
+// Images now in public folder
+const feature1 = "/organize.jpg";
+const feature2 = "/reminder3.jpeg";
+const feature3 = "/switch.jpg";
+const feature4 = "/priority.jpg";
+const feature0 = "/ai.jpg";
 
 export const featuresData = [
   {

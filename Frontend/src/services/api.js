@@ -1,8 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
-  // baseURL: "http://localhost:5001/api", // Localhost for local development
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:5001/api",
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
