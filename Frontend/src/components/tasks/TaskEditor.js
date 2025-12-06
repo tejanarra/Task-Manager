@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useParams } from "next/navigation";
 import {
   createTask,
   updateTask,
@@ -16,10 +15,9 @@ import { normalizeRemindersBeforeSave } from "../../utils/reminderUtils";
 import "./TaskEditor.css";
 import { REMINDER_INTERVALS } from "../../constants/appConstants";
 
-const TaskEditor = ({ theme }) => {
+const TaskEditor = ({ theme, taskId }) => {
   const router = useRouter();
-  const { taskId } = useParams();
-  const isNewTask = taskId === "new";
+  const isNewTask = !taskId || taskId === "new";
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
