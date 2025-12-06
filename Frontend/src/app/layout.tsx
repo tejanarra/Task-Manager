@@ -62,17 +62,17 @@ export const metadata: Metadata = {
   formatDetection: {
     telephone: false,
   },
-  manifest: "/manifest.json",
+  manifest: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/manifest.json`,
   icons: {
     icon: [
-      { url: "/favicon.ico" },
-      { url: "/logo.png", sizes: "32x32", type: "image/png" },
-      { url: "/logo.png", sizes: "16x16", type: "image/png" },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/favicon.ico` },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo.png`, sizes: "32x32", type: "image/png" },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo.png`, sizes: "16x16", type: "image/png" },
     ],
     apple: [
-      { url: "/logo.png", sizes: "180x180" },
-      { url: "/logo.png", sizes: "167x167" },
-      { url: "/logo.png", sizes: "152x152" },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo.png`, sizes: "180x180" },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo.png`, sizes: "167x167" },
+      { url: `${process.env.NEXT_PUBLIC_BASE_PATH || ''}/logo.png`, sizes: "152x152" },
     ],
   },
   other: {

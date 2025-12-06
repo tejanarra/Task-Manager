@@ -3,7 +3,8 @@
 import  { useRef } from "react";
 import Link from "next/link";
 import "./Styles/LandingPage.css";
-const heroImage = "/hero1.jpg";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+const heroImage = `${basePath}/hero1.jpg`;
 import { featuresData, benefitsData, testimonialsData } from "./data";
 import FeaturesSection from "./FeaturesSection";
 import BenefitsSection from "./BenefitsSection";

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
-import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "@/context/AuthContext";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/footer";
@@ -11,11 +11,12 @@ const TaskEditor = dynamic(() => import("@/components/tasks/TaskEditor"), {
   ssr: false,
 });
 
-export default function TaskEditPage() {
+function TaskEditContent() {
   const [theme, setTheme] = useState("light");
   const { user, isLoading } = useAuth();
   const router = useRouter();
-  const params = useParams();
+  const searchParams = useSearchParams();
+  const taskId = searchParams.get("id");
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -57,9 +58,17 @@ export default function TaskEditPage() {
     <div className={`app-container ${theme}`}>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
       <main className="main-content">
-        <TaskEditor theme={theme} taskId={params.taskId} />
+        <TaskEditor theme={theme} taskId={taskId || undefined} />
       </main>
       <Footer theme={theme} />
     </div>
+  );
+}
+
+export default function TaskEditPage() {
+  return (
+    <Suspense fallback={<div className="loading">Loading...</div>}>
+      <TaskEditContent />
+    </Suspense>
   );
 }

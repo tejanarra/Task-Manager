@@ -12,7 +12,7 @@ const TaskCard = ({ theme, task, demoMode = false }) => {
 
   const handleClick = () => {
     if (!demoMode) {
-      router.push(`/tasks/${task.id}/edit`);
+      router.push(`/tasks/edit?id=${task.id}`);
     }
   };
 

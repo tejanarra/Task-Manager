@@ -1,11 +1,12 @@
 "use client";
 
 // Images now in public folder
-const feature1 = "/organize.jpg";
-const feature2 = "/reminder3.jpeg";
-const feature3 = "/switch.jpg";
-const feature4 = "/priority.jpg";
-const feature0 = "/ai.jpg";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+const feature1 = `${basePath}/organize.jpg`;
+const feature2 = `${basePath}/reminder3.jpeg`;
+const feature3 = `${basePath}/switch.jpg`;
+const feature4 = `${basePath}/priority.jpg`;
+const feature0 = `${basePath}/ai.jpg`;
 
 export const featuresData = [
   {

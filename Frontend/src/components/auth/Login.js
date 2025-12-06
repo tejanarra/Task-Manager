@@ -7,7 +7,8 @@ import { loginUser, loginWithGoogle } from "../../services/api";
 import "./Login.css";
 import { useGoogleLogin, googleLogout } from "@react-oauth/google";
 // Google logo is now in public folder
-const googlelogo = "/google_logo.png";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
+const googlelogo = `${basePath}/google_logo.png`;
 import { FormInput, AlertBanner, LoadingButton } from "../common";
 import { useFormState, useApiError, useLoading } from "../../hooks";
 import { ERROR_MESSAGES } from "../../constants/appConstants";

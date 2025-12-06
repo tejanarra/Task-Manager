@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
   // Environment variables available to the client
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'https://task-manager-sigma-ashen.vercel.app/api',
+    NEXT_PUBLIC_BASE_PATH: isGitHubPages ? '/Task-Manager' : '',
   },
 
   // Turbopack configuration (empty to silence warning)
