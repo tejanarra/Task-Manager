@@ -1,7 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ReminderCheckbox from "./ReminderCheckbox";
 import { formatDateTimeLocal } from "../../../utils/dateUtils";
-import { formatHoursLabel } from "../../../utils/reminderUtils";
 import "./Styles/TaskReminders.css";
 
 const TaskReminders = ({

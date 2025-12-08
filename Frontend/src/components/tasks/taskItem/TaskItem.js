@@ -98,10 +98,24 @@ const TaskItem = ({
       const hasDaily = reminders.some((r) => r.type === "daily");
       const hasWeekly = reminders.some((r) => r.type === "weekly");
 
-      let filteredReminders = reminders.filter(
-        (r) =>
-          (r.type === "one-time" || !r.type) && r.remindBefore <= diffInHours
-      );
+      // Filter one-time reminders - handle BOTH remindAt (from backend) and remindBefore (legacy) formats
+      let filteredReminders = reminders.filter((r) => {
+        // Not a one-time reminder
+        if (r.type && r.type !== "one-time") return false;
+
+        // New format: remindAt (absolute timestamp from backend)
+        if (r.remindAt) {
+          const remindDate = new Date(r.remindAt);
+          return remindDate > now && remindDate < deadlineDate;
+        }
+
+        // Legacy format: remindBefore (relative hours)
+        if (typeof r.remindBefore === 'number') {
+          return r.remindBefore > 0 && r.remindBefore <= diffInHours;
+        }
+
+        return false;
+      });
 
       if (hasDaily && diffInHours > 0) {
         const maxDays = Math.floor(diffInHours / 24);
