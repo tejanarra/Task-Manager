@@ -194,6 +194,9 @@ export const normalizeReminders = (reminders, deadline, userTimeZone = "UTC", ol
       deadlineTimeChanged = true;
     }
   }
+  // If oldDeadline is not provided (null/undefined), assume deadline time didn't change
+  // This handles updates where only task fields (not deadline) are modified
+  const shouldPreserveLastSentAt = !deadlineTimeChanged;
 
   const normalized = [];
   const seen = new Set();
@@ -210,8 +213,8 @@ export const normalizeReminders = (reminders, deadline, userTimeZone = "UTC", ol
 
       const recurring = createRecurringReminder(type, deadline);
       if (recurring) {
-        // Preserve lastSentAt ONLY if deadline time didn't change
-        if (!deadlineTimeChanged && reminder.lastSentAt) {
+        // Preserve lastSentAt for recurring reminders unless deadline time explicitly changed
+        if (shouldPreserveLastSentAt && reminder.lastSentAt) {
           recurring.lastSentAt = reminder.lastSentAt;
           recurring.sent = reminder.sent || false;
         }

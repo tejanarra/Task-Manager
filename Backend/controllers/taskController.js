@@ -232,8 +232,38 @@ export const updateTask = async (req, res) => {
       const userTimeZone = getUserTimeZone(req);
       const effectiveDeadline = deadline !== undefined ? deadline : task.deadline;
       const oldDeadline = task.deadline; // Previous deadline for comparison
+
+      // Preserve lastSentAt from existing reminders in database
+      // This prevents resetting lastSentAt when frontend sends stale reminder data
+      const existingReminders = task.reminders || [];
+      const incomingReminders = Array.isArray(reminders) ? reminders.map((reminder) => {
+        // Find matching existing reminder to preserve lastSentAt
+        const existing = existingReminders.find(e => {
+          if (!e || !reminder) return false;
+          // Match by type for recurring reminders
+          if (reminder.type === 'daily' || reminder.type === 'weekly') {
+            return e.type === reminder.type;
+          }
+          // Match by remindAt for one-time reminders
+          if (reminder.remindAt && e.remindAt) {
+            return e.remindAt === reminder.remindAt;
+          }
+          return false;
+        });
+
+        // If found matching reminder, preserve lastSentAt and sent status
+        if (existing && existing.lastSentAt) {
+          return {
+            ...reminder,
+            lastSentAt: existing.lastSentAt,
+            sent: existing.sent || false
+          };
+        }
+        return reminder;
+      }) : reminders;
+
       updatedFields.reminders = effectiveDeadline
-        ? normalizeReminders(reminders, effectiveDeadline, userTimeZone, oldDeadline)
+        ? normalizeReminders(incomingReminders, effectiveDeadline, userTimeZone, oldDeadline)
         : [];
     }
 
