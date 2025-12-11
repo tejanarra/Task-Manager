@@ -278,14 +278,34 @@ export const getReadyReminders = (reminders, deadline) => {
       let shouldSend = false;
 
       if (!lastSentAt) {
-        // First reminder: send immediately as long as deadline hasn't passed
-        shouldSend = hoursUntilDeadline > 0;
+        // First reminder: Check if we've reached the deadline time today
+        // Calculate when today's reminder should be sent (same time as deadline)
+        const deadlineTimeToday = deadlineDT.set({
+          year: now.year,
+          month: now.month,
+          day: now.day,
+        });
+
+        // Send if we've reached or passed today's deadline time and the actual deadline hasn't passed
+        shouldSend = now >= deadlineTimeToday && hoursUntilDeadline > 0;
       } else {
         // Subsequent reminders: send if interval has passed since last
         const lastSentDT = DateTime.fromISO(lastSentAt, { zone: "utc" });
         const hoursSinceLastSent = now.diff(lastSentDT, "hours").hours;
+
+        // Also check if we're at or past the deadline time of day
+        const deadlineTimeToday = deadlineDT.set({
+          year: now.year,
+          month: now.month,
+          day: now.day,
+        });
+
+        const isAtOrPastDeadlineTime = now >= deadlineTimeToday;
+
         shouldSend =
-          hoursSinceLastSent >= intervalHours && hoursUntilDeadline > 0;
+          hoursSinceLastSent >= intervalHours &&
+          isAtOrPastDeadlineTime &&
+          hoursUntilDeadline > 0;
       }
 
       if (shouldSend) {

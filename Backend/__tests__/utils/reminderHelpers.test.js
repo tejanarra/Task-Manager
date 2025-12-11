@@ -442,8 +442,12 @@ describe('reminderHelpers - getReadyReminders', () => {
     expect(ready).toHaveLength(0);
   });
 
-  test('should return daily reminder when within interval of deadline', () => {
-    const deadline = new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString(); // 12 hours
+  test('should return daily reminder when at or past deadline time of day', () => {
+    // Deadline: 2 hours ago today (so we're past the deadline time)
+    const now = new Date();
+    const deadline = new Date(now.getTime() - 2 * 60 * 60 * 1000); // 2 hours ago
+    deadline.setDate(deadline.getDate() + 3); // But 3 days in the future
+    const deadlineISO = deadline.toISOString();
 
     const reminders = [
       {
@@ -454,7 +458,7 @@ describe('reminderHelpers - getReadyReminders', () => {
       },
     ];
 
-    const ready = getReadyReminders(reminders, deadline);
+    const ready = getReadyReminders(reminders, deadlineISO);
 
     expect(ready).toHaveLength(1);
   });
@@ -477,9 +481,14 @@ describe('reminderHelpers - getReadyReminders', () => {
     expect(ready).toHaveLength(0);
   });
 
-  test('should return daily reminder if interval has passed', () => {
-    const deadline = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
-    const lastSentAt = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString(); // 25 hours ago
+  test('should return daily reminder if interval has passed and at deadline time', () => {
+    // Deadline: 3 days in the future at current time
+    const now = new Date();
+    const deadline = new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000);
+    const deadlineISO = deadline.toISOString();
+
+    // Last sent 25 hours ago (so interval passed AND we're at the deadline time of day)
+    const lastSentAt = new Date(now.getTime() - 25 * 60 * 60 * 1000).toISOString();
 
     const reminders = [
       {
@@ -490,7 +499,7 @@ describe('reminderHelpers - getReadyReminders', () => {
       },
     ];
 
-    const ready = getReadyReminders(reminders, deadline);
+    const ready = getReadyReminders(reminders, deadlineISO);
 
     expect(ready).toHaveLength(1);
   });
