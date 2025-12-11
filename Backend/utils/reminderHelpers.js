@@ -278,8 +278,8 @@ export const getReadyReminders = (reminders, deadline) => {
       let shouldSend = false;
 
       if (!lastSentAt) {
-        // First reminder: send if we're within one interval of deadline
-        shouldSend = hoursUntilDeadline <= intervalHours && hoursUntilDeadline > 0;
+        // First reminder: send immediately as long as deadline hasn't passed
+        shouldSend = hoursUntilDeadline > 0;
       } else {
         // Subsequent reminders: send if interval has passed since last
         const lastSentDT = DateTime.fromISO(lastSentAt, { zone: "utc" });
