@@ -137,6 +137,15 @@ const ProfileOverview = ({ theme }) => {
               {profile.dob ? convertDateToWords(profile.dob) : "Not provided"}
             </span>
           </div>
+          <div className="detail-row">
+            <strong className="detail-label">
+              <i className="bi bi-globe me-2"></i>
+              Timezone:
+            </strong>
+            <span className="detail-value">
+              {profile.timezone || "UTC"} {profile.timezone && profile.timezone !== "UTC" && `(${new Date().toLocaleString('en-US', { timeZone: profile.timezone, timeZoneName: 'short' }).split(', ')[1]})`}
+            </span>
+          </div>
         </div>
         <div className="row mt-4">
           <div className="col-12 col-md-6 mb-2 mb-md-0">

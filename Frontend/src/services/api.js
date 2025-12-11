@@ -15,6 +15,18 @@ api.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // Add user timezone header for auto-detection
+    try {
+      const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (userTimezone) {
+        config.headers['x-user-timezone'] = userTimezone;
+      }
+    } catch (err) {
+      // Ignore timezone detection errors
+      console.warn('Could not detect user timezone:', err);
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

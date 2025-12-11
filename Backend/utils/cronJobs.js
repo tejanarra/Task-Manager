@@ -8,7 +8,7 @@ import ejs from 'ejs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { sendEmail } from './mailer.js';
-import { format } from 'date-fns';
+import { format, formatInTimeZone } from 'date-fns-tz';
 import { EMAIL_CONFIG } from '../constants/config.js';
 import {
   getReadyReminders,
@@ -91,6 +91,39 @@ export const executeCron = async () => {
   }
 };
 
+// Status color mapping (matching frontend)
+const STATUS_COLORS = {
+  'completed': '#007a00',
+  'in-progress': '#daa520',
+  'not-started': '#a00000',
+};
+
+// Status icon mapping (Bootstrap Icons)
+const STATUS_ICONS = {
+  'completed': 'bi-check-circle',
+  'in-progress': 'bi-hourglass',
+  'not-started': 'bi-ban',
+};
+
+// Status label mapping
+const STATUS_LABELS = {
+  'completed': 'Completed',
+  'in-progress': 'In Progress',
+  'not-started': 'Not Started',
+};
+
+const getStatusColor = (status) => {
+  return STATUS_COLORS[status] || STATUS_COLORS['not-started'];
+};
+
+const getStatusIcon = (status) => {
+  return STATUS_ICONS[status] || STATUS_ICONS['not-started'];
+};
+
+const getStatusLabel = (status) => {
+  return STATUS_LABELS[status] || STATUS_LABELS['not-started'];
+};
+
 const getReminderDescription = (reminder, deadline) => {
   if (!reminder) return 'Task reminder';
 
@@ -121,23 +154,38 @@ const sendDeadlineReminder = async (task, reminder) => {
     const user = await User.findByPk(task.userId);
     if (!user) return;
 
+    // Determine user timezone (default to UTC if not set)
+    const userTimeZone = user.timezone || 'UTC';
+
+    // Format deadline in user's timezone
+    const deadlineDate = new Date(task.deadline);
+    const deadlineFormatted = formatInTimeZone(
+      deadlineDate,
+      userTimeZone,
+      'MMM dd, yyyy hh:mm a'
+    );
+
     const email = user.email;
     const htmlContent = await ejs.renderFile(
       path.join(__dirname, '../templates/taskReminder.ejs'),
       {
         task,
         deadlineIn: formatRelativeTime(task.deadline),
+        deadlineFormatted,
         userName: `${user.firstName} ${user.lastName}`,
         remindBefore: getReminderDescription(reminder, task.deadline),
         actionLink: `${EMAIL_CONFIG.FRONTEND_BASE_URL}/login`,
-        theme: 'dark',
+        statusColor: getStatusColor(task.status),
+        statusIcon: getStatusIcon(task.status),
+        statusLabel: getStatusLabel(task.status),
+        theme: 'light', // Can be made dynamic based on user preference
       }
     );
 
     const emailData = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: `Task Reminder: ${task.title}`,
+      subject: `⏰ Task Reminder: ${task.title}`,
       html: htmlContent,
     };
 

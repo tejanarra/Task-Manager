@@ -72,6 +72,12 @@ const User = sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    timezone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      defaultValue: 'UTC',
+      comment: 'User timezone in IANA format (e.g., America/New_York, Europe/London, Asia/Tokyo)',
+    },
   },
   {
     sequelize,

@@ -28,6 +28,7 @@ const fetchUser = async (userId) => {
 
 /**
  * Get user profile
+ * Optionally detects and updates timezone from request header
  */
 export const getProfile = async (req, res) => {
   const userId = req.userId;
@@ -38,6 +39,22 @@ export const getProfile = async (req, res) => {
       return res.status(HTTP_STATUS.NOT_FOUND).json({
         message: ERROR_MESSAGES.USER_NOT_FOUND,
       });
+    }
+
+    // Auto-detect and update timezone if provided in header and user doesn't have one set
+    const detectedTimezone = req.headers['x-user-timezone'];
+    if (detectedTimezone && (!user.timezone || user.timezone === 'UTC')) {
+      try {
+        // Update user timezone silently
+        await User.update(
+          { timezone: detectedTimezone },
+          { where: { id: userId } }
+        );
+        user.timezone = detectedTimezone;
+      } catch (tzError) {
+        // Don't fail the request if timezone update fails
+        console.error('Failed to auto-update timezone:', tzError);
+      }
     }
 
     res.status(HTTP_STATUS.OK).json(user);
@@ -61,7 +78,7 @@ export const updateProfile = async (req, res) => {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({ errors: errors.array() });
   }
 
-  const { firstName, lastName, phoneNumber, dob, bio } = req.body;
+  const { firstName, lastName, phoneNumber, dob, bio, timezone } = req.body;
 
   // Validate firstName
   if (firstName) {
@@ -117,6 +134,7 @@ export const updateProfile = async (req, res) => {
     if (phoneNumber !== undefined) user.phoneNumber = phoneNumber;
     if (dob) user.dob = dob;
     if (bio !== undefined) user.bio = bio;
+    if (timezone !== undefined) user.timezone = timezone;
 
     // Handle avatar upload
     if (req.file) {

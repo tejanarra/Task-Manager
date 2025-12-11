@@ -150,6 +150,7 @@ const EditProfile = () => {
     formData.append("phoneNumber", profile.phoneNumber);
     formData.append("dob", profile.dob);
     formData.append("bio", profile.bio || "");
+    formData.append("timezone", profile.timezone || "UTC");
 
     try {
       const response = await updateProfile(formData);
@@ -316,6 +317,68 @@ const EditProfile = () => {
               )}
             </div>
           ))}
+
+          {/* Timezone Selector */}
+          <div className="form-group mb-3">
+            <label htmlFor="timezone" className="form-label">
+              <i className="bi bi-globe me-2"></i>
+              Timezone
+            </label>
+            <select
+              className="form-control"
+              id="timezone"
+              name="timezone"
+              value={profile.timezone || "UTC"}
+              onChange={handleChange}
+            >
+              <optgroup label="Common Timezones">
+                <option value="UTC">UTC (Coordinated Universal Time)</option>
+                <option value="America/New_York">Eastern Time (US & Canada)</option>
+                <option value="America/Chicago">Central Time (US & Canada)</option>
+                <option value="America/Denver">Mountain Time (US & Canada)</option>
+                <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+              </optgroup>
+              <optgroup label="Americas">
+                <option value="America/Anchorage">Alaska</option>
+                <option value="America/Phoenix">Arizona</option>
+                <option value="America/Toronto">Toronto</option>
+                <option value="America/Vancouver">Vancouver</option>
+                <option value="America/Sao_Paulo">São Paulo</option>
+                <option value="America/Buenos_Aires">Buenos Aires</option>
+                <option value="America/Mexico_City">Mexico City</option>
+              </optgroup>
+              <optgroup label="Europe & Africa">
+                <option value="Europe/London">London</option>
+                <option value="Europe/Paris">Paris</option>
+                <option value="Europe/Berlin">Berlin</option>
+                <option value="Europe/Rome">Rome</option>
+                <option value="Europe/Madrid">Madrid</option>
+                <option value="Europe/Moscow">Moscow</option>
+                <option value="Africa/Cairo">Cairo</option>
+                <option value="Africa/Johannesburg">Johannesburg</option>
+              </optgroup>
+              <optgroup label="Asia">
+                <option value="Asia/Dubai">Dubai</option>
+                <option value="Asia/Kolkata">India (Kolkata)</option>
+                <option value="Asia/Bangkok">Bangkok</option>
+                <option value="Asia/Singapore">Singapore</option>
+                <option value="Asia/Shanghai">China (Shanghai)</option>
+                <option value="Asia/Tokyo">Tokyo</option>
+                <option value="Asia/Seoul">Seoul</option>
+                <option value="Asia/Hong_Kong">Hong Kong</option>
+              </optgroup>
+              <optgroup label="Australia & Pacific">
+                <option value="Australia/Sydney">Sydney</option>
+                <option value="Australia/Melbourne">Melbourne</option>
+                <option value="Australia/Perth">Perth</option>
+                <option value="Pacific/Auckland">Auckland</option>
+                <option value="Pacific/Fiji">Fiji</option>
+              </optgroup>
+            </select>
+            <small className="form-text text-muted">
+              Your timezone is used for task deadline reminders via email
+            </small>
+          </div>
           {success && <div className="alert alert-success">{success}</div>}
 
           <div className="row mt-4">
