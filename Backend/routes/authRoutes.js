@@ -13,6 +13,7 @@ import {
   changePassword,
   googleLogin,
 } from '../controllers/authController.js';
+import { executeCron } from '../utils/cronJobs.js';
 import authenticateToken from '../middleware/authMiddleware.js';
 import { authLimiter } from '../middleware/rateLimiter.js';
 
