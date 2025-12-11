@@ -162,7 +162,7 @@ const sendDeadlineReminder = async (task, reminder) => {
     const deadlineFormatted = formatInTimeZone(
       deadlineDate,
       userTimeZone,
-      'MMM dd, yyyy hh:mm a'
+      'MMM dd, yyyy hh:mm a zzz'
     );
 
     const email = user.email;

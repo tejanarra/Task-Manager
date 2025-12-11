@@ -69,13 +69,13 @@ const generatePreview = async () => {
   const deadlineFormatted = formatInTimeZone(
     mockTask.deadline,
     userTimeZone,
-    'MMM dd, yyyy hh:mm a'
+    'MMM dd, yyyy hh:mm a zzz'
   );
 
   const templateData = {
     task: mockTask,
     deadlineIn: formatRelativeTime(mockTask.deadline),
-    deadlineFormatted: `${deadlineFormatted} (${userTimeZone})`,
+    deadlineFormatted: deadlineFormatted,
     userName: 'John Doe',
     remindBefore: '1 day before deadline',
     actionLink: 'https://tejanarra.github.io/Task-Manager/login',
