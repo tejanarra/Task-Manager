@@ -185,7 +185,7 @@ const sendDeadlineReminder = async (task, reminder) => {
     const emailData = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: `⏰ Task Reminder: ${task.title}`,
+      subject: `Task Reminder: ${task.title}`,
       html: htmlContent,
     };
 
