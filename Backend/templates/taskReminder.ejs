@@ -39,22 +39,16 @@
                       <p style="margin: 0 0 20px 0; font-size: 14px; color: #333333; line-height: 1.5;"><%= task.description %></p>
                       <% } %>
 
-                      <!-- Deadline Box -->
-                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 16px;">
-                        <tr>
-                          <td style="padding: 16px; text-align: center;">
-                            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-bottom: 6px;">Deadline</div>
-                            <div style="font-size: 15px; font-weight: 600; color: #000000;"><%= deadlineFormatted %></div>
-                          </td>
-                        </tr>
-                      </table>
-
-                      <!-- Status -->
+                      <!-- Status and Deadline Row -->
                       <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top: 1px solid #e0e0e0; padding-top: 16px;">
                         <tr>
-                          <td style="padding: 0;">
+                          <td style="padding: 0; width: 35%; vertical-align: top;">
                             <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-bottom: 4px;">Status</div>
-                            <div style="font-size: 14px; color: #000000;"><%= statusLabel %></div>
+                            <div style="font-size: 14px; font-weight: 600; color: #000000;"><%= statusLabel %></div>
+                          </td>
+                          <td style="padding: 0 0 0 16px; width: 65%; vertical-align: top;">
+                            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-bottom: 4px;">Deadline</div>
+                            <div style="font-size: 14px; font-weight: 600; color: #000000;"><%= deadlineFormatted %></div>
                           </td>
                         </tr>
                       </table>
