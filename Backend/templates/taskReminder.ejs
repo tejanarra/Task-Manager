@@ -3,14 +3,17 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Task Reminder</title>
     <style>
+      /* Reset & Base Styles */
       body {
         margin: 0;
         padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
         background-color: #f5f5f5;
         line-height: 1.6;
+        color: #000000;
       }
 
       table {
@@ -22,171 +25,307 @@
         padding: 0;
       }
 
+      img {
+        border: 0;
+        display: block;
+      }
+
+      /* Container */
       .email-wrapper {
         width: 100%;
         background-color: #f5f5f5;
-        padding: 20px 0;
+        padding: 40px 0;
       }
 
       .email-container {
         max-width: 600px;
         margin: 0 auto;
         background-color: #ffffff;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       }
 
+      /* Header */
       .email-header {
         background-color: #000000;
-        padding: 24px 20px;
+        padding: 32px 24px;
         text-align: center;
+        border-bottom: 1px solid #e0e0e0;
       }
 
       .logo {
-        font-size: 28px;
+        font-size: 24px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 2px;
+        letter-spacing: 3px;
         margin: 0;
         color: #ffffff;
       }
 
+      /* Content Area */
       .email-content {
-        padding: 32px 24px;
+        padding: 40px 32px;
       }
 
       .greeting {
-        font-size: 16px;
-        color: #333333;
-        margin: 0 0 24px 0;
-      }
-
-      .greeting-name {
+        font-size: 18px;
         font-weight: 600;
         color: #000000;
+        margin: 0 0 8px 0;
       }
 
-      /* Simple Task Card */
+      .greeting-subtitle {
+        font-size: 14px;
+        color: #555555;
+        margin: 0 0 32px 0;
+      }
+
+      /* Task Card - Matching Frontend Style */
       .task-card {
-        border-left: 4px solid #000000;
-        background-color: #f9f9f9;
-        padding: 20px;
-        margin: 20px 0;
-        border-radius: 4px;
+        position: relative;
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 24px 0;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .task-strip {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 8px;
+        height: 100%;
+        background-color: #000000;
+      }
+
+      .task-card-content {
+        padding: 24px 24px 24px 32px;
+        position: relative;
+      }
+
+      .task-header {
+        display: table;
+        width: 100%;
+        margin-bottom: 16px;
       }
 
       .task-title {
-        font-size: 22px;
+        font-size: 20px;
         font-weight: 600;
-        margin: 0 0 8px 0;
+        margin: 0;
         color: #000000;
+        line-height: 1.3;
+        word-wrap: break-word;
+        padding-right: 40px;
+      }
+
+      .status-badge {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        font-size: 24px;
+        opacity: 0.7;
       }
 
       .task-description {
         font-size: 15px;
-        color: #555555;
-        margin: 0 0 20px 0;
+        line-height: 1.5;
+        margin: 16px 0 20px 0;
+        color: #000000;
+        opacity: 0.9;
+        white-space: pre-wrap;
+        word-wrap: break-word;
       }
 
-      .task-info {
-        background-color: #ffffff;
-        padding: 16px;
-        border-radius: 4px;
-        margin-top: 16px;
+      /* Metadata Section */
+      .task-metadata {
+        border-top: 1px solid #e0e0e0;
+        padding-top: 20px;
+        margin-top: 20px;
       }
 
-      .info-row {
-        margin-bottom: 12px;
-        font-size: 14px;
+      .metadata-grid {
+        display: table;
+        width: 100%;
       }
 
-      .info-row:last-child {
-        margin-bottom: 0;
+      .metadata-row {
+        display: table-row;
       }
 
-      .info-label {
+      .metadata-cell {
+        display: table-cell;
+        padding: 8px 0;
+        vertical-align: top;
+      }
+
+      .metadata-label {
         font-weight: 600;
-        color: #333333;
-        display: inline-block;
-        min-width: 100px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: #000000;
+        display: block;
+        margin-bottom: 4px;
       }
 
-      .info-value {
-        color: #666666;
+      .metadata-value {
+        font-size: 14px;
+        color: #555555;
+        display: block;
       }
 
-      .deadline-highlight {
-        font-size: 18px;
+      .metadata-highlight {
+        background-color: #f8f8f8;
+        padding: 16px;
+        border-radius: 8px;
+        margin: 16px 0;
+        border: 1px solid #e0e0e0;
+      }
+
+      .deadline-text {
+        font-size: 16px;
         font-weight: 600;
         color: #000000;
-        margin: 16px 0;
-        padding: 12px;
-        background-color: #ffffff;
-        border-radius: 4px;
+        margin: 0;
         text-align: center;
       }
 
       /* CTA Button */
       .cta-section {
         text-align: center;
-        margin: 32px 0 24px 0;
+        margin: 32px 0;
       }
 
       .cta-button {
         display: inline-block;
-        padding: 14px 32px;
+        padding: 16px 40px;
         background-color: #000000;
-        color: #ffffff !important;
+        color: #ffffff;
         text-decoration: none;
-        border-radius: 6px;
-        font-size: 16px;
+        border-radius: 8px;
+        font-size: 15px;
         font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: background-color 0.3s ease;
       }
 
+      .cta-button:hover {
+        background-color: #424242;
+      }
+
+      /* Footer Note */
       .footer-note {
         font-size: 13px;
-        color: #888888;
+        color: #555555;
         text-align: center;
-        margin-top: 24px;
-        padding-top: 20px;
+        margin: 32px 0 0 0;
+        padding-top: 24px;
+        border-top: 1px solid #e0e0e0;
+        line-height: 1.6;
+      }
+
+      /* Email Footer */
+      .email-footer {
+        background-color: #f8f8f8;
+        padding: 24px 32px;
+        text-align: center;
         border-top: 1px solid #e0e0e0;
       }
 
-      .email-footer {
-        background-color: #f8f8f8;
-        padding: 20px;
-        text-align: center;
-        font-size: 12px;
-        color: #666666;
+      .footer-links {
+        margin: 0 0 12px 0;
+        font-size: 13px;
       }
 
-      .email-footer a {
+      .footer-links a {
         color: #000000;
         text-decoration: none;
+        font-weight: 600;
+        margin: 0 12px;
       }
 
+      .footer-links a:hover {
+        text-decoration: underline;
+      }
+
+      .footer-copyright {
+        margin: 0;
+        font-size: 12px;
+        color: #555555;
+      }
+
+      /* Responsive Design */
       @media only screen and (max-width: 600px) {
-        .email-content {
-          padding: 24px 16px !important;
+        .email-wrapper {
+          padding: 20px 0;
         }
 
-        .task-card {
-          padding: 16px !important;
+        .email-content {
+          padding: 32px 20px;
+        }
+
+        .task-card-content {
+          padding: 20px 20px 20px 28px;
         }
 
         .task-title {
-          font-size: 20px !important;
+          font-size: 18px;
+          padding-right: 35px;
         }
 
-        .info-label {
-          display: block !important;
-          margin-bottom: 4px !important;
+        .status-badge {
+          top: 20px;
+          right: 20px;
+          font-size: 20px;
+        }
+
+        .task-description {
+          font-size: 14px;
+        }
+
+        .metadata-grid {
+          display: block;
+        }
+
+        .metadata-cell {
+          display: block;
+          padding: 6px 0;
         }
 
         .cta-button {
-          width: 100% !important;
-          padding: 12px !important;
+          display: block;
+          width: 100%;
+          padding: 14px 24px;
+        }
+
+        .email-footer {
+          padding: 20px 16px;
+        }
+
+        .footer-links a {
+          display: block;
+          margin: 8px 0;
+        }
+      }
+
+      /* Print Styles */
+      @media print {
+        .email-wrapper {
+          background-color: #ffffff;
+        }
+
+        .task-card {
+          box-shadow: none;
+          border: 2px solid #000000;
+        }
+
+        .cta-button {
+          background-color: #000000 !important;
         }
       }
     </style>
@@ -200,47 +339,52 @@
             <!-- Header -->
             <tr>
               <td class="email-header">
-                <h1 class="logo">TASK REMINDER</h1>
+                <h1 class="logo">Task Manager</h1>
               </td>
             </tr>
 
             <!-- Content -->
             <tr>
               <td class="email-content">
-                <p class="greeting">
-                  Hi <span class="greeting-name"><%= userName %></span>,
-                </p>
-
-                <p style="font-size: 15px; color: #555555; margin: 0 0 24px 0;">
-                  You have a task that needs your attention:
-                </p>
+                <p class="greeting">Hello <%= userName %>,</p>
+                <p class="greeting-subtitle">You have a task that requires your attention.</p>
 
                 <!-- Task Card -->
                 <div class="task-card">
-                  <h2 class="task-title"><%= task.title %></h2>
-
-                  <% if (task.description) { %>
-                  <p class="task-description"><%= task.description %></p>
-                  <% } %>
-
-                  <!-- Deadline Highlight -->
-                  <div class="deadline-highlight">
-                    Due: <%= deadlineFormatted %>
-                  </div>
-
-                  <!-- Task Info -->
-                  <div class="task-info">
-                    <div class="info-row">
-                      <span class="info-label">Status:</span>
-                      <span class="info-value"><%= statusLabel %></span>
+                  <div class="task-strip"></div>
+                  <div class="task-card-content">
+                    <div class="task-header">
+                      <h2 class="task-title"><%= task.title %></h2>
+                      <span class="status-badge"><%= statusIcon %></span>
                     </div>
-                    <div class="info-row">
-                      <span class="info-label">Time Remaining:</span>
-                      <span class="info-value"><%= deadlineIn %></span>
+
+                    <% if (task.description) { %>
+                    <p class="task-description"><%= task.description %></p>
+                    <% } %>
+
+                    <!-- Deadline Highlight -->
+                    <div class="metadata-highlight">
+                      <p class="deadline-text"><%= deadlineFormatted %></p>
                     </div>
-                    <div class="info-row">
-                      <span class="info-label">Reminder:</span>
-                      <span class="info-value"><%= remindBefore %></span>
+
+                    <!-- Task Metadata -->
+                    <div class="task-metadata">
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="metadata-grid">
+                        <tr class="metadata-row">
+                          <td class="metadata-cell" width="33%">
+                            <span class="metadata-label">Status</span>
+                            <span class="metadata-value"><%= statusLabel %></span>
+                          </td>
+                          <td class="metadata-cell" width="33%">
+                            <span class="metadata-label">Time Remaining</span>
+                            <span class="metadata-value"><%= deadlineIn %></span>
+                          </td>
+                          <td class="metadata-cell" width="33%">
+                            <span class="metadata-label">Reminder</span>
+                            <span class="metadata-value"><%= remindBefore %></span>
+                          </td>
+                        </tr>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -251,7 +395,7 @@
                 </div>
 
                 <p class="footer-note">
-                  Please review and complete this task at your earliest convenience.
+                  This is an automated reminder for your task. Please review and complete it at your earliest convenience.
                 </p>
               </td>
             </tr>
@@ -259,11 +403,12 @@
             <!-- Footer -->
             <tr>
               <td class="email-footer">
-                <p style="margin: 0 0 8px 0;">
+                <p class="footer-links">
+                  <a href="<%= actionLink %>">View Dashboard</a>
                   <a href="https://tejanarra.github.io/portfolio/">Contact Support</a>
                 </p>
-                <p style="margin: 0; color: #999999;">
-                  Task Manager • Powered by Your Team
+                <p class="footer-copyright">
+                  &copy; 2025 Task Manager. All rights reserved.
                 </p>
               </td>
             </tr>

@@ -28,9 +28,9 @@ const STATUS_COLORS = {
 };
 
 const STATUS_ICONS = {
-  'completed': 'bi-check-circle',
-  'in-progress': 'bi-hourglass',
-  'not-started': 'bi-ban',
+  'completed': '✓',
+  'in-progress': '◷',
+  'not-started': '○',
 };
 
 const STATUS_LABELS = {

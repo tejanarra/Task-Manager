@@ -98,11 +98,11 @@ const STATUS_COLORS = {
   'not-started': '#a00000',
 };
 
-// Status icon mapping (Bootstrap Icons)
+// Status icon mapping (Unicode symbols)
 const STATUS_ICONS = {
-  'completed': 'bi-check-circle',
-  'in-progress': 'bi-hourglass',
-  'not-started': 'bi-ban',
+  'completed': '✓',
+  'in-progress': '◷',
+  'not-started': '○',
 };
 
 // Status label mapping
