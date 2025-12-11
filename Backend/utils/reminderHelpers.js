@@ -175,10 +175,25 @@ export const createRecurringReminder = (type, deadline) => {
  * @param {Array} reminders - Array of reminder objects
  * @param {Date|string} deadline - Task deadline
  * @param {string} userTimeZone - User's timezone
+ * @param {Date|string} oldDeadline - Previous deadline (optional, for updates)
  * @returns {Array} - Normalized reminders
  */
-export const normalizeReminders = (reminders, deadline, userTimeZone = "UTC") => {
+export const normalizeReminders = (reminders, deadline, userTimeZone = "UTC", oldDeadline = null) => {
   if (!Array.isArray(reminders) || !deadline) return [];
+
+  // Check if deadline time-of-day changed
+  let deadlineTimeChanged = false;
+  if (oldDeadline && deadline) {
+    try {
+      const oldDT = DateTime.fromISO(new Date(oldDeadline).toISOString(), { zone: "utc" });
+      const newDT = DateTime.fromISO(new Date(deadline).toISOString(), { zone: "utc" });
+      // Compare hour and minute to see if time-of-day changed
+      deadlineTimeChanged = oldDT.hour !== newDT.hour || oldDT.minute !== newDT.minute;
+    } catch (error) {
+      // If comparison fails, assume it changed to be safe
+      deadlineTimeChanged = true;
+    }
+  }
 
   const normalized = [];
   const seen = new Set();
@@ -195,6 +210,11 @@ export const normalizeReminders = (reminders, deadline, userTimeZone = "UTC") =>
 
       const recurring = createRecurringReminder(type, deadline);
       if (recurring) {
+        // Preserve lastSentAt ONLY if deadline time didn't change
+        if (!deadlineTimeChanged && reminder.lastSentAt) {
+          recurring.lastSentAt = reminder.lastSentAt;
+          recurring.sent = reminder.sent || false;
+        }
         normalized.push(recurring);
         seen.add(key);
       }

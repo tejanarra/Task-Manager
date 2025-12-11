@@ -231,8 +231,9 @@ export const updateTask = async (req, res) => {
       // Normalize reminders before updating
       const userTimeZone = getUserTimeZone(req);
       const effectiveDeadline = deadline !== undefined ? deadline : task.deadline;
+      const oldDeadline = task.deadline; // Previous deadline for comparison
       updatedFields.reminders = effectiveDeadline
-        ? normalizeReminders(reminders, effectiveDeadline, userTimeZone)
+        ? normalizeReminders(reminders, effectiveDeadline, userTimeZone, oldDeadline)
         : [];
     }
 
