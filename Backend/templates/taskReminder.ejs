@@ -3,291 +3,83 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>Task Reminder</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        background-color: #f5f5f5;
-        line-height: 1.6;
-        color: #000000;
-      }
-
-      table {
-        border-spacing: 0;
-        border-collapse: collapse;
-      }
-
-      /* Container */
-      .email-wrapper {
-        width: 100%;
-        background-color: #f5f5f5;
-        padding: 20px;
-      }
-
-      .email-container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: #ffffff;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      /* Header */
-      .email-header {
-        background-color: #000000;
-        padding: 24px;
-        text-align: center;
-      }
-
-      .logo {
-        font-size: 18px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-        margin: 0;
-        color: #ffffff;
-      }
-
-      /* Content */
-      .email-content {
-        padding: 32px 24px;
-      }
-
-      .greeting {
-        font-size: 16px;
-        font-weight: 600;
-        color: #000000;
-        margin-bottom: 8px;
-      }
-
-      .intro-text {
-        font-size: 14px;
-        color: #666666;
-        margin-bottom: 24px;
-      }
-
-      /* Task Card */
-      .task-card {
-        background-color: #fafafa;
-        border: 1px solid #e0e0e0;
-        border-left: 4px solid #000000;
-        border-radius: 4px;
-        padding: 20px;
-        margin: 24px 0;
-      }
-
-      .task-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #000000;
-        margin-bottom: 12px;
-        line-height: 1.3;
-      }
-
-      .task-description {
-        font-size: 14px;
-        color: #333333;
-        margin-bottom: 20px;
-        line-height: 1.5;
-      }
-
-      /* Deadline Section */
-      .deadline-section {
-        background-color: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 4px;
-        padding: 16px;
-        margin-bottom: 16px;
-        text-align: center;
-      }
-
-      .deadline-label {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #666666;
-        margin-bottom: 6px;
-      }
-
-      .deadline-value {
-        font-size: 15px;
-        font-weight: 600;
-        color: #000000;
-      }
-
-      /* Info Row */
-      .info-row {
-        display: table;
-        width: 100%;
-        border-top: 1px solid #e0e0e0;
-        padding-top: 16px;
-      }
-
-      .info-item {
-        display: table-cell;
-        width: 50%;
-        padding: 0 8px;
-        vertical-align: top;
-      }
-
-      .info-label {
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        color: #666666;
-        display: block;
-        margin-bottom: 4px;
-      }
-
-      .info-value {
-        font-size: 14px;
-        color: #000000;
-        display: block;
-      }
-
-      /* CTA Button */
-      .cta-section {
-        text-align: center;
-        margin: 32px 0 24px 0;
-      }
-
-      .cta-button {
-        display: inline-block;
-        padding: 14px 32px;
-        background-color: #000000;
-        color: #ffffff;
-        text-decoration: none;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      /* Footer */
-      .email-footer {
-        background-color: #fafafa;
-        padding: 20px;
-        text-align: center;
-        border-top: 1px solid #e0e0e0;
-      }
-
-      .footer-text {
-        font-size: 12px;
-        color: #666666;
-        margin: 0;
-      }
-
-      .footer-link {
-        color: #000000;
-        text-decoration: none;
-        font-weight: 600;
-      }
-
-      /* Mobile Responsive */
-      @media only screen and (max-width: 600px) {
-        .email-wrapper {
-          padding: 10px;
-        }
-
-        .email-content {
-          padding: 24px 16px;
-        }
-
-        .task-card {
-          padding: 16px;
-        }
-
-        .task-title {
-          font-size: 16px;
-        }
-
-        .info-row {
-          display: block;
-        }
-
-        .info-item {
-          display: block;
-          width: 100%;
-          padding: 8px 0;
-        }
-
-        .cta-button {
-          width: 100%;
-        }
-      }
-    </style>
   </head>
-  <body>
-    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" class="email-wrapper">
+  <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f5f5f5;">
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #f5f5f5; padding: 20px 0;">
       <tr>
         <td align="center">
-          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" class="email-container" style="max-width: 600px;">
+          <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 8px; overflow: hidden;">
 
             <!-- Header -->
             <tr>
-              <td class="email-header">
-                <h1 class="logo">Task Manager</h1>
+              <td style="background-color: #000000; padding: 24px; text-align: center;">
+                <h1 style="margin: 0; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; color: #ffffff;">Task Manager</h1>
               </td>
             </tr>
 
             <!-- Content -->
             <tr>
-              <td class="email-content">
-                <p class="greeting">Hello <%= userName %>,</p>
-                <p class="intro-text">You have a task reminder:</p>
+              <td style="padding: 32px 24px;">
+
+                <!-- Greeting -->
+                <p style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600; color: #000000;">Hello <%= userName %>,</p>
+                <p style="margin: 0 0 24px 0; font-size: 14px; color: #666666;">You have a task reminder:</p>
 
                 <!-- Task Card -->
-                <div class="task-card">
-                  <h2 class="task-title"><%= task.title %></h2>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fafafa; border: 1px solid #e0e0e0; border-left: 4px solid #000000; border-radius: 4px;">
+                  <tr>
+                    <td style="padding: 20px;">
 
-                  <% if (task.description) { %>
-                  <p class="task-description"><%= task.description %></p>
-                  <% } %>
+                      <!-- Task Title -->
+                      <h2 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 600; color: #000000; line-height: 1.3;"><%= task.title %></h2>
 
-                  <!-- Deadline -->
-                  <div class="deadline-section">
-                    <div class="deadline-label">Deadline</div>
-                    <div class="deadline-value"><%= deadlineFormatted %></div>
-                  </div>
+                      <!-- Task Description -->
+                      <% if (task.description) { %>
+                      <p style="margin: 0 0 20px 0; font-size: 14px; color: #333333; line-height: 1.5;"><%= task.description %></p>
+                      <% } %>
 
-                  <!-- Status and Reminder Info -->
-                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="info-row">
-                    <tr>
-                      <td class="info-item">
-                        <span class="info-label">Status</span>
-                        <span class="info-value"><%= statusLabel %></span>
-                      </td>
-                      <td class="info-item">
-                        <span class="info-label">Reminder</span>
-                        <span class="info-value"><%= remindBefore %></span>
-                      </td>
-                    </tr>
-                  </table>
-                </div>
+                      <!-- Deadline Box -->
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 4px; margin-bottom: 16px;">
+                        <tr>
+                          <td style="padding: 16px; text-align: center;">
+                            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-bottom: 6px;">Deadline</div>
+                            <div style="font-size: 15px; font-weight: 600; color: #000000;"><%= deadlineFormatted %></div>
+                          </td>
+                        </tr>
+                      </table>
+
+                      <!-- Status -->
+                      <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border-top: 1px solid #e0e0e0; padding-top: 16px;">
+                        <tr>
+                          <td style="padding: 0;">
+                            <div style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: #666666; margin-bottom: 4px;">Status</div>
+                            <div style="font-size: 14px; color: #000000;"><%= statusLabel %></div>
+                          </td>
+                        </tr>
+                      </table>
+
+                    </td>
+                  </tr>
+                </table>
 
                 <!-- CTA Button -->
-                <div class="cta-section">
-                  <a href="<%= actionLink %>" class="cta-button">View Task</a>
-                </div>
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="margin-top: 32px;">
+                  <tr>
+                    <td align="center">
+                      <a href="<%= actionLink %>" style="display: inline-block; padding: 14px 32px; background-color: #000000; color: #ffffff !important; text-decoration: none; border-radius: 4px; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">View Task</a>
+                    </td>
+                  </tr>
+                </table>
+
               </td>
             </tr>
 
             <!-- Footer -->
             <tr>
-              <td class="email-footer">
-                <p class="footer-text">
-                  <a href="https://tejanarra.github.io/portfolio/" class="footer-link">Need help?</a>
+              <td style="background-color: #fafafa; padding: 20px; text-align: center; border-top: 1px solid #e0e0e0;">
+                <p style="margin: 0; font-size: 12px; color: #666666;">
+                  <a href="https://tejanarra.github.io/portfolio/" style="color: #000000; text-decoration: none; font-weight: 600;">Need help?</a>
                 </p>
               </td>
             </tr>
