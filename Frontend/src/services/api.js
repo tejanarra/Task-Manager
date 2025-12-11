@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
-  // baseURL: "http://localhost:5001/api", // Localhost for local development
+  // baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
+  baseURL: "http://localhost:5001/api", // Localhost for local development
   headers: {
     "ngrok-skip-browser-warning": "true",
   },
@@ -20,11 +20,11 @@ api.interceptors.request.use(
     try {
       const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (userTimezone) {
-        config.headers['x-user-timezone'] = userTimezone;
+        config.headers["x-user-timezone"] = userTimezone;
       }
     } catch (err) {
       // Ignore timezone detection errors
-      console.warn('Could not detect user timezone:', err);
+      console.warn("Could not detect user timezone:", err);
     }
 
     return config;
