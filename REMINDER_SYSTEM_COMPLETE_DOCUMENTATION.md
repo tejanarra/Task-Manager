@@ -191,7 +191,7 @@ Task: Submit project proposal
 Deadline: Dec 15, 2025 05:00 PM
 Reminder: 24 hours before
 
-[View Task] → https://tejanarra.github.io/Task-Manager/login
+[View Task] → https://tasks.tejanarra.space/login
 ```
 
 ---

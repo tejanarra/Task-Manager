@@ -78,7 +78,7 @@ const generatePreview = async () => {
     deadlineFormatted: deadlineFormatted,
     userName: 'John Doe',
     remindBefore: '1 day before deadline',
-    actionLink: 'https://tejanarra.github.io/Task-Manager/login',
+    actionLink: 'https://tasks.tejanarra.space/login',
     statusColor: STATUS_COLORS[mockTask.status],
     statusIcon: STATUS_ICONS[mockTask.status],
     statusLabel: STATUS_LABELS[mockTask.status],
