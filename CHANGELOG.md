@@ -361,7 +361,7 @@ For questions or issues:
 ## Links
 
 - **GitHub Repository**: https://github.com/tejanarra/Task-Manager
-- **Live Demo**: https://tejanarra.github.io/Task-Manager
+- **Live Demo**: https://taskmanager.tejanarra.space
 - **API Documentation**: https://api.taskmanager.tejanarra.space/api-docs
 - **Backend API**: https://api.taskmanager.tejanarra.space
 

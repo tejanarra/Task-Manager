@@ -29,7 +29,7 @@ const Footer = ({ theme }) => {
               }}
             >
               <a
-                href="https://tejanarra.github.io/portfolio/"
+                href="https://tejanarra.space"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="contact-link"

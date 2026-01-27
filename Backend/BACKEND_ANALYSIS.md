@@ -101,7 +101,7 @@ jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
 500, 1000, 100         // max lengths
 24, 48, 168            // hours for reminders
 "narrateja9699@gmail.com"              // contact recipient
-"https://tejanarra.github.io/..."      // frontend URLs
+"https://taskmanager.tejanarra.space"      // frontend URLs
 ```
 
 **Should be in**: `constants/config.js`

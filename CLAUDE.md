@@ -480,7 +480,7 @@ CLOUDINARY_API_SECRET=your_api_secret
 OLLAMA_API_BASE_URL=http://localhost:11434
 
 # Deployment
-FRONTEND_URL=https://tejanarra.github.io/Task-Manager
+FRONTEND_URL=https://taskmanager.tejanarra.space
 PORT=5001
 NODE_ENV=development
 ```
@@ -719,7 +719,7 @@ jwt.sign(
 ### CORS Configuration
 
 **Allowed Origins**:
-- `https://tejanarra.github.io` (production)
+- `https://tejanarra.space` (production)
 - `https://api.taskmanager.tejanarra.space` (staging)
 - `http://localhost:3000` (local dev)
 
@@ -837,7 +837,7 @@ All controllers, routes, and utilities converted to **ES6 modules** in earlier p
 
 ### Frontend Deployment
 - **Platform**: GitHub Pages
-- **URL**: https://tejanarra.github.io/Task-Manager
+- **URL**: https://taskmanager.tejanarra.space
 - **Process**: `npm run deploy` (uses gh-pages package)
 - **Build**: Static bundle at `/build`
 
@@ -854,7 +854,7 @@ All controllers, routes, and utilities converted to **ES6 modules** in earlier p
 - Backend: http://localhost:5001
 
 **Production**:
-- Frontend: https://tejanarra.github.io/Task-Manager
+- Frontend: https://taskmanager.tejanarra.space
 - Backend: https://api.taskmanager.tejanarra.space
 
 ---

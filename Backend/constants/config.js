@@ -39,10 +39,10 @@ export const AI_CONFIG = {
 // Email Configuration
 export const EMAIL_CONFIG = {
   CONTACT_RECIPIENT: process.env.CONTACT_EMAIL || 'support@taskmanager.com',
-  FRONTEND_BASE_URL: process.env.FRONTEND_URL || 'https://tejanarra.github.io/Task-Manager',
+  FRONTEND_BASE_URL: process.env.FRONTEND_URL || 'https://taskmanager.tejanarra.space',
   FRONTEND_LOGIN_URL: process.env.FRONTEND_URL
     ? `${process.env.FRONTEND_URL}/login`
-    : 'https://taskmanager.tejanarra.space//login',
+    : 'https://taskmanager.tejanarra.space/login',
   SMTP_HOST: 'smtp.gmail.com',
   SMTP_PORT: 465,
   SMTP_SECURE: true,

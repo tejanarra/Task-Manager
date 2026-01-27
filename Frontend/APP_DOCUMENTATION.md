@@ -19,7 +19,7 @@
 
 **Task Manager** is a full-stack React-based web application designed for personal productivity and task management. It combines traditional task management with AI-powered features to help users create, organize, and track tasks efficiently.
 
-- **Deployment**: https://tejanarra.github.io/Task-Manager
+- **Deployment**: https://taskmanager.tejanarra.space
 - **Backend**: https://api.taskmanager.tejanarra.space
 - **Framework**: React 18.3.1
 - **UI Library**: Bootstrap 5.3.3
