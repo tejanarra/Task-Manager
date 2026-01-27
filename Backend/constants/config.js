@@ -42,7 +42,7 @@ export const EMAIL_CONFIG = {
   FRONTEND_BASE_URL: process.env.FRONTEND_URL || 'https://tejanarra.github.io/Task-Manager',
   FRONTEND_LOGIN_URL: process.env.FRONTEND_URL
     ? `${process.env.FRONTEND_URL}/login`
-    : 'https://tasks.tejanarra.space/login',
+    : 'https://taskmanager.tejanarra.space//login',
   SMTP_HOST: 'smtp.gmail.com',
   SMTP_PORT: 465,
   SMTP_SECURE: true,

@@ -3,7 +3,7 @@
 A modern, feature-rich task management application built with **React 19**, **Express 5**, and **PostgreSQL**. Features include AI-powered task generation, drag-and-drop functionality, Google OAuth, comprehensive profile management, and real-time reminders.
 
 ## 🌐 Live Demo
-**[https://tejanarra.github.io/Task-Manager](https://tasks.tejanarra.space/#/)**
+**[https://tejanarra.github.io/Task-Manager](https://taskmanager.tejanarra.space//#/)**
 
 ---
 

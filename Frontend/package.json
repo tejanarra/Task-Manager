@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Modern React-based Task Manager frontend with drag-and-drop, AI task generation, Google OAuth, and profile management",
   "private": true,
-  "homepage": "https://tasks.tejanarra.space",
+  "homepage": "https://taskmanager.tejanarra.space/",
   "keywords": [
     "react",
     "task-manager",

@@ -61,7 +61,7 @@ npm start
 
 2. **Login to Frontend:**
 ```
-https://tasks.tejanarra.space/login
+https://taskmanager.tejanarra.space//login
 ```
 
 3. **Open AI Chat:**
