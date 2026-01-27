@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Message from <%= yourName %></title>
+    <title>New Message from <%= name %></title>
     <style>
       /* General Reset */
       body,
@@ -159,15 +159,15 @@
     <div class="email-wrapper">
       <!-- Header -->
       <div class="header">
-        <h1>New Message from <%= yourName %></h1>
+        <h1>New Message from <%= name %></h1>
         <p>You've received a new message!</p>
       </div>
 
       <!-- Content Section -->
       <div class="content">
         <h2>Message Details</h2>
-        <p><strong>Sender:</strong> <%= yourName %></p>
-        <p><strong>Email:</strong> <%= yourEmail %></p>
+        <p><strong>Sender:</strong> <%= name %></p>
+        <p><strong>Email:</strong> <%= email %></p>
         <p><strong>Subject:</strong> <%= subject %></p>
 
         <div class="message">
