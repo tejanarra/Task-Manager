@@ -118,7 +118,7 @@ export const normalizeRemindersBeforeSave = (reminders, deadline) => {
   for (const reminder of reminders) {
     if (!reminder || typeof reminder !== "object") continue;
 
-    const { type, remindAt, remindBefore, customDate, intervalHours } = reminder;
+    const { type, remindAt, remindBefore, customDate } = reminder;
 
     // Handle recurring reminders
     if (type === REMINDER_TYPES.DAILY || type === REMINDER_TYPES.WEEKLY) {
