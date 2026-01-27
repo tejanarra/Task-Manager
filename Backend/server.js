@@ -16,7 +16,7 @@ app.set("trust proxy", 1);
 
 app.use(
   cors({
-    origin: ["https://tejanarra.github.io", "https://tasks.tejanarra.space", "https://tejanarra.space"],
+    origin: ["https://tejanarra.github.io", "https://tasks.tejanarra.space", "https://tejanarra.space", "https://taskmanagertejanarra.web.app"],
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: [
       "Content-Type",
