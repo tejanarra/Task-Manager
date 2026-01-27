@@ -444,7 +444,7 @@ npm run build        # Install dependencies (legacy script)
 
 **Frontend** - `.env` (create if needed):
 ```env
-REACT_APP_API_URL=https://task-manager-sigma-ashen.vercel.app/api
+REACT_APP_API_URL=https://api.taskmanager.tejanarra.space/api
 # or for local dev:
 # REACT_APP_API_URL=http://localhost:5001/api
 ```
@@ -720,7 +720,7 @@ jwt.sign(
 
 **Allowed Origins**:
 - `https://tejanarra.github.io` (production)
-- `https://task-manager-sigma-ashen.vercel.app` (staging)
+- `https://api.taskmanager.tejanarra.space` (staging)
 - `http://localhost:3000` (local dev)
 
 **Allowed Methods**: GET, POST, PUT, DELETE, OPTIONS
@@ -843,7 +843,7 @@ All controllers, routes, and utilities converted to **ES6 modules** in earlier p
 
 ### Backend Deployment
 - **Platform**: Vercel (production)
-- **URL**: https://task-manager-sigma-ashen.vercel.app
+- **URL**: https://api.taskmanager.tejanarra.space
 - **Database**: PostgreSQL (managed separately)
 - **Ignored files**: `.vercelignore` in root
 
@@ -855,7 +855,7 @@ All controllers, routes, and utilities converted to **ES6 modules** in earlier p
 
 **Production**:
 - Frontend: https://tejanarra.github.io/Task-Manager
-- Backend: https://task-manager-sigma-ashen.vercel.app
+- Backend: https://api.taskmanager.tejanarra.space
 
 ---
 

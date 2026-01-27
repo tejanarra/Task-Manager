@@ -20,7 +20,7 @@
 **Task Manager** is a full-stack React-based web application designed for personal productivity and task management. It combines traditional task management with AI-powered features to help users create, organize, and track tasks efficiently.
 
 - **Deployment**: https://tejanarra.github.io/Task-Manager
-- **Backend**: https://task-manager-sigma-ashen.vercel.app
+- **Backend**: https://api.taskmanager.tejanarra.space
 - **Framework**: React 18.3.1
 - **UI Library**: Bootstrap 5.3.3
 
@@ -308,7 +308,7 @@ ai_chat_history    // Multi-turn chat history (JSON array)
 ## API Endpoints
 
 ### Base URL
-- Production: `https://task-manager-sigma-ashen.vercel.app/api`
+- Production: `https://api.taskmanager.tejanarra.space/api`
 - Local: `http://localhost:5001/api`
 
 ### Authentication Endpoints

@@ -52,7 +52,7 @@ export const TIME_CONSTANTS = {
 // API Configuration
 export const API_CONFIG = {
   TIMEOUT: 30000, // 30 seconds
-  BASE_URL: process.env.REACT_APP_API_URL || "https://task-manager-sigma-ashen.vercel.app/api",
+  BASE_URL: process.env.REACT_APP_API_URL || "https://api.taskmanager.tejanarra.space/api",
 };
 
 // AI Chat Suggestion Prompts

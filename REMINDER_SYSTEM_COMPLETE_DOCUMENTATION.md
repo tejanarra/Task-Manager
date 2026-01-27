@@ -650,7 +650,7 @@ CRON_SECRET=a1b2c3d4e5f6...your_generated_key
 
 **Settings:**
 - **Title:** Task Manager Reminder Emails
-- **URL:** `https://task-manager-sigma-ashen.vercel.app/api/auth/cronrun?secret=YOUR_CRON_SECRET`
+- **URL:** `https://api.taskmanager.tejanarra.space/api/auth/cronrun?secret=YOUR_CRON_SECRET`
 - **Method:** GET
 - **Schedule:** Every 5 minutes (`*/5 * * * *`)
 - **Timezone:** UTC
@@ -665,12 +665,12 @@ CRON_SECRET=a1b2c3d4e5f6...your_generated_key
 
 **Method 1: Browser**
 ```
-https://task-manager-sigma-ashen.vercel.app/api/auth/cronrun?secret=YOUR_SECRET
+https://api.taskmanager.tejanarra.space/api/auth/cronrun?secret=YOUR_SECRET
 ```
 
 **Method 2: cURL**
 ```bash
-curl -X GET "https://task-manager-sigma-ashen.vercel.app/api/auth/cronrun" \
+curl -X GET "https://api.taskmanager.tejanarra.space/api/auth/cronrun" \
   -H "x-cron-secret: YOUR_SECRET"
 ```
 

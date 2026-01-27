@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://task-manager-sigma-ashen.vercel.app/api", // Replace with your backend URL
+  baseURL: "https://api.taskmanager.tejanarra.space/api", // Replace with your backend URL
   // baseURL: "http://localhost:5001/api", // Localhost for local development
   headers: {
     "ngrok-skip-browser-warning": "true",

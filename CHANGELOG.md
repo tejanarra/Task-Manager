@@ -362,8 +362,8 @@ For questions or issues:
 
 - **GitHub Repository**: https://github.com/tejanarra/Task-Manager
 - **Live Demo**: https://tejanarra.github.io/Task-Manager
-- **API Documentation**: https://task-manager-sigma-ashen.vercel.app/api-docs
-- **Backend API**: https://task-manager-sigma-ashen.vercel.app
+- **API Documentation**: https://api.taskmanager.tejanarra.space/api-docs
+- **Backend API**: https://api.taskmanager.tejanarra.space
 
 ---
 

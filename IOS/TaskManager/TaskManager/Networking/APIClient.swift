@@ -19,14 +19,14 @@ final class APIClient {
     static let shared = APIClient()
     private init() {}
 
-    private let baseURL = URL(string: "https://task-manager-sigma-ashen.vercel.app/api")!
+    private let baseURL = URL(string: "https://api.taskmanager.tejanarra.space/api")!
 
     // MARK: - Auth
     struct LoginBody: Encodable { let email: String; let password: String }
     struct LoginResponse: Decodable { let token: String }
 
     func login(email: String, password: String) async throws -> String {
-        guard let url = URL(string: "https://task-manager-sigma-ashen.vercel.app/api/auth/login")
+        guard let url = URL(string: "https://api.taskmanager.tejanarra.space/api/auth/login")
         else { throw APIError.invalidURL }
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
@@ -65,7 +65,7 @@ final class APIClient {
 
     func fetchTasks() async throws -> [TaskItem] {
         guard let token = CredentialStore.shared.load() else { throw APIError.unauthorized }
-        guard let url = URL(string: "https://task-manager-sigma-ashen.vercel.app/api/tasks")
+        guard let url = URL(string: "https://api.taskmanager.tejanarra.space/api/tasks")
         else { throw APIError.invalidURL }
 
         var req = URLRequest(url: url)
@@ -100,7 +100,7 @@ final class APIClient {
 
     func fetchProfile() async throws -> UserProfile {
         guard let token = CredentialStore.shared.load() else { throw APIError.unauthorized }
-        guard let url = URL(string: "https://task-manager-sigma-ashen.vercel.app/api/profile")
+        guard let url = URL(string: "https://api.taskmanager.tejanarra.space/api/profile")
         else { throw APIError.invalidURL }
 
         var req = URLRequest(url: url)
