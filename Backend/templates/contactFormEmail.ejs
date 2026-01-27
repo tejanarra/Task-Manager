@@ -3,422 +3,272 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>New Message from <%= name %></title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <title>Contact Form Submission - <%= name %></title>
     <style>
-      /* Reset */
       * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
       }
 
-      /* Body Styling - Matches Portfolio Background */
       body {
-        font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        background: #f1f5f9;
-        color: #0f172a;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+        background-color: #f5f5f5;
+        color: #333333;
         line-height: 1.6;
         padding: 40px 20px;
         -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
       }
 
       .email-wrapper {
-        width: 100%;
-        max-width: 700px;
+        max-width: 680px;
         margin: 0 auto;
-      }
-
-      .email-container {
         background-color: #ffffff;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 
-          0 4px 6px rgba(0, 0, 0, 0.05),
-          0 10px 15px rgba(0, 0, 0, 0.1),
-          0 0 0 1px rgba(15, 23, 42, 0.05);
+        border: 1px solid #dddddd;
       }
 
-      /* Header Section - Portfolio Style */
+      /* Header */
       .header {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        padding: 48px 40px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+        background-color: #1a1a1a;
+        padding: 32px 40px;
+        border-bottom: 3px solid #0066cc;
       }
 
-      /* Animated Gradient Orbs - Like Portfolio */
-      .header::before {
-        content: '';
-        position: absolute;
-        top: -40%;
-        right: -15%;
-        width: 350px;
-        height: 350px;
-        background: radial-gradient(circle, rgba(234, 88, 12, 0.12) 0%, rgba(234, 88, 12, 0.05) 40%, transparent 70%);
-        border-radius: 50%;
-        filter: blur(40px);
-        animation: float 20s ease-in-out infinite;
-      }
-
-      .header::after {
-        content: '';
-        position: absolute;
-        bottom: -30%;
-        left: -10%;
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, rgba(234, 88, 12, 0.08) 0%, rgba(234, 88, 12, 0.04) 50%, transparent 70%);
-        border-radius: 50%;
-        filter: blur(40px);
-        animation: float 25s ease-in-out infinite reverse;
-      }
-
-      @keyframes float {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        33% { transform: translate(30px, -30px) rotate(3deg); }
-        66% { transform: translate(-20px, 20px) rotate(-3deg); }
-      }
-
-      .header-content {
-        position: relative;
-        z-index: 1;
-      }
-
-      .header-icon {
-        width: 64px;
-        height: 64px;
-        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
-        border-radius: 16px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 20px;
-        box-shadow: 
-          0 4px 12px rgba(234, 88, 12, 0.3),
-          0 0 0 1px rgba(255, 255, 255, 0.1);
-        font-size: 32px;
-      }
-
-      .header h1 {
-        font-size: 32px;
-        font-weight: 700;
+      .header-title {
+        font-size: 18px;
+        font-weight: 600;
         color: #ffffff;
-        margin-bottom: 10px;
-        letter-spacing: -0.03em;
-        line-height: 1.2;
+        margin-bottom: 4px;
+        letter-spacing: -0.3px;
       }
 
       .header-subtitle {
-        font-size: 16px;
-        color: #94a3b8;
-        font-weight: 500;
-        margin-bottom: 16px;
-      }
-
-      .timestamp {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        color: #cbd5e1;
-        padding: 8px 16px;
-        border-radius: 20px;
         font-size: 13px;
-        font-weight: 500;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        font-family: 'JetBrains Mono', monospace;
+        color: #aaaaaa;
+        font-weight: 400;
       }
 
-      /* Content Section */
+      /* Metadata Bar */
+      .metadata {
+        background-color: #fafafa;
+        padding: 16px 40px;
+        border-bottom: 1px solid #e5e5e5;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .metadata-item {
+        font-size: 12px;
+        color: #666666;
+      }
+
+      .metadata-label {
+        font-weight: 600;
+        color: #333333;
+        margin-right: 6px;
+      }
+
+      /* Content */
       .content {
-        padding: 48px 40px;
-        background-color: #ffffff;
+        padding: 40px;
+      }
+
+      .section {
+        margin-bottom: 32px;
+      }
+
+      .section:last-child {
+        margin-bottom: 0;
       }
 
       .section-title {
-        font-size: 14px;
+        font-size: 11px;
         font-weight: 700;
-        color: #64748b;
+        color: #666666;
         text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 20px;
+        letter-spacing: 1px;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 2px solid #0066cc;
       }
 
-      /* Contact Info Cards - Portfolio Style */
-      .contact-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 40px;
+      /* Info Table */
+      .info-table {
+        width: 100%;
+        border-collapse: collapse;
       }
 
-      .contact-card {
-        padding: 20px;
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-        border-radius: 12px;
-        border: 1.5px solid #e2e8f0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        position: relative;
-        overflow: hidden;
+      .info-table tr {
+        border-bottom: 1px solid #e5e5e5;
       }
 
-      .contact-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #ea580c, #fb923c);
-        transform: scaleX(0);
-        transform-origin: left;
-        transition: transform 0.3s ease;
+      .info-table tr:last-child {
+        border-bottom: none;
       }
 
-      .contact-card:hover {
-        transform: translateY(-2px);
-        border-color: rgba(234, 88, 12, 0.3);
-        box-shadow: 0 8px 16px rgba(234, 88, 12, 0.1);
+      .info-table td {
+        padding: 16px 0;
+        vertical-align: top;
       }
 
-      .contact-card:hover::before {
-        transform: scaleX(1);
-      }
-
-      .card-label {
-        font-size: 12px;
+      .info-label {
+        width: 140px;
+        font-size: 13px;
         font-weight: 600;
-        color: #94a3b8;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 8px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
+        color: #666666;
       }
 
-      .card-value {
-        font-size: 15px;
-        color: #1e293b;
-        font-weight: 500;
-        word-break: break-word;
-        line-height: 1.5;
-      }
-
-      .card-value.email {
-        color: #ea580c;
-        font-family: 'JetBrains Mono', monospace;
+      .info-value {
         font-size: 14px;
+        color: #1a1a1a;
+        word-break: break-word;
       }
 
-      /* Message Box - Enhanced Design */
+      .info-value.email-address {
+        color: #0066cc;
+        text-decoration: none;
+      }
+
+      .info-value.email-address:hover {
+        text-decoration: underline;
+      }
+
+      /* Message Content */
       .message-container {
-        margin-top: 32px;
+        background-color: #fafafa;
+        border: 1px solid #e5e5e5;
+        border-left: 4px solid #0066cc;
+        padding: 24px;
+        border-radius: 2px;
       }
 
-      .message-box {
-        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-        padding: 32px;
-        border-radius: 16px;
-        border-left: 4px solid #ea580c;
-        box-shadow: 
-          0 2px 8px rgba(0, 0, 0, 0.04),
-          inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        position: relative;
-      }
-
-      .message-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 16px;
-        padding-bottom: 16px;
-        border-bottom: 1px solid #e2e8f0;
-      }
-
-      .message-icon {
-        font-size: 20px;
-      }
-
-      .message-title {
-        font-size: 16px;
-        font-weight: 700;
-        color: #334155;
-        letter-spacing: -0.01em;
-      }
-
-      .message-content {
-        font-size: 15px;
-        color: #475569;
+      .message-text {
+        font-size: 14px;
+        color: #333333;
         line-height: 1.8;
         white-space: pre-wrap;
         word-wrap: break-word;
       }
 
-      /* Decorative Divider */
-      .divider {
-        height: 1px;
-        background: linear-gradient(to right, transparent, #e2e8f0 20%, #e2e8f0 80%, transparent);
-        margin: 40px 0;
-        position: relative;
-      }
-
-      .divider::after {
-        content: '✦';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #ffffff;
-        padding: 0 12px;
-        color: #cbd5e1;
-        font-size: 12px;
-      }
-
-      /* Reply Section - CTA */
-      .reply-section {
-        background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
-        padding: 40px;
+      /* Action Button */
+      .action-section {
+        margin-top: 40px;
+        padding-top: 32px;
+        border-top: 1px solid #e5e5e5;
         text-align: center;
-        position: relative;
-        overflow: hidden;
       }
 
-      .reply-section::before {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: 
-          radial-gradient(circle at 20% 80%, rgba(234, 88, 12, 0.08) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(234, 88, 12, 0.06) 0%, transparent 50%);
-      }
-
-      .reply-content {
-        position: relative;
-        z-index: 1;
-      }
-
-      .reply-section p {
-        color: #cbd5e1;
-        font-size: 15px;
-        margin-bottom: 20px;
-        font-weight: 500;
-      }
-
-      .btn {
+      .action-button {
         display: inline-block;
-        background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+        background-color: #0066cc;
         color: #ffffff;
-        padding: 16px 40px;
+        padding: 14px 40px;
         text-decoration: none;
         font-weight: 600;
-        font-size: 15px;
-        border-radius: 10px;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 
-          0 4px 12px rgba(234, 88, 12, 0.3),
-          0 0 0 0 rgba(234, 88, 12, 0.4);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        font-size: 14px;
+        border-radius: 3px;
+        transition: background-color 0.2s ease;
+        letter-spacing: 0.3px;
       }
 
-      .btn:hover {
-        background: linear-gradient(135deg, #c2410c 0%, #9a3412 100%);
-        box-shadow: 
-          0 6px 20px rgba(234, 88, 12, 0.4),
-          0 0 0 4px rgba(234, 88, 12, 0.1);
-        transform: translateY(-2px);
+      .action-button:hover {
+        background-color: #0052a3;
+      }
+
+      .action-note {
+        margin-top: 16px;
+        font-size: 12px;
+        color: #666666;
       }
 
       /* Footer */
       .footer {
+        background-color: #fafafa;
         padding: 32px 40px;
+        border-top: 1px solid #e5e5e5;
         text-align: center;
-        background: linear-gradient(to bottom, #fafafa, #f5f5f5);
-        border-top: 1px solid #e2e8f0;
       }
 
-      .footer-logo {
-        font-size: 18px;
-        font-weight: 700;
-        color: #1e293b;
-        margin-bottom: 12px;
-        letter-spacing: -0.02em;
-      }
-
-      .footer-text {
-        font-size: 13px;
-        color: #64748b;
-        line-height: 1.6;
+      .footer-brand {
+        font-size: 15px;
+        font-weight: 600;
+        color: #1a1a1a;
         margin-bottom: 8px;
       }
 
+      .footer-role {
+        font-size: 12px;
+        color: #666666;
+        margin-bottom: 16px;
+      }
+
       .footer-link {
-        color: #ea580c;
+        color: #0066cc;
         text-decoration: none;
-        font-weight: 600;
-        transition: color 0.2s ease;
+        font-size: 13px;
+        font-weight: 500;
       }
 
       .footer-link:hover {
-        color: #c2410c;
         text-decoration: underline;
       }
 
-      /* Icons (Unicode) */
-      .icon {
-        display: inline-block;
+      .footer-divider {
+        height: 1px;
+        background-color: #e5e5e5;
+        margin: 20px 0;
+      }
+
+      .footer-legal {
+        font-size: 11px;
+        color: #999999;
+        line-height: 1.6;
       }
 
       /* Responsive Design */
-      @media (max-width: 600px) {
+      @media (max-width: 640px) {
         body {
-          padding: 20px 10px;
+          padding: 0;
         }
 
-        .email-container {
-          border-radius: 12px;
-        }
-
-        .header {
-          padding: 36px 24px;
-        }
-
-        .header h1 {
-          font-size: 24px;
-        }
-
-        .header-icon {
-          width: 56px;
-          height: 56px;
-          font-size: 28px;
-        }
-
+        .header,
         .content {
-          padding: 32px 24px;
+          padding: 24px 20px;
         }
 
-        .contact-grid {
-          grid-template-columns: 1fr;
+        .metadata {
+          padding: 12px 20px;
+          flex-direction: column;
+          align-items: flex-start;
         }
 
-        .message-box {
-          padding: 24px;
-        }
-
-        .reply-section {
-          padding: 32px 24px;
-        }
-
-        .btn {
-          padding: 14px 32px;
+        .info-table td {
+          display: block;
           width: 100%;
-          font-size: 14px;
+          padding: 8px 0;
+        }
+
+        .info-label {
+          width: 100%;
+          margin-bottom: 4px;
+        }
+
+        .info-table tr {
+          border-bottom: 1px solid #e5e5e5;
+          padding: 12px 0;
+          display: block;
+        }
+
+        .message-container {
+          padding: 16px;
+        }
+
+        .action-button {
+          display: block;
+          width: 100%;
         }
 
         .footer {
@@ -429,16 +279,15 @@
       /* Print Styles */
       @media print {
         body {
-          background: white;
+          background-color: #ffffff;
           padding: 0;
         }
 
-        .email-container {
-          box-shadow: none;
-          border: 1px solid #e2e8f0;
+        .email-wrapper {
+          border: none;
         }
 
-        .btn {
+        .action-section {
           display: none;
         }
       }
@@ -446,96 +295,102 @@
   </head>
   <body>
     <div class="email-wrapper">
-      <div class="email-container">
-        <!-- Header -->
-        <div class="header">
-          <div class="header-content">
-            <div class="header-icon">📧</div>
-            <h1>New Portfolio Message</h1>
-            <p class="header-subtitle">Someone reached out through your contact form</p>
-            <span class="timestamp" id="timestamp"><!-- Will be filled by JavaScript if needed --></span>
-          </div>
+      <!-- Header -->
+      <div class="header">
+        <div class="header-title">Portfolio Contact Form Submission</div>
+        <div class="header-subtitle">New inquiry received via tejanarra.space</div>
+      </div>
+
+      <!-- Metadata Bar -->
+      <div class="metadata">
+        <div class="metadata-item">
+          <span class="metadata-label">Date:</span>
+          <span id="submission-date"></span>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Time:</span>
+          <span id="submission-time"></span>
+        </div>
+        <div class="metadata-item">
+          <span class="metadata-label">Source:</span>
+          <span>Contact Form</span>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="content">
+        <!-- Contact Information -->
+        <div class="section">
+          <div class="section-title">Contact Information</div>
+          <table class="info-table">
+            <tr>
+              <td class="info-label">Full Name</td>
+              <td class="info-value"><%= name %></td>
+            </tr>
+            <tr>
+              <td class="info-label">Email Address</td>
+              <td class="info-value">
+                <a href="mailto:<%= email %>" class="email-address"><%= email %></a>
+              </td>
+            </tr>
+            <tr>
+              <td class="info-label">Subject</td>
+              <td class="info-value"><%= subject %></td>
+            </tr>
+          </table>
         </div>
 
-        <!-- Content Section -->
-        <div class="content">
-          <h3 class="section-title">Contact Information</h3>
-          
-          <div class="contact-grid">
-            <div class="contact-card">
-              <div class="card-label">
-                <span class="icon">👤</span>
-                Sender Name
-              </div>
-              <div class="card-value"><%= name %></div>
-            </div>
-            
-            <div class="contact-card">
-              <div class="card-label">
-                <span class="icon">📧</span>
-                Email Address
-              </div>
-              <div class="card-value email"><%= email %></div>
-            </div>
-            
-            <div class="contact-card" style="grid-column: 1 / -1;">
-              <div class="card-label">
-                <span class="icon">📌</span>
-                Subject Line
-              </div>
-              <div class="card-value"><%= subject %></div>
-            </div>
-          </div>
-
-          <div class="divider"></div>
-
+        <!-- Message Content -->
+        <div class="section">
+          <div class="section-title">Message</div>
           <div class="message-container">
-            <h3 class="section-title">Message Content</h3>
-            <div class="message-box">
-              <div class="message-header">
-                <span class="message-icon">💬</span>
-                <span class="message-title">Full Message</span>
-              </div>
-              <div class="message-content"><%= message %></div>
-            </div>
+            <div class="message-text"><%= message %></div>
           </div>
         </div>
 
-        <!-- Reply Section -->
-        <div class="reply-section">
-          <div class="reply-content">
-            <p>Ready to respond? Click below to reply directly to <%= name %></p>
-            <a href="mailto:<%= email %>?subject=Re: <%= encodeURIComponent(subject) %>" class="btn">
-              Reply to Message
-            </a>
-          </div>
+        <!-- Action Button -->
+        <div class="action-section">
+          <a href="mailto:<%= email %>?subject=Re: <%= encodeURIComponent(subject) %>" class="action-button">
+            Reply to Inquiry
+          </a>
+          <div class="action-note">This will open your default email client</div>
         </div>
+      </div>
 
-        <!-- Footer -->
-        <div class="footer">
-          <div class="footer-logo">Sri Sai Teja Narra</div>
-          <p class="footer-text">
-            This message was sent from your portfolio contact form<br>
-            <a href="https://tejanarra.space" class="footer-link">tejanarra.space</a>
-          </p>
-          <p class="footer-text" style="margin-top: 12px; font-size: 12px;">
-            Full Stack Developer | React • Angular • Spring Boot • Node.js
-          </p>
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-brand">Sri Sai Teja Narra</div>
+        <div class="footer-role">Full Stack Developer</div>
+        <a href="https://tejanarra.space" class="footer-link">tejanarra.space</a>
+        
+        <div class="footer-divider"></div>
+        
+        <div class="footer-legal">
+          This is an automated notification from your portfolio contact form.<br>
+          Please do not reply directly to this email.
         </div>
       </div>
     </div>
 
     <script>
-      // Optional: Add timestamp
-      const timestampEl = document.getElementById('timestamp');
-      if (timestampEl) {
-        const now = new Date();
-        timestampEl.textContent = now.toLocaleString('en-US', {
-          month: 'short',
+      // Set current date and time
+      const now = new Date();
+      
+      const dateEl = document.getElementById('submission-date');
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('en-US', {
+          month: 'long',
           day: 'numeric',
-          year: 'numeric',
+          year: 'numeric'
+        });
+      }
+
+      const timeEl = document.getElementById('submission-time');
+      if (timeEl) {
+        timeEl.textContent = now.toLocaleTimeString('en-US', {
           hour: '2-digit',
-          minute: '2-digit'
+          minute: '2-digit',
+          timeZoneName: 'short'
         });
       }
     </script>
