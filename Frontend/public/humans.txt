@@ -1,6 +1,6 @@
 /* TEAM */
 Developer: Teja Narra
-Site: https://tejanarra.github.io
+Site: https://tejanarra.space
 Location: USA
 
 /* THANKS */
