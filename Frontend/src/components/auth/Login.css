@@ -187,3 +187,36 @@
 .dark .login-form .google-signin-btn img {
   filter: invert(1) brightness(var(--icon-brightness, 1));
 }
+
+/* Reposition Google One Tap overlay to bottom-right */
+#credential_picker_container {
+  position: fixed !important;
+  top: auto !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+}
+
+/* Adjust for mobile */
+@media (max-width: 576px) {
+  #credential_picker_container {
+    bottom: 10px !important;
+    right: 10px !important;
+  }
+}
+
+/* Optional: Add animation when it appears */
+#credential_picker_container iframe {
+  animation: slideInFromBottom 0.3s ease-out;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}

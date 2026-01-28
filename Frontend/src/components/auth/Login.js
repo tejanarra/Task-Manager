@@ -58,25 +58,22 @@ const Login = ({ theme }) => {
     scope: "openid email profile",
   });
 
-useGoogleOneTapLogin({
-  onSuccess: async (response) => {
-    startLoading();
-    try {
-      const { data } = await loginWithGoogle(response.credential);
-      login(data.token, data.userInfo);
-      navigate("/tasks");
-    } catch (err) {
-      handleError(err, "Google One Tap login failed");
-    } finally {
-      stopLoading();
-    }
-  },
-  onError: () => {
-    console.error("Google One Tap login error");
-    handleError({ message: "Google One Tap login failed" });
-  },
-  auto_select: true, // ← Changed from autoSelect to auto_select
-});
+  useGoogleOneTapLogin({
+    onSuccess: async (response) => {
+      startLoading();
+      try {
+        const { data } = await loginWithGoogle(response.credential);
+        login(data.token, data.userInfo);
+        navigate("/tasks");
+      } catch (err) {
+        handleError(err, "Google One Tap login failed");
+      } finally {
+        stopLoading();
+      }
+    },
+    onError: () => console.error("Google One Tap login error"),
+    auto_select: false,
+  });
 
   const handleForgotPassword = () => {
     navigate("/forgot-password");
