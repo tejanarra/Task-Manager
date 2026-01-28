@@ -9,7 +9,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <Router>
     <GoogleOAuthProvider
-      clientId="620148635388-2v1mc0ih3rl0rbqfo2i3af0dulr8ngnh.apps.googleusercontent.com"
+      clientId="620148635388-rv5ni5tvr2j02dgq8gbef3no1phv5753.apps.googleusercontent.com"
       scope="openid profile email"
     >
       <App />

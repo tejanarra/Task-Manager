@@ -22,6 +22,7 @@ import { ERROR_MESSAGES, HTTP_STATUS } from '../constants/config.js';
 const client = new OAuth2Client(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
 );
 
 /**
@@ -38,10 +39,10 @@ export const googleLogin = async (req, res) => {
   }
 
   try {
-    const { tokens } = await client.getToken({code});
-
-
-    console.log('Google tokens:', tokens);
+    const { tokens } = await client.getToken({
+      code,
+      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+    });
 
     const ticket = await client.verifyIdToken({
       idToken: tokens.id_token,
