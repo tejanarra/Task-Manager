@@ -58,12 +58,11 @@ const Login = ({ theme }) => {
     scope: "openid email profile",
   });
 
-  useGoogleOneTapLogin({
+useGoogleOneTapLogin({
   onSuccess: async (response) => {
     startLoading();
     try {
-      // Use a different endpoint or flag for One Tap JWT tokens
-      const { data } = await loginWithGoogle(response.credential, { isOneTap: true });
+      const { data } = await loginWithGoogle(response.credential);
       login(data.token, data.userInfo);
       navigate("/tasks");
     } catch (err) {
@@ -76,9 +75,7 @@ const Login = ({ theme }) => {
     console.error("Google One Tap login error");
     handleError({ message: "Google One Tap login failed" });
   },
-  autoSelect: true,
-  // Add this to prevent conflicts
-  cancel_on_tap_outside: false,
+  auto_select: true, // ← Changed from autoSelect to auto_select
 });
 
   const handleForgotPassword = () => {
