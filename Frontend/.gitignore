@@ -60,7 +60,3 @@ storybook-static/
 # Ignore yarn.lock or package-lock.json if not using it
 # yarn.lock
 # package-lock.json
-
-# GitHub Pages
-public/static/
-*.html
