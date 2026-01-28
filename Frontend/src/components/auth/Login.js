@@ -73,6 +73,7 @@ const Login = ({ theme }) => {
     },
     onError: () => console.error("Google One Tap login error"),
     auto_select: false,
+    use_fedcm_for_prompt: true
   });
 
   const handleForgotPassword = () => {
