@@ -10,7 +10,6 @@ root.render(
   <Router>
     <GoogleOAuthProvider
       clientId="620148635388-rv5ni5tvr2j02dgq8gbef3no1phv5753.apps.googleusercontent.com"
-      scope="openid profile email"
     >
       <App />
     </GoogleOAuthProvider>

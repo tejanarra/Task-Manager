@@ -2,7 +2,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { loginUser, loginWithGoogle } from "../../services/api";
 import "./Login.css";
-import { useGoogleLogin, googleLogout } from "@react-oauth/google";
+import { useGoogleLogin, googleLogout, useGoogleOneTapLogin } from "@react-oauth/google";
 import googlelogo from "../../assets/google_logo.png";
 import { FormInput, AlertBanner, LoadingButton } from "../common";
 import { useFormState, useApiError, useLoading } from "../../hooks";
@@ -58,6 +58,29 @@ const Login = ({ theme }) => {
     scope: "openid email profile",
   });
 
+  useGoogleOneTapLogin({
+  onSuccess: async (response) => {
+    startLoading();
+    try {
+      // Use a different endpoint or flag for One Tap JWT tokens
+      const { data } = await loginWithGoogle(response.credential, { isOneTap: true });
+      login(data.token, data.userInfo);
+      navigate("/tasks");
+    } catch (err) {
+      handleError(err, "Google One Tap login failed");
+    } finally {
+      stopLoading();
+    }
+  },
+  onError: () => {
+    console.error("Google One Tap login error");
+    handleError({ message: "Google One Tap login failed" });
+  },
+  autoSelect: true,
+  // Add this to prevent conflicts
+  cancel_on_tap_outside: false,
+});
+
   const handleForgotPassword = () => {
     navigate("/forgot-password");
   };
@@ -111,7 +134,6 @@ const Login = ({ theme }) => {
             onClick={handleGoogleLoginFlow}
             disabled={isLoading}
             type="button"
-            useOneTap
           >
             <img
               src={googlelogo}
