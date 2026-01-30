@@ -29,35 +29,47 @@ const client = new OAuth2Client(
  * Google OAuth Login
  */
 export const googleLogin = async (req, res) => {
-  const { code } = req.body;
-
-  if (!code) {
-    return res.status(HTTP_STATUS.BAD_REQUEST).json({
-      code: 'AUTH009',
-      message: 'Authorization code is required.',
-    });
-  }
+  const { code, credential } = req.body;
 
   try {
-    const { tokens } = await client.getToken({
-      code,
-      redirect_uri: process.env.GOOGLE_REDIRECT_URI,
-    });
+    let payload;
 
-    const ticket = await client.verifyIdToken({
-      idToken: tokens.id_token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
+    // 🔹 One Tap login (ID token)
+    if (credential) {
+      const ticket = await client.verifyIdToken({
+        idToken: credential,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
 
-    const payload = ticket.getPayload();
+      payload = ticket.getPayload();
+    }
+
+    // 🔹 Auth-code flow (Google button)
+    else if (code) {
+      const { tokens } = await client.getToken({
+        code,
+        redirect_uri: process.env.GOOGLE_REDIRECT_URI,
+      });
+
+      const ticket = await client.verifyIdToken({
+        idToken: tokens.id_token,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+
+      payload = ticket.getPayload();
+    }
+
+    // 🔹 Neither provided
+    else {
+      return res.status(HTTP_STATUS.BAD_REQUEST).json({
+        code: 'AUTH009',
+        message: 'Google authorization data is required.',
+      });
+    }
+
     const { email, given_name, family_name, picture, email_verified } = payload;
 
     let user = await User.findOne({ where: { email } });
-
-    if (user && !user.avatar) {
-      user.avatar = picture;
-      await user.save();
-    }
 
     if (!user) {
       user = await User.create({
@@ -68,6 +80,9 @@ export const googleLogin = async (req, res) => {
         avatar: picture,
         isVerified: email_verified,
       });
+    } else if (!user.avatar) {
+      user.avatar = picture;
+      await user.save();
     }
 
     const jwtToken = generateToken(user.id);
@@ -84,10 +99,11 @@ export const googleLogin = async (req, res) => {
       },
     });
   } catch (err) {
-    console.error('Google login error:', err.message);
+    console.error('Google login error:', err);
     return res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json(errors.SERVER.ERROR);
   }
 };
+
 
 /**
  * Register new user

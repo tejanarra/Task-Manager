@@ -70,8 +70,8 @@ export const loginUser = (email, password) => {
   return api.post("/auth/login", { email, password });
 };
 
-export const loginWithGoogle = async (authorizationCode) => {
-  return api.post(`/auth/google`, { code: authorizationCode });
+export const loginWithGoogle = async ({ code, credential }) => {
+  return api.post(`/auth/google`, { code, credential});
 };
 
 export const registerUser = (firstName, lastName, email, password) => {

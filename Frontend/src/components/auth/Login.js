@@ -41,7 +41,7 @@ const Login = ({ theme }) => {
     onSuccess: async (response) => {
       startLoading();
       try {
-        const { data } = await loginWithGoogle(response.code);
+        const { data } = await loginWithGoogle({ code: response.code });
         login(data.token, data.userInfo);
         navigate("/tasks");
       } catch (err) {
@@ -62,7 +62,7 @@ const Login = ({ theme }) => {
     onSuccess: async (response) => {
       startLoading();
       try {
-        const { data } = await loginWithGoogle(response.credential);
+        const { data } = await loginWithGoogle({ credential: response.credential });
         login(data.token, data.userInfo);
         navigate("/tasks");
       } catch (err) {
