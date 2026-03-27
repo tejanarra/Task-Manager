@@ -56,8 +56,7 @@ export const executeCron = async () => {
       // Send each ready reminder
       for (const reminder of readyReminders) {
         try {
-          await sendDeadlineReminder(task, reminder);
-          stats.remindersSent++;
+          
 
           // Mark reminder as sent in the task's reminder array
           const index = task.reminders.findIndex(r =>
@@ -68,7 +67,10 @@ export const executeCron = async () => {
           if (index !== -1) {
             task.reminders[index] = markReminderAsSent(task.reminders[index]);
             isUpdated = true;
+            await sendDeadlineReminder(task, reminder);
+            stats.remindersSent++;
           }
+          
         } catch (error) {
           console.error(`❌ Failed to send reminder for task ${task.id}:`, error);
           stats.errors++;
