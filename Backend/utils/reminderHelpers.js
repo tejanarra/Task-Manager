@@ -278,14 +278,14 @@ export const getReadyReminders = (reminders, deadline) => {
 
   for (const reminder of reminders) {
     if (!reminder || typeof reminder !== "object") continue;
-    if (reminder.sent) continue; // Skip already sent
+    if (reminder.sent) continue;
 
     const { type, remindAt, intervalHours, lastSentAt } = reminder;
 
     // One-time reminders
     if (type === REMINDER_TYPE.ONE_TIME && remindAt) {
       const remindAtDT = DateTime.fromISO(remindAt, { zone: "utc" });
-      if (remindAtDT.isValid && now >= remindAtDT) {
+      if (remindAtDT.isValid && now >= remindAtDT && !reminder.sent && !reminder.lastSentAt) {
         ready.push(reminder);
       }
     }
